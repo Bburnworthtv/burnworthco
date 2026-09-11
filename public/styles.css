@@ -30,3 +30,6 @@ h1,h2,h3,.stats strong,.thesis>p,.about .lead,.prose blockquote{letter-spacing:-
 .hero h1,.report h1,h2,.service-list h3,.steps h3,.about .lead,.prose h2,.prose h3,.prose blockquote{font-weight:500}
 .service-list h3 a{text-decoration:none}.service-list h3 a:hover{text-decoration:underline;text-underline-offset:6px}
 .hero h1 em,.report h1 em,h2 em{font-style:normal;font-weight:500}
+
+/* Search foundation: keyboard focus and long-page navigation. */
+a:focus-visible{outline:3px solid var(--red);outline-offset:5px}section[id]{scroll-margin-top:140px}.report-meta a{color:inherit}footer div{flex-wrap:wrap}a{overflow-wrap:anywhere}

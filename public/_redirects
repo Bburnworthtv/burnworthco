@@ -1,0 +1,3 @@
+# Cloudflare Pages already redirects .html URLs to clean paths.
+# Redirect duplicate www host to the canonical apex host.
+https://www.burnworthco.com/* https://burnworthco.com/:splat 301
