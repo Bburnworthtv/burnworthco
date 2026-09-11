@@ -24,6 +24,35 @@ For an authenticated Wrangler installation, the release command is `wrangler pag
 
 Retain the existing Worker configuration and its bindings. Point its asset directory at `public/` and verify the existing HTML routing and not-found handling. Do not replace the Worker with this static directory without checking its current responsibilities. Server-side behavior cannot be recovered from a public page.
 
+## Vercel preview (temporary)
+
+`burnworthco-preview.vercel.app` is a scratch preview host. It is not the
+production site; `burnworthco.com` remains on Cloudflare and is unaffected by
+anything in this section.
+
+Connect the existing Vercel project to this repository rather than uploading
+files by hand:
+
+1. Project > Settings > Git: connect `Bburnworthtv/burnworthco`.
+2. Project > Settings > Build and Deployment: Framework Preset `Other`,
+   Build Command empty (override on, left blank), Install Command empty,
+   Output Directory `public`. Root Directory stays at the repository root so
+   `vercel.json` is read.
+3. Project > Settings > Git > Production Branch: set to the branch whose work
+   should appear at the bare `burnworthco-preview.vercel.app` hostname. That
+   hostname is the project's production alias; other branches deploy to their
+   own generated URLs instead.
+
+`_headers` and `_redirects` are Cloudflare Pages files and are ignored by
+Vercel. `vercel.json` at the repository root covers the equivalent behaviour:
+extensionless URLs matching the sitemap and canonical tags, and the two
+security headers. Cloudflare ignores `vercel.json`, so the two hosts do not
+interfere.
+
+`vercel.json` also sends `X-Robots-Tag: noindex, nofollow` on every response so
+the preview cannot compete with `burnworthco.com` in search. **Remove that
+header before serving production traffic from Vercel.**
+
 ## After production release
 
 - Fetch all sitemap URLs and confirm HTTP 200, self-canonicals and correct titles.
