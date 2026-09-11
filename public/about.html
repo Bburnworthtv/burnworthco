@@ -36,10 +36,11 @@
       imagesizes="(max-width:900px) 100vw, 46vw">
 <script type="application/ld+json">
 {"@context": "https://schema.org", "@graph": [
-  {"@type": "Organization", "@id": "https://burnworthco.com/#organization", "name": "Burnworth Co.", "alternateName": "Burnworth Co", "url": "https://burnworthco.com/", "email": "hello@burnworth.co", "telephone": "+1-208-881-2382", "logo": {"@type": "ImageObject", "url": "https://burnworthco.com/favicon-512.png", "width": 512, "height": 512}, "founder": {"@id": "https://burnworthco.com/#brandon"}},
+  {"@type": "Organization", "@id": "https://burnworthco.com/#organization", "name": "Burnworth Co.", "alternateName": "Burnworth Co", "url": "https://burnworthco.com/", "email": "hello@burnworth.co", "telephone": "+1-208-881-2382", "logo": {"@type": "ImageObject", "url": "https://burnworthco.com/favicon-512.png", "width": 512, "height": 512}, "founder": [{"@id": "https://burnworthco.com/#brandon"}, {"@id": "https://burnworthco.com/#zenande"}]},
   {"@type": "Person", "@id": "https://burnworthco.com/#brandon", "name": "Brandon Burnworth", "givenName": "Brandon", "familyName": "Burnworth", "url": "https://burnworthco.com/about", "jobTitle": "Web Developer and Search Visibility Strategist", "image": {"@type": "ImageObject", "url": "https://burnworthco.com/assets/brandon-burnworth-academy-awards.jpg", "width": 1428, "height": 2142, "caption": "Brandon Burnworth at the Academy Awards"}, "description": "Founder of Burnworth Co. Brandon Burnworth spent more than a decade in broadcast engineering, robotic camera systems and IP video on live television productions, and now builds websites, technical SEO and AI search visibility for service businesses.", "worksFor": {"@id": "https://burnworthco.com/#organization"}, "knowsAbout": ["Web development", "Technical SEO", "Local SEO", "Generative engine optimization", "AI search visibility", "Structured data", "Web analytics", "Broadcast engineering", "Robotic camera systems", "IP video and remote production"]},
+  {"@type": "Person", "@id": "https://burnworthco.com/#zenande", "name": "Zenande Burnworth", "givenName": "Zenande", "familyName": "Burnworth", "url": "https://burnworthco.com/about", "jobTitle": "Co-founder and Operations Manager", "image": {"@type": "ImageObject", "url": "https://burnworthco.com/assets/zenande-burnworth-portrait-570.jpg", "width": 570, "height": 855, "caption": "Zenande Burnworth, co-founder and operations manager at Burnworth Co."}, "description": "Co-founder and operations manager at Burnworth Co. Zenande Burnworth runs delivery and client communication, and leads how the studio reads audience behaviour in social and AI-assisted search.", "worksFor": {"@id": "https://burnworthco.com/#organization"}, "knowsAbout": ["Operations management", "Client communication", "Social media strategy", "Audience research", "AI search visibility"]},
   {"@type": "WebSite", "@id": "https://burnworthco.com/#website", "url": "https://burnworthco.com/", "name": "Burnworth Co.", "publisher": {"@id": "https://burnworthco.com/#organization"}, "inLanguage": "en-US"},
-  {"@type": "ProfilePage", "@id": "https://burnworthco.com/about#webpage", "url": "https://burnworthco.com/about", "name": "About Brandon Burnworth | Burnworth Co.", "description": "Brandon Burnworth is the founder of Burnworth Co. After 12+ years in broadcast engineering and robotic camera systems on live television, he builds websites, technical SEO and AI search visibility for service businesses.", "isPartOf": {"@id": "https://burnworthco.com/#website"}, "about": {"@id": "https://burnworthco.com/#brandon"}, "mainEntity": {"@id": "https://burnworthco.com/#brandon"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "https://burnworthco.com/assets/brandon-burnworth-academy-awards.jpg", "width": 1428, "height": 2142, "caption": "Brandon Burnworth at the Academy Awards"}, "inLanguage": "en-US", "dateModified": "2026-09-11", "breadcrumb": {"@id": "https://burnworthco.com/about#breadcrumb"}},
+  {"@type": "ProfilePage", "@id": "https://burnworthco.com/about#webpage", "url": "https://burnworthco.com/about", "name": "About Brandon Burnworth | Burnworth Co.", "description": "Brandon Burnworth is the founder of Burnworth Co. After 12+ years in broadcast engineering and robotic camera systems on live television, he builds websites, technical SEO and AI search visibility for service businesses.", "isPartOf": {"@id": "https://burnworthco.com/#website"}, "about": {"@id": "https://burnworthco.com/#brandon"}, "mainEntity": {"@id": "https://burnworthco.com/#brandon"}, "mentions": {"@id": "https://burnworthco.com/#zenande"}, "primaryImageOfPage": {"@type": "ImageObject", "url": "https://burnworthco.com/assets/brandon-burnworth-academy-awards.jpg", "width": 1428, "height": 2142, "caption": "Brandon Burnworth at the Academy Awards"}, "inLanguage": "en-US", "dateModified": "2026-09-11", "breadcrumb": {"@id": "https://burnworthco.com/about#breadcrumb"}},
   {"@type": "BreadcrumbList", "@id": "https://burnworthco.com/about#breadcrumb", "itemListElement": [
     {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://burnworthco.com/"},
     {"@type": "ListItem", "position": 2, "name": "About Brandon Burnworth", "item": "https://burnworthco.com/about"}
@@ -63,7 +64,7 @@
       <h1>I spent a decade building systems that <em>couldn't afford to fail.</em></h1>
       <p class="founder-deck">Live television taught me to treat a broadcast as one connected system. I bring that same discipline to websites, technical SEO, and the way a business is understood by Google and AI.</p>
       <div class="founder-actions">
-        <a class="button primary" href="https://calendly.com/bburnworthtv/30min">Work with me <span>↗</span></a>
+        <a class="button primary" href="https://calendly.com/bburnworthtv/30min">Work with us <span>↗</span></a>
         <a class="text-link" href="#story">Read my story ↓</a>
       </div>
     </div>
@@ -161,16 +162,46 @@
     </div>
   </section>
 
+  <section class="founders-band band">
+    <div class="section-head">
+      <div><p class="eyebrow">Who you work with</p></div>
+      <div>
+        <h2>Small team.<br><em>No handoffs.</em></h2>
+        <p>You work with the people who actually do the work, not with an account layer sitting in front of them. That is deliberate, and it is the whole point.</p>
+      </div>
+    </div>
+    <div class="founders-grid">
+      <article>
+        <picture>
+          <source type="image/webp" srcset="/assets/brandon-burnworth-portrait-480.webp 480w, /assets/brandon-burnworth-portrait-720.webp 720w" sizes="(max-width:900px) 100vw, 380px">
+          <img class="founder-headshot" src="/assets/brandon-burnworth-portrait-480.jpg" srcset="/assets/brandon-burnworth-portrait-480.jpg 480w, /assets/brandon-burnworth-portrait-720.jpg 720w" sizes="(max-width:900px) 100vw, 380px" width="720" height="1080" alt="Brandon Burnworth, founder of Burnworth Co." loading="lazy" decoding="async">
+        </picture>
+        <p class="founder-role">Founder &middot; Strategy and build</p>
+        <h3>Brandon Burnworth</h3>
+        <p>I handle the work an agency would split across four people: architecture, development, technical SEO, structured data and measurement. Twelve years in broadcast taught me to diagnose a system before I change it.</p>
+      </article>
+      <article>
+        <picture>
+          <source type="image/webp" srcset="/assets/zenande-burnworth-portrait-380.webp 380w, /assets/zenande-burnworth-portrait-570.webp 570w" sizes="(max-width:900px) 100vw, 380px">
+          <img class="founder-headshot" src="/assets/zenande-burnworth-portrait-380.jpg" srcset="/assets/zenande-burnworth-portrait-380.jpg 380w, /assets/zenande-burnworth-portrait-570.jpg 570w" sizes="(max-width:900px) 100vw, 380px" width="570" height="855" alt="Zenande Burnworth, co-founder and operations manager at Burnworth Co." loading="lazy" decoding="async">
+        </picture>
+        <p class="founder-role">Co-founder &middot; Operations</p>
+        <h3>Zenande Burnworth</h3>
+        <p>Zenande runs delivery &mdash; scheduling, client communication, and making sure what we agreed on is what ships. She also reads the audience side of the work: how people under thirty find and judge a business now, which happens in social feeds and AI answers long before anyone opens a results page. That shapes what we build, not only how we describe it.</p>
+      </article>
+    </div>
+  </section>
+
   <section class="founder-philosophy band">
     <div>
       <p class="eyebrow">Why Burnworth Co.</p>
-      <h2>No agency relay.<br><em>The person who makes the plan does the work.</em></h2>
+      <h2>No agency relay.<br><em>The people who make the plan do the work.</em></h2>
     </div>
     <div>
-      <p class="lead">I built Burnworth Co. around direct accountability.</p>
-      <p>You do not explain your business to an account manager who passes notes to a strategist who files a ticket for a developer you never meet. I learn the business, build the site, do the search work, and read the numbers afterward.</p>
-      <p>That is faster, but speed is not the real advantage. The advantage is that the website, the technical SEO, the content, the structured data, the analytics and the AI visibility are all decided by one person who can see how they affect each other — so they point at the same business goal instead of quietly working against one another.</p>
-      <p>It also means I take a small number of clients at a time. If that is the kind of working relationship you want, <a href="/services">here is what I do</a>.</p>
+      <p class="lead">We built Burnworth Co. around direct accountability.</p>
+      <p>You do not explain your business to an account manager who passes notes to a strategist who files a ticket for a developer you never meet. You explain it to the two people who will do the work, once.</p>
+      <p>That is faster, but speed is not the real advantage. The advantage is that the website, the technical SEO, the content, the structured data, the analytics and the AI visibility are all decided by two people who talk every day and can see how each one moves the others — so they point at the same business goal instead of quietly working against one another.</p>
+      <p>It also means we take a small number of clients at a time. If that is the kind of working relationship you want, <a href="/services">here is what we do</a>.</p>
     </div>
   </section>
 
