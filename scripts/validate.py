@@ -51,8 +51,11 @@ urls=[n.text for n in ET.parse(root/'sitemap.xml').findall('.//{*}loc')]
 assert set(urls)=={base+p for p in pages if p!='/404'}
 assert len(urls)==len(set(urls))
 assert 'Sitemap: '+base+'/sitemap.xml' in (root/'robots.txt').read_text()
+MAGIC={'.png':(b'\x89PNG',),'.jpg':(b'\xff\xd8',),'.webp':(b'RIFF',)}
 for f in (root/'assets').glob('*'):
  b=f.read_bytes()
- assert b.startswith(b'\x89PNG') if f.suffix=='.png' else b.startswith(b'\xff\xd8'),f
+ assert f.suffix in MAGIC,(f,'unexpected asset type')
+ assert any(b.startswith(m) for m in MAGIC[f.suffix]),f
+ assert f.suffix!='.webp' or b[8:12]==b'WEBP',f
 print(f'PASS: {len(pages)} HTML documents; {len(urls)} canonical sitemap URLs; local links, fragments, assets, metadata and JSON-LD valid.')
 print('Static checks only. Live status codes, redirects, Cloudflare rules, browser layout and analytics need post-deployment verification.')
