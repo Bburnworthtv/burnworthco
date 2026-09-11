@@ -33,3 +33,277 @@ h1,h2,h3,.stats strong,.thesis>p,.about .lead,.prose blockquote{letter-spacing:-
 
 /* Search foundation: keyboard focus and long-page navigation. */
 a:focus-visible{outline:3px solid var(--red);outline-offset:5px}section[id]{scroll-margin-top:140px}.report-meta a{color:inherit}footer div{flex-wrap:wrap}a{overflow-wrap:anywhere}
+
+/* ============================================================
+   About / founder page (/about)
+   Editorial founder profile. Section rhythm:
+   ink hero -> red proof strip -> cream story -> ink method ->
+   light credentials -> neutral philosophy -> ink closing.
+   Portrait crop is tuned with --portrait-x / --portrait-y.
+   ============================================================ */
+
+.founder-hero{
+  --portrait-x:50%;
+  --portrait-y:28%;
+  background:var(--ink);
+  color:var(--white);
+  display:grid;
+  grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);
+  align-items:stretch;
+  min-height:min(88svh,820px);
+  border-bottom:1px solid rgba(255,255,255,.16);
+}
+.founder-hero .eyebrow{color:#ff6651}
+.founder-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:clamp(64px,6.4vw,104px) clamp(22px,4vw,68px) clamp(64px,6.4vw,104px) clamp(22px,5.4vw,88px);
+}
+.founder-copy h1{
+  font-size:clamp(46px,5.2vw,84px);
+  line-height:.95;
+  letter-spacing:-.048em;
+  font-weight:500;
+  max-width:13ch;
+  margin:26px 0 30px;
+}
+.founder-copy h1 em{color:var(--red);font-style:normal;font-weight:500}
+.founder-deck{
+  font-size:clamp(17px,1.4vw,21px);
+  line-height:1.55;
+  color:#c8c4bb;
+  max-width:48ch;
+  margin:0;
+}
+.founder-actions{
+  display:flex;
+  align-items:center;
+  gap:26px;
+  flex-wrap:wrap;
+  margin-top:clamp(34px,4vw,48px);
+  padding-top:clamp(26px,3vw,34px);
+  border-top:1px solid rgba(255,255,255,.2);
+}
+
+/* Portrait: full-bleed to the page edge, never boxed in a card. */
+.founder-portrait{
+  position:relative;
+  margin:0;
+  min-width:0;
+  overflow:hidden;
+  background-color:#171513;
+}
+.founder-photo[hidden]{display:none}
+.founder-photo{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:var(--portrait-x) var(--portrait-y);
+}
+.founder-portrait figcaption{
+  position:absolute;
+  left:0;
+  bottom:0;
+  z-index:2;
+  background:var(--ink);
+  border-top:2px solid var(--red);
+  padding:15px clamp(20px,2.2vw,28px) 16px;
+  font-size:10px;
+  font-weight:600;
+  line-height:1.9;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--white);
+}
+.founder-portrait figcaption span{
+  display:block;
+  font-weight:500;
+  letter-spacing:.15em;
+  color:#a8a49c;
+}
+
+.founder-proof{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:10px 28px;
+  padding:17px clamp(22px,4vw,64px);
+  background:var(--red);
+  color:#fff;
+  text-transform:uppercase;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.13em;
+}
+
+.founder-story{background:var(--paper)}
+.founder-story,.founder-philosophy{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.45fr);
+  gap:clamp(40px,7vw,110px);
+  align-items:start;
+}
+.founder-story>div:first-child{position:sticky;top:110px}
+.founder-story h2,.founder-philosophy h2{font-size:clamp(38px,4.4vw,62px)}
+.founder-story-copy>p,.founder-philosophy p{
+  font-size:17px;
+  line-height:1.75;
+  color:#55524d;
+  max-width:68ch;
+}
+.founder-story-copy .lead,.founder-philosophy .lead{
+  font-size:clamp(24px,2.7vw,34px);
+  line-height:1.2;
+  letter-spacing:-.03em;
+  color:var(--ink);
+  margin-bottom:26px;
+}
+.founder-story-copy a,.founder-philosophy a,.credential-list a{
+  color:inherit;
+  text-decoration:underline;
+  text-underline-offset:4px;
+  text-decoration-thickness:1px;
+  text-decoration-color:rgba(17,16,15,.3);
+}
+.founder-story-copy a:hover,.founder-philosophy a:hover,.credential-list a:hover{text-decoration-color:var(--red)}
+
+.career-band .section-head{margin-bottom:clamp(48px,6vw,80px)}
+.career-band .section-head p:not(.eyebrow){color:#aaa69e;max-width:56ch;margin:26px 0 0}
+.career-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  border-top:1px solid rgba(255,255,255,.2);
+}
+.career-grid article{
+  padding:38px 34px 40px 0;
+  border-right:1px solid rgba(255,255,255,.2);
+}
+.career-grid article+article{padding-left:34px}
+.career-grid article:last-child{border-right:0;padding-right:0}
+.career-grid span{
+  color:var(--red);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.14em;
+}
+.career-grid h3{
+  font-size:clamp(24px,2.2vw,32px);
+  font-weight:500;
+  letter-spacing:-.03em;
+  line-height:1.06;
+  margin:20px 0 12px;
+}
+.career-grid p{color:#aaa69e;font-size:16px;line-height:1.7;margin:0}
+
+.founder-credentials{background:var(--white)}
+.founder-credentials h2{font-size:clamp(38px,4.4vw,62px);margin-top:26px}
+.credential-list{border-top:1px solid var(--line);margin-top:clamp(34px,4vw,54px)}
+.credential-list article{
+  display:grid;
+  grid-template-columns:minmax(0,230px) minmax(0,1fr);
+  gap:clamp(18px,4vw,56px);
+  padding:30px 0;
+  border-bottom:1px solid var(--line);
+  align-items:baseline;
+}
+.credential-list strong{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.credential-list p{margin:0;color:#55524d;font-size:17px;line-height:1.7;max-width:68ch}
+
+.founder-philosophy{background:#dedbd2}
+.founder-philosophy p{color:#4e4b46}
+/* The paragraph rules above outrank .eyebrow, so restate the eyebrow scale. */
+.founder-philosophy .eyebrow{font-size:11px;font-weight:600;color:var(--red)}
+.founder-philosophy p+p{margin-top:20px}
+
+@media(max-width:1120px){
+  .founder-hero{grid-template-columns:minmax(0,1fr) minmax(0,.78fr)}
+  .founder-copy h1{max-width:none}
+}
+@media(max-width:900px){
+  .founder-hero{grid-template-columns:minmax(0,1fr);min-height:0;--portrait-y:24%}
+  .founder-copy{
+    padding:clamp(54px,9vw,76px) clamp(22px,6vw,96px) clamp(44px,7vw,62px);
+  }
+  .founder-copy h1{font-size:clamp(40px,10.5vw,64px);margin:22px 0 26px;text-wrap:balance}
+  .founder-deck{max-width:none}
+  .founder-portrait{aspect-ratio:4/5}
+  .founder-story,.founder-philosophy{grid-template-columns:minmax(0,1fr);gap:30px}
+  .founder-story>div:first-child{position:static}
+  .career-grid{grid-template-columns:minmax(0,1fr)}
+  .career-grid article,.career-grid article+article{
+    padding:28px 0;
+    border-right:0;
+    border-bottom:1px solid rgba(255,255,255,.2);
+  }
+  .career-grid article:last-child{border-bottom:0;padding-bottom:0}
+  .credential-list article{grid-template-columns:minmax(0,1fr);gap:10px}
+}
+@media(max-width:800px){
+  .founder-proof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:0}
+  .founder-proof span{
+    min-height:46px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:9px 12px;
+    text-align:center;
+    border-right:1px solid rgba(255,255,255,.24);
+    border-bottom:1px solid rgba(255,255,255,.24);
+  }
+  .founder-proof span:nth-child(even){border-right:0}
+  .founder-proof span:last-child{grid-column:1/-1;border-right:0;border-bottom:0}
+}
+@media(max-width:480px){
+  .founder-copy{padding-left:18px;padding-right:18px}
+  .founder-copy h1{font-size:clamp(36px,11vw,54px)}
+  .founder-actions{flex-direction:column;align-items:stretch;gap:18px;width:100%}
+  .founder-actions .text-link{align-self:flex-start}
+  .founder-portrait{aspect-ratio:3/4}
+  .founder-portrait figcaption{padding:13px 18px 14px;letter-spacing:.16em}
+}
+
+/* Portrait slot, pre-photo state: a quiet credit roll rather than an empty frame.
+   Removed when the Academy Awards portrait is added to /assets. */
+.founder-credits{
+  list-style:none;
+  margin:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:clamp(64px,7vw,104px) clamp(24px,3.4vw,54px) clamp(112px,12vw,150px);
+  border-left:1px solid rgba(255,255,255,.14);
+}
+.founder-credits li{
+  font-size:clamp(11px,.95vw,13px);
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#a8a49c;
+  padding:clamp(11px,1.4vw,16px) 0;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.founder-credits li:first-child{color:var(--white)}
+.founder-credits li:last-child{border-bottom:0}
+@media(max-width:900px){
+  .founder-credits{
+    padding-bottom:clamp(96px,20vw,130px);
+    border-left:0;
+    border-top:1px solid rgba(255,255,255,.14);
+  }
+}
+
+/* The wordmark must never break mid-word. At narrow widths the two-column
+   footer squeezes it to "BURNWORT / H", so stack the footer there. */
+.wordmark{white-space:nowrap}
+@media(max-width:520px){
+  footer{grid-template-columns:minmax(0,1fr);gap:20px}
+}
