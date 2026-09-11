@@ -275,3 +275,55 @@ a:focus-visible{outline:3px solid var(--red);outline-offset:5px}section[id]{scro
 @media(max-width:520px){
   footer{grid-template-columns:minmax(0,1fr);gap:20px}
 }
+
+/* Two-up founders band. Portraits are sized to sit under the hero in the
+   page hierarchy, not to compete with it. */
+.founders-band{background:var(--ink);color:var(--white)}
+.founders-band .section-head{margin-bottom:clamp(44px,5vw,72px)}
+.founders-band .section-head p:not(.eyebrow){color:#aaa69e;max-width:52ch;margin:26px 0 0}
+.founders-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(30px,4.5vw,70px);
+  border-top:1px solid rgba(255,255,255,.2);
+}
+.founders-grid article{padding-top:clamp(28px,3vw,42px);min-width:0}
+.founders-grid picture{display:block}
+.founder-headshot{
+  width:100%;
+  height:auto;
+  max-width:380px;
+  aspect-ratio:2/3;
+  object-fit:cover;
+  object-position:50% 20%;
+  margin-bottom:clamp(22px,2.4vw,32px);
+}
+.founders-grid .founder-role{
+  margin:0;
+  color:var(--red);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.founders-grid h3{
+  font-size:clamp(26px,2.4vw,34px);
+  font-weight:500;
+  letter-spacing:-.03em;
+  line-height:1.05;
+  margin:13px 0 15px;
+}
+.founders-grid p:not(.founder-role){
+  margin:0;
+  color:#aaa69e;
+  font-size:16px;
+  line-height:1.75;
+  max-width:46ch;
+}
+@media(max-width:900px){
+  .founders-grid{grid-template-columns:minmax(0,1fr);gap:0}
+  .founders-grid article{padding-top:34px;padding-bottom:38px}
+  .founders-grid article+article{border-top:1px solid rgba(255,255,255,.2)}
+  .founders-grid article:last-child{padding-bottom:0}
+  .founder-headshot{max-width:none;aspect-ratio:4/5;object-position:50% 18%}
+}
