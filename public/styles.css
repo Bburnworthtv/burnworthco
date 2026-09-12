@@ -332,3 +332,43 @@ a:focus-visible{outline:3px solid var(--red);outline-offset:5px}section[id]{scro
   .founders-grid article:last-child{padding-bottom:0}
   .founder-headshot{max-width:none;aspect-ratio:4/5;object-position:50% 18%}
 }
+
+/* ---------------------------------------------------------------
+   Directional marks.
+   These were text glyphs (U+2197, U+2192, U+2193). U+2197 in
+   particular carries an emoji presentation on iOS and Android, so a
+   call-to-action could render a coloured emoji arrow on a phone and a
+   thin typographic one on a desktop. Drawn instead as masked SVG:
+   identical on every platform, inherits currentColor, and scales with
+   the type rather than with whatever the fallback font decided.
+   Semantic arrows inside prose stay as text - they carry meaning.
+   --------------------------------------------------------------- */
+.icon-ne,.icon-right,.icon-down{
+  display:inline-block;
+  width:.95em;
+  height:.95em;
+  vertical-align:-.08em;
+  flex-shrink:0;
+  background-color:currentColor;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain;
+}
+.icon-ne{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.6 11.4 11.4 4.6'/%3E%3Cpath d='M5.9 4.6h5.5v5.5'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.6 11.4 11.4 4.6'/%3E%3Cpath d='M5.9 4.6h5.5v5.5'/%3E%3C/svg%3E")}
+.icon-right{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 8h9.2'/%3E%3Cpath d='M8.6 4.2 12.4 8l-3.8 3.8'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.4 8h9.2'/%3E%3Cpath d='M8.6 4.2 12.4 8l-3.8 3.8'/%3E%3C/svg%3E")}
+.icon-down{-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3.4v9.2'/%3E%3Cpath d='M4.2 7.4 8 11.2l3.8-3.8'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3.4v9.2'/%3E%3Cpath d='M4.2 7.4 8 11.2l3.8-3.8'/%3E%3C/svg%3E")}
+.text-link .icon-ne,.text-link .icon-right,.text-link .icon-down,
+.header-cta .icon-ne{margin-left:.4em}
+.source-list .icon-ne{color:var(--muted)}
+
+/* Typographic refinements. Nothing structural - these are the details
+   that separate a considered page from a competent one. */
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+h1,h2,h3{text-wrap:balance}
+.stats strong,.report-meta{font-variant-numeric:tabular-nums}
+::selection{background:var(--red);color:#fff}
+
+/* The scrolled header used a blur behind a near-opaque fill: the cost
+   of glassmorphism with none of the effect, on a surface already 96%
+   opaque. Removed. */
+.site-header.scrolled{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(17,16,15,.98)}
