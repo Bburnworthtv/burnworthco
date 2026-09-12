@@ -45,6 +45,18 @@ for route,p in pages.items():
  for asset in p.assets:
   if urlsplit(asset).scheme:continue
   assert (root/asset.lstrip('/')).is_file(),(route,'missing asset',asset)
+# _headers: every HTML route needs its own Cache-Control rule, because
+# Cloudflare Pages merges all matching rules rather than picking the most
+# specific, so a catch-all Cache-Control cannot be used alongside the asset
+# rules. Without this check a new page silently inherits no cache policy.
+headers_text=(root/'_headers').read_text()
+rules={l.strip() for l in headers_text.splitlines() if l.startswith('/') and not l.startswith('//')}
+for route in pages:
+ if route=='/404':continue
+ assert route in rules,(route,'missing a _headers rule')
+assert '/404' in rules,('/404','missing a _headers rule')
+cc_blocks=[b for b in headers_text.split('\n/') if 'Cache-Control' in b]
+assert not any(b.startswith('*') for b in cc_blocks),'Cache-Control on /* collides with the per-path rules'
 for icon in json.loads((root/'site.webmanifest').read_text())['icons']:
  assert (root/icon['src'].lstrip('/')).is_file()
 urls=[n.text for n in ET.parse(root/'sitemap.xml').findall('.//{*}loc')]

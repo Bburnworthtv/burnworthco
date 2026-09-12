@@ -1,4 +1,85 @@
+# Cloudflare Pages merges the headers of EVERY rule whose pattern matches a
+# request - it does not pick the most specific one. A Cache-Control here on
+# /* would therefore be sent alongside the asset rules below, and the response
+# would carry two conflicting values. So /* carries security headers only,
+# and Cache-Control is set on non-overlapping patterns underneath.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+
+# Fonts. The filename identifies one build of one typeface, so it can never
+# change under the same name. Safe to cache for a year and skip revalidation.
+/assets/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+# Images. Deliberately NOT immutable and NOT a year: these filenames are not
+# content-hashed, and portraits here have already been replaced in place once.
+# Thirty days is long enough to matter and short enough that a swapped photo
+# reaches returning visitors without anyone clearing a cache.
+/assets/*.jpg
+  Cache-Control: public, max-age=2592000
+/assets/*.webp
+  Cache-Control: public, max-age=2592000
+/assets/*.png
+  Cache-Control: public, max-age=2592000
+/assets/*.txt
+  Cache-Control: public, max-age=2592000
+
+# Stylesheet and script change on any deploy and are not hashed, so they must
+# revalidate. A 304 costs one round trip; serving stale CSS costs the layout.
+/styles.css
+  Cache-Control: public, max-age=0, must-revalidate
+/script.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Icons, enumerated rather than globbed: a root /*.png pattern would also match
+# /assets/*.png and re-create the double-header problem described above.
+/favicon.ico
+  Cache-Control: public, max-age=604800
+/favicon.svg
+  Cache-Control: public, max-age=604800
+/favicon-192.png
+  Cache-Control: public, max-age=604800
+/favicon-512.png
+  Cache-Control: public, max-age=604800
+/apple-touch-icon.png
+  Cache-Control: public, max-age=604800
+/site.webmanifest
+  Cache-Control: public, max-age=604800
+
+# Crawler-facing files. Short, so a sitemap or llms.txt change is picked up
+# the same day rather than a week later.
+/robots.txt
+  Cache-Control: public, max-age=3600
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+/llms.txt
+  Cache-Control: public, max-age=3600
+
+# HTML always revalidates, so published edits appear immediately. Routes are
+# listed individually because there is no pattern for "every page but not the
+# assets"; scripts/validate.py fails the build if a page is missing here.
+/
+  Cache-Control: public, max-age=0, must-revalidate
+/about
+  Cache-Control: public, max-age=0, must-revalidate
+/services
+  Cache-Control: public, max-age=0, must-revalidate
+/web-development
+  Cache-Control: public, max-age=0, must-revalidate
+/local-seo
+  Cache-Control: public, max-age=0, must-revalidate
+/search-visibility-audit
+  Cache-Control: public, max-age=0, must-revalidate
+/generative-engine-optimization
+  Cache-Control: public, max-age=0, must-revalidate
+/research
+  Cache-Control: public, max-age=0, must-revalidate
+/work
+  Cache-Control: public, max-age=0, must-revalidate
+/work-top-tier-custom-floors
+  Cache-Control: public, max-age=0, must-revalidate
+/work-los-angeles-production-company
+  Cache-Control: public, max-age=0, must-revalidate
+/404
   Cache-Control: public, max-age=0, must-revalidate
