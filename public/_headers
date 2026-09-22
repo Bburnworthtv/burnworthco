@@ -24,6 +24,8 @@
   Cache-Control: public, max-age=2592000
 /assets/*.txt
   Cache-Control: public, max-age=2592000
+/assets/*.svg
+  Cache-Control: public, max-age=2592000
 
 # Stylesheet and script change on any deploy and are not hashed, so they must
 # revalidate. A 304 costs one round trip; serving stale CSS costs the layout.
