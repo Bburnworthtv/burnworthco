@@ -63,7 +63,7 @@ urls=[n.text for n in ET.parse(root/'sitemap.xml').findall('.//{*}loc')]
 assert set(urls)=={base+p for p in pages if p!='/404'}
 assert len(urls)==len(set(urls))
 assert 'Sitemap: '+base+'/sitemap.xml' in (root/'robots.txt').read_text()
-MAGIC={'.png':(b'\x89PNG',),'.jpg':(b'\xff\xd8',),'.webp':(b'RIFF',),'.woff2':(b'wOF2',),'.txt':None}
+MAGIC={'.png':(b'\x89PNG',),'.jpg':(b'\xff\xd8',),'.webp':(b'RIFF',),'.woff2':(b'wOF2',),'.txt':None,'.svg':(b'<svg',b'<?xml')}
 for f in (root/'assets').glob('*'):
  b=f.read_bytes()
  assert f.suffix in MAGIC,(f,'unexpected asset type')
