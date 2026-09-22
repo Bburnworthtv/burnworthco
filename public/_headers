@@ -27,6 +27,12 @@
 /assets/*.svg
   Cache-Control: public, max-age=2592000
 
+# Handed out to third parties, so it must stay a stable 200 at this exact
+# path. Not a redirect: some directory validators and image scrapers do not
+# follow one.
+/images/*.png
+  Cache-Control: public, max-age=2592000
+
 # Stylesheet and script change on any deploy and are not hashed, so they must
 # revalidate. A 304 costs one round trip; serving stale CSS costs the layout.
 /styles.css

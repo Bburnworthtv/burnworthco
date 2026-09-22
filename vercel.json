@@ -50,6 +50,15 @@
       ]
     },
     {
+      "source": "/images/:file*.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000"
+        }
+      ]
+    },
+    {
       "source": "/(styles.css|script.js)",
       "headers": [
         {
