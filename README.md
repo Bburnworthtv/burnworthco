@@ -12,6 +12,7 @@ The repository is not a Cloudflare deployment. The existing live site has not be
 - `docs/seo-audit-2026-09-11.md`: observed baseline, implemented improvements, limitations and the next 90 days.
 - `docs/deployment.md`: Cloudflare release and rollback steps.
 - `scripts/validate.py`: dependency-free static release checks.
+- `docs/brand-mark.md`: how the B mark is constructed from the Archivo outlines, and which file to use where.
 
 ## Validate
 

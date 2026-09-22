@@ -68,7 +68,7 @@
       ]
     },
     {
-      "source": "/(favicon.ico|favicon.svg|favicon-192.png|favicon-512.png|apple-touch-icon.png|site.webmanifest)",
+      "source": "/(favicon.ico|favicon.svg|favicon-192.png|favicon-512.png|favicon-maskable-512.png|apple-touch-icon.png|site.webmanifest)",
       "headers": [
         {
           "key": "Cache-Control",
