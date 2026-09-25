@@ -60,7 +60,7 @@ header before serving production traffic from Vercel.**
 - Inspect Google Search Console indexing and the generative AI inclusion setting; submit the sitemap and request inspection of priority pages. These account-level actions have not been performed.
 - Check Bing Webmaster Tools crawl/index coverage and available AI Performance reporting.
 - Test any existing analytics before adding a new tag. None was visible in recovered HTML, but Cloudflare may inject tracking separately. Avoid creating duplicate tracking.
-- Verify that `hello@burnworth.co`, the published telephone number and the Calendly account are current. They were preserved from the live site; inbox delivery and booking completion were not tested.
+- Verify that `Brandon@burnworthco.com`, the published telephone number and the Calendly account are current. They were preserved from the live site; inbox delivery and booking completion were not tested.
 - Record the release date as the start of a comparison period. Deployment is not evidence of indexing or ranking improvement.
 
 ## Rollback
