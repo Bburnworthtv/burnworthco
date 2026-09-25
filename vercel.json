@@ -95,7 +95,7 @@
       ]
     },
     {
-      "source": "/(about|services|web-development|local-seo|search-visibility-audit|generative-engine-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|404)",
+      "source": "/(about|services|web-development|local-seo|search-visibility-audit|generative-engine-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
       "headers": [
         {
           "key": "Cache-Control",
