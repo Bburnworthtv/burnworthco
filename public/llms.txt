@@ -14,6 +14,7 @@
 ## Research and writing
 
 - [State of Search 2026](https://burnworthco.com/research): A sourced briefing on AI search adoption, zero-click behavior, citations, measurement, and the 2027 visibility strategy.
+- [AI Visibility Should End in a Phone Call](https://burnworthco.com/ai-visibility-business-results): A field note connecting search and AI visibility to calls, estimates and client-reported business demand.
 
 ## Work
 
@@ -27,6 +28,6 @@
 
 ## Contact
 
-- Email: hello@burnworth.co
+- Email: Brandon@burnworthco.com
 - Telephone: +1-208-881-2382
 - Booking: https://calendly.com/bburnworthtv/30min
