@@ -85,6 +85,12 @@
   Cache-Control: public, max-age=0, must-revalidate
 /research
   Cache-Control: public, max-age=0, must-revalidate
+/research/methodology
+  Cache-Control: public, max-age=0, must-revalidate
+/research/state-of-search-2026
+  Cache-Control: public, max-age=0, must-revalidate
+/ai-visibility-business-results
+  Cache-Control: public, max-age=0, must-revalidate
 /work
   Cache-Control: public, max-age=0, must-revalidate
 /work-top-tier-custom-floors

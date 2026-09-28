@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "public",
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
@@ -96,6 +97,15 @@
     },
     {
       "source": "/(about|services|web-development|local-seo|search-visibility-audit|generative-engine-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/research/:path*",
       "headers": [
         {
           "key": "Cache-Control",

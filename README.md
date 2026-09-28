@@ -4,7 +4,7 @@ Recovered static source for [burnworthco.com](https://burnworthco.com), with SEO
 
 ## Deployment status
 
-The repository is not a Cloudflare deployment. The existing live site has not been changed by this work. Cloudflare project access and a verified release are still required.
+The site is static HTML in `public/`. A Vercel project named `burnworthco` is connected to `Bburnworthtv/burnworthco`; its `main` commit `6cce520` deployed successfully on September 28, 2026. `vercel.json` explicitly serves `public/`. Live `burnworthco.com` responses come from Vercel and matched the repository's `main` HTML when checked. The project API's domain list returned only `vercel.app` aliases, so confirm custom-domain ownership in the dashboard before promoting this branch. No deployment is performed by local validation.
 
 ## Files
 
@@ -13,6 +13,7 @@ The repository is not a Cloudflare deployment. The existing live site has not be
 - `docs/deployment.md`: Cloudflare release and rollback steps.
 - `scripts/validate.py`: dependency-free static release checks.
 - `docs/brand-mark.md`: how the B mark is constructed from the Archivo outlines, and which file to use where.
+- `docs/research/`: study template, evidence and publishing process, and an unpublished Top Tier draft.
 
 ## Validate
 

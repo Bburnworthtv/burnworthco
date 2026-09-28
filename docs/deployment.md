@@ -1,4 +1,6 @@
-# Cloudflare release
+# Historical Cloudflare release notes
+
+These are the September 11 recovery instructions. As of September 28, `burnworthco.com` responds through Vercel and the connected `burnworthco` project has a successful production deployment from `main`. The Vercel project API did not list `burnworthco.com` among that project's domains, so verify the custom-domain ownership in the Vercel dashboard before any promotion. Current source deployment configuration is in `vercel.json` and `README.md`.
 
 Prepared September 11, 2026. **Not deployed.**
 

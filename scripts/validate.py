@@ -19,15 +19,17 @@ class Page(HTMLParser):
    self.assets.extend(x.strip().split()[0] for x in a['srcset'].split(','))
   if tag=='link' and a.get('rel') in ['stylesheet','icon','apple-touch-icon','manifest']:self.assets.append(a['href'])
 pages={};titles=set();descriptions=set();base='https://burnworthco.com'
-for f in root.glob('*.html'):
- text=f.read_text();p=Page();p.feed(text);route='/' if f.stem=='index' else '/'+f.stem;pages[route]=p
+for f in root.rglob('*.html'):
+ text=f.read_text();p=Page();p.feed(text)
+ route='/' if f==root/'index.html' else '/'+f.relative_to(root).with_suffix('').as_posix()
+ pages[route]=p
  assert p.h1==1,(f,'expected one h1',p.h1)
  title=re.search(r'<title>(.*?)</title>',text,re.S)[1]
  desc=re.search(r'<meta name="description" content="([^"]+)"',text)[1]
  assert title not in titles,(f,'duplicate title');titles.add(title)
  assert desc not in descriptions,(f,'duplicate description');descriptions.add(desc)
  assert '/cdn-cgi/' not in text,(f,'edge-injected code retained')
- if f.stem!='404':
+ if f!=root/'404.html':
   assert re.findall(r'<link rel="canonical" href="([^"]+)"',text)==[base+route],f
   assert 'noindex' not in text,f
   graphs=re.findall(r'<script type="application/ld\+json">(.*?)</script>',text,re.S)
@@ -55,6 +57,11 @@ for route in pages:
  if route=='/404':continue
  assert route in rules,(route,'missing a _headers rule')
 assert '/404' in rules,('/404','missing a _headers rule')
+vercel=json.loads((root.parent/'vercel.json').read_text())
+cache_rules={h['source'] for h in vercel['headers'] if any(x['key']=='Cache-Control' for x in h['headers'])}
+for route in pages:
+ if route.startswith('/research/'):
+  assert '/research/:path*' in cache_rules,('missing Vercel cache rule for',route)
 cc_blocks=[b for b in headers_text.split('\n/') if 'Cache-Control' in b]
 assert not any(b.startswith('*') for b in cc_blocks),'Cache-Control on /* collides with the per-path rules'
 for icon in json.loads((root/'site.webmanifest').read_text())['icons']:
@@ -70,4 +77,4 @@ for f in list((root/'assets').glob('*'))+list((root/'images').glob('*')):
  assert MAGIC[f.suffix] is None or any(b.startswith(m) for m in MAGIC[f.suffix]),f
  assert f.suffix!='.webp' or b[8:12]==b'WEBP',f
 print(f'PASS: {len(pages)} HTML documents; {len(urls)} canonical sitemap URLs; local links, fragments, assets, metadata and JSON-LD valid.')
-print('Static checks only. Live status codes, redirects, Cloudflare rules, browser layout and analytics need post-deployment verification.')
+print('Static checks only. Live status codes, redirects, hosting rules, browser layout and analytics need post-deployment verification.')
