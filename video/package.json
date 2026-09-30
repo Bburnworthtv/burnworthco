@@ -1,0 +1,23 @@
+{
+  "name": "burnworth-seo-hero",
+  "private": true,
+  "version": "1.0.0",
+  "description": "15-second hero video for burnworthco.com, built with Remotion.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts SeoHero out/seo-hero.mp4 --codec=h264 --crf=20",
+    "render:webm": "remotion render src/index.ts SeoHero out/seo-hero.webm --codec=vp9",
+    "poster": "remotion still src/index.ts SeoHero out/seo-hero-poster.jpg --frame=66",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.530",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.530"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}

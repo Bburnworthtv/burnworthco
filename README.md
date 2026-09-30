@@ -14,6 +14,7 @@ The site is static HTML in `public/`. A Vercel project named `burnworthco` is co
 - `scripts/validate.py`: dependency-free static release checks.
 - `docs/brand-mark.md`: how the B mark is constructed from the Archivo outlines, and which file to use where.
 - `docs/research/`: study template, evidence and publishing process, and an unpublished Top Tier draft.
+- `video/`: Remotion source for the 15-second hero video. Not deployed; see `video/README.md`.
 
 ## Validate
 
