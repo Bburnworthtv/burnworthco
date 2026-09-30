@@ -17,7 +17,7 @@ class Page(HTMLParser):
   if tag in ('img','script','source') and a.get('src'):self.assets.append(a['src'])
   if tag=='video':
    self.assets.extend(v for k,v in a.items() if k.startswith('data-src') or k=='poster')
-  if tag=='img' and a.get('srcset'):
+  if tag in ('img','source') and a.get('srcset'):
    self.assets.extend(x.strip().split()[0] for x in a['srcset'].split(','))
   if tag=='link' and a.get('rel') in ['stylesheet','icon','apple-touch-icon','manifest']:self.assets.append(a['href'])
 pages={};titles=set();descriptions=set();base='https://burnworthco.com'

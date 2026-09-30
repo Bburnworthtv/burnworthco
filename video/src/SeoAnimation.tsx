@@ -1334,3 +1334,32 @@ export const SeoBackgroundLoop: React.FC = () => {
 		</AbsoluteFill>
 	);
 };
+
+/* ------------------------------------------------------------------ */
+/* Portrait background loop for phones: same map, pin to the right   */
+/* of the headline, larger icons so they read at phone size. Rendered 1080x1920 */
+/* and shipped downscaled to 540x960.                                  */
+/* ------------------------------------------------------------------ */
+
+export const SeoBackgroundLoopPortrait: React.FC = () => {
+	const frame = useCurrentFrame();
+	const {width, height} = useVideoConfig();
+	const t = (frame / BG_LOOP_FRAMES) * Math.PI * 2;
+	const zoom = 1.05 + 0.04 * Math.sin(t);
+	// Pin drifts gently in the open space right of the headline's last line; the loop closes exactly.
+	const px = width * 0.73 + 20 * Math.sin(t);
+	const py = height * 0.46 + 25 * Math.cos(t);
+	const cam: Pt = [(width / 2 - px) / zoom, (height / 2 - py) / zoom];
+
+	return (
+		<AbsoluteFill style={{background: C.navy}}>
+			<LocalMap width={width} height={height} zoom={zoom} time={frame} uiScale={1.8} cam={cam} loop={BG_LOOP_FRAMES} labels={0} business="" />
+			<AbsoluteFill
+				style={{
+					background: 'linear-gradient(180deg, rgba(14,21,48,0.15) 0%, rgba(14,21,48,0.45) 40%, rgba(14,21,48,0.7) 100%)',
+				}}
+			/>
+			<Grain />
+		</AbsoluteFill>
+	);
+};

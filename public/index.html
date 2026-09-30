@@ -47,8 +47,11 @@
 
   <main id="main">
     <section class="hero" id="top">
-      <img class="hero-image" src="/assets/hero-local-map-poster-1280.jpg" srcset="/assets/hero-local-map-poster-720.jpg 720w, /assets/hero-local-map-poster-1280.jpg 1280w" sizes="100vw" alt="Illustrated local map with customers' phones heading to a business pin" width="1280" height="720" fetchpriority="high">
-      <video class="hero-video" muted loop playsinline preload="none" aria-hidden="true" data-hero-video data-src-webm="/assets/hero-local-map-1280.webm" data-src-mp4="/assets/hero-local-map-1280.mp4"></video>
+      <picture>
+        <source media="(max-width: 799px)" srcset="/assets/hero-local-map-poster-540x960.jpg" width="540" height="960">
+        <img class="hero-image" src="/assets/hero-local-map-poster-1280.jpg" srcset="/assets/hero-local-map-poster-720.jpg 720w, /assets/hero-local-map-poster-1280.jpg 1280w" sizes="100vw" alt="Illustrated local map with customers' phones heading to a business pin" width="1280" height="720" fetchpriority="high">
+      </picture>
+      <video class="hero-video" muted loop playsinline preload="none" aria-hidden="true" data-hero-video data-src-webm="/assets/hero-local-map-1280.webm" data-src-mp4="/assets/hero-local-map-1280.mp4" data-src-mobile-webm="/assets/hero-local-map-540x960.webm" data-src-mobile-mp4="/assets/hero-local-map-540x960.mp4"></video>
       <div class="hero-shade"></div>
       <div class="hero-content">
         <p class="kicker"><span></span> SEO · Local search · AI visibility · Websites</p>

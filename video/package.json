@@ -10,7 +10,8 @@
     "poster": "remotion still src/index.ts SeoHero out/seo-hero-poster.jpg --frame=100",
     "typecheck": "tsc --noEmit",
     "render:bg": "remotion render src/index.ts SeoHeroBackground out/seo-hero-background.mp4 --codec=h264 --crf=26",
-    "poster:bg": "remotion still src/index.ts SeoHeroBackground out/seo-hero-background-poster.jpg --frame=0"
+    "poster:bg": "remotion still src/index.ts SeoHeroBackground out/seo-hero-background-poster.jpg --frame=0",
+    "render:bg-portrait": "remotion render src/index.ts SeoHeroBackgroundPortrait out/seo-hero-background-portrait.mp4 --codec=h264 --crf=18"
   },
   "dependencies": {
     "@remotion/cli": "4.0.530",

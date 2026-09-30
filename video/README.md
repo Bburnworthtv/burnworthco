@@ -5,7 +5,8 @@ Two [Remotion](https://www.remotion.dev/) compositions, 1920x1080 at 30 fps. Thi
 | Composition | Length | Use |
 | ----------- | ------ | --- |
 | `SeoHero` | about 26 s | Explainer or ad. Has its own headlines and end card. |
-| `SeoHeroBackground` | 12 s, seamless loop | Behind the site's HTML hero. No copy; the left side stays calm for the headline and a real, clickable button. |
+| `SeoHeroBackground` | 12 s, seamless loop | Behind the site's HTML hero on screens 800px and wider. No copy; the left side stays calm for the headline and a real, clickable button. |
+| `SeoHeroBackgroundPortrait` | 12 s, seamless loop | The same loop at 1080x1920 for phones, pin beside the headline's last line. Shipped at 540x960. |
 
 ## Commands
 
@@ -14,6 +15,7 @@ npm install
 npm run studio      # preview and edit props live
 npm run render      # out/seo-hero.mp4
 npm run render:bg   # out/seo-hero-background.mp4
+npm run render:bg-portrait   # out/seo-hero-background-portrait.mp4
 npm run poster      # explainer poster frame
 npm run poster:bg   # background poster frame
 npm run typecheck

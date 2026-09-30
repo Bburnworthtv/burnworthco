@@ -396,3 +396,8 @@ h1,h2,h3{text-wrap:balance}
   .contact-alt a{min-height:44px;display:inline-flex;align-items:center}
 }
 @media(prefers-reduced-motion:reduce){.hero-video{display:none}}
+@media(max-width:799px){
+  .hero-video{object-position:center top}
+  .hero .hero-image{object-position:center top}
+  .hero .hero-shade{background:linear-gradient(180deg,rgba(9,9,8,.35) 0%,rgba(9,9,8,.7) 38%,rgba(9,9,8,.88) 100%)}
+}

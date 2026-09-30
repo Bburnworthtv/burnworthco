@@ -7,6 +7,7 @@ import {
 	HEIGHT,
 	SeoAnimation,
 	SeoBackgroundLoop,
+	SeoBackgroundLoopPortrait,
 	WIDTH,
 	defaultSeoProps,
 } from './SeoAnimation';
@@ -32,6 +33,15 @@ export const RemotionRoot: React.FC = () => {
 				fps={FPS}
 				width={WIDTH}
 				height={HEIGHT}
+			/>
+			{/* Portrait version of the loop for phones. */}
+			<Composition
+				id="SeoHeroBackgroundPortrait"
+				component={SeoBackgroundLoopPortrait}
+				durationInFrames={BG_LOOP_FRAMES}
+				fps={FPS}
+				width={1080}
+				height={1920}
 			/>
 		</>
 	);
