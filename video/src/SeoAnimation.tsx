@@ -22,7 +22,7 @@ import {
 export const FPS = 30;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
-export const DURATION_IN_FRAMES = 15 * FPS; // 450
+export const DURATION_IN_FRAMES = 17 * FPS; // 510
 
 // Scenes overlap by XFADE frames so every cut is a cross-dissolve.
 const XFADE = 12;
@@ -31,7 +31,7 @@ const SCENES = {
 	solution: {from: 78, duration: 90},
 	ai: {from: 156, duration: 72},
 	// Heatmap -> phone -> city -> globe -> CTA is one continuous camera move.
-	finale: {from: 216, duration: 234},
+	finale: {from: 216, duration: 294},
 } as const;
 
 // Finale beats, in frames from the start of the finale.
@@ -62,6 +62,26 @@ const C = {
 	amber: '#ff9f43',
 	green: '#3ecf8e',
 	line: 'rgba(251,250,246,0.10)',
+};
+
+// Thermal spectrum for every heat map: cool blue -> cyan -> teal -> yellow -> orange -> red-orange.
+const HEAT = {
+	deep: '#1c2a5e',
+	blue: '#2f6bff',
+	cyan: '#22c7f0',
+	teal: '#2fd9a4',
+	yellow: '#ffd23f',
+	orange: '#ff8a3d',
+	hot: '#ff4d3d',
+};
+
+// Lifted night-blue base instead of near-black, so the piece reads vibrant, not heavy.
+const BG = {
+	base: '#161d33',
+	deep: '#10162a',
+	glowA: 'rgba(47,107,255,0.30)',
+	glowB: 'rgba(255,138,61,0.16)',
+	glowC: 'rgba(34,199,240,0.14)',
 };
 
 const FONT = 'Archivo, "Helvetica Neue", Arial, sans-serif';
@@ -334,10 +354,17 @@ const Backdrop: React.FC = () => {
 	const frame = useCurrentFrame();
 	const drift = frame * 0.35;
 	return (
-		<AbsoluteFill style={{background: C.ink}}>
+		<AbsoluteFill
+			style={{
+				background: `radial-gradient(ellipse 60% 55% at ${22 + 6 * Math.sin(frame / 90)}% ${20 + 5 * Math.cos(frame / 70)}%, ${BG.glowA}, transparent 70%),
+					radial-gradient(ellipse 55% 50% at ${82 - 5 * Math.sin(frame / 80)}% ${84 - 4 * Math.cos(frame / 60)}%, ${BG.glowB}, transparent 70%),
+					radial-gradient(ellipse 45% 40% at 70% 18%, ${BG.glowC}, transparent 70%),
+					linear-gradient(160deg, ${BG.base}, ${BG.deep})`,
+			}}
+		>
 			<AbsoluteFill
 				style={{
-					backgroundImage: `linear-gradient(${C.line} 1px, transparent 1px), linear-gradient(90deg, ${C.line} 1px, transparent 1px)`,
+					backgroundImage: `linear-gradient(rgba(140,170,255,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(140,170,255,0.10) 1px, transparent 1px)`,
 					backgroundSize: '80px 80px',
 					backgroundPosition: `${drift}px ${drift * 0.6}px`,
 					opacity: 0.45,
@@ -360,7 +387,7 @@ const Grain: React.FC = () => {
 				<rect width="100%" height="100%" filter="url(#grain)" />
 			</svg>
 			<AbsoluteFill
-				style={{background: 'radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(0,0,0,0.65) 100%)'}}
+				style={{background: 'radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgba(8,12,26,0.35) 100%)'}}
 			/>
 		</AbsoluteFill>
 	);
@@ -628,7 +655,7 @@ const SolutionScene: React.FC<{
 						style={{
 							height: 92,
 							borderRadius: 999,
-							background: '#151413',
+							background: '#1a2242',
 							display: 'flex',
 							alignItems: 'center',
 							gap: 20,
@@ -932,7 +959,11 @@ const gauss = (x: number, y: number, cx: number, cy: number, s: number) =>
 	Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * s * s));
 
 const heatColor = (v: number) =>
-	interpolateColors(v, [0, 0.3, 0.55, 0.75, 0.9, 1], ['#161412', '#2a1310', '#7a2416', C.red, C.amber, '#fff1d6']);
+	interpolateColors(
+		v,
+		[0, 0.18, 0.36, 0.52, 0.68, 0.84, 1],
+		[HEAT.deep, HEAT.blue, HEAT.cyan, HEAT.teal, HEAT.yellow, HEAT.orange, HEAT.hot],
+	);
 
 const HeatmapZoom: React.FC<{zoomStart: number; zoomEnd: number}> = ({zoomStart, zoomEnd}) => {
 	const frame = useCurrentFrame();
@@ -1115,12 +1146,23 @@ const HeatmapZoom: React.FC<{zoomStart: number; zoomEnd: number}> = ({zoomStart,
 						color: C.paper,
 						whiteSpace: 'nowrap',
 						letterSpacing: '0.12em',
+						background: 'rgba(14,20,42,0.8)',
+						padding: '6px 12px',
+						borderRadius: 6,
 						opacity: interpolate(frame, [34, 38], [0, 1], clamp),
 					}}
 				>
 					HIGH INTENT · LOCKED
 				</div>
 			</div>
+
+			{/* bands behind the HUD so the text reads over bright cells */}
+			<AbsoluteFill
+				style={{
+					background:
+						'linear-gradient(180deg, rgba(14,20,42,0.78) 0%, rgba(14,20,42,0) 26%, rgba(14,20,42,0) 76%, rgba(14,20,42,0.78) 100%)',
+				}}
+			/>
 
 			{/* HUD */}
 			<div style={{position: 'absolute', left: 80, top: 70, opacity: hud}}>
@@ -1243,34 +1285,36 @@ const CityMap: React.FC<{
 	const labelAlpha = labels ?? interpolate(zoom, [0.9, 1.8], [0, 1], clamp);
 
 	return (
-		<svg width={width} height={height} style={{display: 'block', background: '#131110'}}>
+		<svg width={width} height={height} style={{display: 'block', background: '#182038'}}>
 			<defs>
 				<radialGradient id={`cityGlow-${width}`}>
-					<stop offset="0%" stopColor={C.amber} stopOpacity={0.9} />
-					<stop offset="30%" stopColor={C.red} stopOpacity={0.55} />
-					<stop offset="100%" stopColor={C.red} stopOpacity={0} />
+					<stop offset="0%" stopColor={HEAT.orange} stopOpacity={0.9} />
+					<stop offset="22%" stopColor={HEAT.yellow} stopOpacity={0.6} />
+					<stop offset="45%" stopColor={HEAT.teal} stopOpacity={0.35} />
+					<stop offset="70%" stopColor={HEAT.blue} stopOpacity={0.22} />
+					<stop offset="100%" stopColor={HEAT.blue} stopOpacity={0} />
 				</radialGradient>
 			</defs>
 			<g transform={`translate(${cx} ${cy}) scale(${zoom})`}>
-				<rect x={-EXTENT} y={-EXTENT} width={EXTENT * 2} height={EXTENT * 2} fill="#181614" />
+				<rect x={-EXTENT} y={-EXTENT} width={EXTENT * 2} height={EXTENT * 2} fill="#1b2340" />
 				{/* river and parks */}
 				<path
 					d={`M ${-EXTENT} ${-900} C ${-1800} ${-400}, ${-900} ${-1500}, 0 ${-1080} S ${1800} ${-300}, ${EXTENT} ${-1300}`}
-					stroke="#10191c"
+					stroke="#1a3a66"
 					strokeWidth={150}
 					fill="none"
 				/>
-				<rect x={2 * BLOCK} y={1 * BLOCK} width={2 * BLOCK} height={BLOCK} fill="#15201a" />
-				<rect x={-6 * BLOCK} y={3 * BLOCK} width={BLOCK * 3} height={BLOCK * 2} fill="#15201a" />
-				<rect x={-3 * BLOCK} y={-6 * BLOCK} width={BLOCK} height={BLOCK * 2} fill="#15201a" />
+				<rect x={2 * BLOCK} y={1 * BLOCK} width={2 * BLOCK} height={BLOCK} fill="#1b3b3a" />
+				<rect x={-6 * BLOCK} y={3 * BLOCK} width={BLOCK * 3} height={BLOCK * 2} fill="#1b3b3a" />
+				<rect x={-3 * BLOCK} y={-6 * BLOCK} width={BLOCK} height={BLOCK * 2} fill="#1b3b3a" />
 				{BUILDINGS.map((b, i) => (
-					<rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx={3} fill="#211d1a" />
+					<rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx={3} fill="#232d4f" />
 				))}
 				{/* streets */}
 				{lines.map((v) => {
 					const major = Math.round(v / BLOCK) % 5 === 0;
 					const w = major ? 24 : 11;
-					const col = major ? '#3d352e' : '#2b2622';
+					const col = major ? '#4a5a86' : '#34416a';
 					return (
 						<g key={v}>
 							<line x1={v} y1={-EXTENT} x2={v} y2={EXTENT} stroke={col} strokeWidth={w} />
@@ -1278,9 +1322,9 @@ const CityMap: React.FC<{
 						</g>
 					);
 				})}
-				<line x1={-EXTENT} y1={EXTENT * 0.7} x2={EXTENT} y2={-EXTENT * 0.55} stroke="#453b33" strokeWidth={30} />
+				<line x1={-EXTENT} y1={EXTENT * 0.7} x2={EXTENT} y2={-EXTENT * 0.55} stroke="#56679a" strokeWidth={30} />
 				{/* street names */}
-				<g opacity={labelAlpha} fontFamily={MONO} fontSize={11} fill="#8a8279" letterSpacing={2}>
+				<g opacity={labelAlpha} fontFamily={MONO} fontSize={11} fill="#a9b6d8" letterSpacing={2}>
 					<text x={-BLOCK * 2.6} y={4}>MAIN ST</text>
 					<text x={-4} y={BLOCK * 1.3} transform={`rotate(90 -4 ${BLOCK * 1.3})`}>5TH AVE</text>
 				</g>
@@ -1293,8 +1337,8 @@ const CityMap: React.FC<{
 							key={i}
 							points={pts.map((q) => q.join(',')).join(' ')}
 							fill="none"
-							stroke={C.red}
-							strokeOpacity={0.75}
+							stroke={HEAT.cyan}
+							strokeOpacity={0.85}
 							strokeWidth={3 * Math.max(uiScale, 0.5)}
 							strokeLinecap="round"
 							vectorEffect="non-scaling-stroke"
@@ -1313,9 +1357,9 @@ const CityMap: React.FC<{
 				const s = uiScale;
 				return (
 					<g key={i} transform={`translate(${x} ${y})`}>
-						<circle r={3 * Math.max(s, 0.6)} fill={C.amber} opacity={1 - iconAlpha} />
+						<circle r={3 * Math.max(s, 0.6)} fill={HEAT.cyan} opacity={1 - iconAlpha} />
 						<g opacity={iconAlpha}>
-							<circle r={24 * s} fill={C.red} opacity={0.22} />
+							<circle r={24 * s} fill={HEAT.cyan} opacity={0.25} />
 							<rect x={-9 * s} y={-15 * s} width={18 * s} height={30 * s} rx={4 * s} fill={C.paper} />
 							<rect x={-6.5 * s} y={-11 * s} width={13 * s} height={20 * s} rx={2 * s} fill={C.red} />
 							<rect x={-3 * s} y={11.5 * s} width={6 * s} height={1.6 * s} rx={0.8 * s} fill="#9a948a" />
@@ -1652,7 +1696,7 @@ const FinaleScene: React.FC<{p: SeoAnimationProps}> = ({p}) => {
 			{/* soft vignette so the CTA sits on the globe */}
 			<AbsoluteFill
 				style={{
-					background: 'radial-gradient(ellipse 80% 70% at 50% 50%, transparent 55%, rgba(17,16,15,0.6) 100%)',
+					background: 'radial-gradient(ellipse 80% 70% at 50% 50%, transparent 55%, rgba(12,18,38,0.45) 100%)',
 					opacity: interpolate(frame, [FIN.ctaFrom, FIN.ctaFrom + 12], [0, 1], clamp),
 				}}
 			/>
@@ -1805,20 +1849,23 @@ const DataGlobe: React.FC<{cx: number; cy: number; r: number; zoom: number}> = (
 		<svg width={WIDTH} height={HEIGHT} style={{position: 'absolute', inset: 0, overflow: 'visible'}}>
 			<defs>
 				<radialGradient id="globeBody" cx="42%" cy="36%" r="70%">
-					<stop offset="0%" stopColor="#2a1a15" />
-					<stop offset="60%" stopColor="#150f0d" />
-					<stop offset="100%" stopColor="#0b0908" />
+					<stop offset="0%" stopColor="#2a3d78" />
+					<stop offset="60%" stopColor="#18244d" />
+					<stop offset="100%" stopColor="#0f1734" />
 				</radialGradient>
 				<radialGradient id="globeAtmo" cx="50%" cy="50%" r="50%">
-					<stop offset="80%" stopColor={C.red} stopOpacity={0} />
-					<stop offset="82.5%" stopColor={C.red} stopOpacity={0.5} />
-					<stop offset="88%" stopColor={C.red} stopOpacity={0.1} />
-					<stop offset="100%" stopColor={C.red} stopOpacity={0} />
+					<stop offset="80%" stopColor={HEAT.cyan} stopOpacity={0} />
+					<stop offset="82.5%" stopColor={HEAT.cyan} stopOpacity={0.55} />
+					<stop offset="86%" stopColor={HEAT.blue} stopOpacity={0.25} />
+					<stop offset="100%" stopColor={HEAT.blue} stopOpacity={0} />
 				</radialGradient>
 				<radialGradient id="heatBloom">
-					<stop offset="0%" stopColor={C.amber} stopOpacity={0.9} />
-					<stop offset="35%" stopColor={C.red} stopOpacity={0.45} />
-					<stop offset="100%" stopColor={C.red} stopOpacity={0} />
+					<stop offset="0%" stopColor={HEAT.hot} stopOpacity={0.85} />
+					<stop offset="18%" stopColor={HEAT.orange} stopOpacity={0.7} />
+					<stop offset="38%" stopColor={HEAT.yellow} stopOpacity={0.45} />
+					<stop offset="60%" stopColor={HEAT.teal} stopOpacity={0.25} />
+					<stop offset="80%" stopColor={HEAT.blue} stopOpacity={0.15} />
+					<stop offset="100%" stopColor={HEAT.blue} stopOpacity={0} />
 				</radialGradient>
 				<radialGradient id="globeSpec" cx="35%" cy="28%" r="45%">
 					<stop offset="0%" stopColor={C.paper} stopOpacity={0.08} />
@@ -1837,7 +1884,7 @@ const DataGlobe: React.FC<{cx: number; cy: number; r: number; zoom: number}> = (
 				{/* atmosphere and body */}
 				<circle cx={cx} cy={cy} r={R * 1.22} fill="url(#globeAtmo)" />
 				<circle cx={cx} cy={cy} r={R} fill="url(#globeBody)" />
-				<circle cx={cx} cy={cy} r={R} fill="none" stroke={C.red} strokeOpacity={0.35} strokeWidth={1.5} />
+				<circle cx={cx} cy={cy} r={R} fill="none" stroke={HEAT.cyan} strokeOpacity={0.5} strokeWidth={1.5} />
 
 				<circle cx={cx} cy={cy} r={R} fill="url(#globeSpec)" />
 
@@ -1872,7 +1919,7 @@ const DataGlobe: React.FC<{cx: number; cy: number; r: number; zoom: number}> = (
 					const q = project(d.v);
 					if (q.z <= 0.02 || q.x < -20 || q.y < -20 || q.x > WIDTH + 20 || q.y > HEIGHT + 20) return null;
 					const h = d.heat * (0.8 + 0.2 * Math.sin(frame / 5 + d.phase));
-					const color = h > 0.08 ? heatColor(Math.min(1, 0.45 + h * 0.6)) : C.paper;
+					const color = heatColor(Math.min(1, 0.22 + h * 0.8));
 					return (
 						<circle
 							key={i}
@@ -1880,7 +1927,7 @@ const DataGlobe: React.FC<{cx: number; cy: number; r: number; zoom: number}> = (
 							cy={q.y}
 							r={(2.1 + 1.8 * h) * (0.55 + 0.45 * q.z)}
 							fill={color}
-							opacity={(h > 0.08 ? 0.7 + 0.3 * h : 0.4) * (0.3 + 0.7 * q.z)}
+							opacity={(0.6 + 0.4 * h) * (0.35 + 0.65 * q.z)}
 						/>
 					);
 				})}
@@ -2000,7 +2047,7 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 		<AbsoluteFill>
 			<AbsoluteFill
 				style={{
-					background: `radial-gradient(ellipse 60% 55% at 50% 62%, rgba(226,70,47,${0.28 + 0.08 * Math.sin(frame / 6)}), transparent 70%)`,
+					background: `radial-gradient(ellipse 60% 55% at 50% 62%, rgba(47,107,255,${0.26 + 0.08 * Math.sin(frame / 6)}), transparent 70%), radial-gradient(ellipse 35% 25% at 50% 72%, rgba(255,138,61,0.18), transparent 70%)`,
 				}}
 			/>
 
@@ -2008,7 +2055,7 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 			<AbsoluteFill
 				style={{
 					background:
-						'radial-gradient(ellipse 48% 16% at 50% 36%, rgba(17,16,15,0.78), transparent 100%), radial-gradient(ellipse 30% 10% at 50% 70%, rgba(17,16,15,0.6), transparent 100%)',
+						'radial-gradient(ellipse 48% 16% at 50% 36%, rgba(16,22,44,0.72), transparent 100%), radial-gradient(ellipse 30% 10% at 50% 70%, rgba(16,22,44,0.5), transparent 100%)',
 				}}
 			/>
 
@@ -2172,7 +2219,7 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 export const SeoAnimation: React.FC<SeoAnimationProps> = (props) => {
 	const p = {...defaultSeoProps, ...props};
 	return (
-		<AbsoluteFill style={{background: C.ink, fontFamily: FONT}}>
+		<AbsoluteFill style={{background: BG.base, fontFamily: FONT}}>
 			<Backdrop />
 
 			<Sequence from={SCENES.problem.from} durationInFrames={SCENES.problem.duration} name="1 Problem">
