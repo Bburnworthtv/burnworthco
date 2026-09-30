@@ -372,3 +372,27 @@ h1,h2,h3{text-wrap:balance}
    of glassmorphism with none of the effect, on a surface already 96%
    opaque. Removed. */
 .site-header.scrolled{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(17,16,15,.98)}
+
+/* Hero background video: the poster image is the LCP element; the video fades in over it once playing. */
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:70% center;opacity:0;transition:opacity .8s ease}
+.hero-video.is-playing{opacity:1}
+.hero-copy{max-width:610px}
+.hero-copy p{color:#d2cec4;font-size:17px;margin:0}
+.hero-copy .hero-note{margin-top:14px;font-size:15px;color:#b9b5ab}
+.hero-cta{flex-shrink:0}
+.hero-cta .contact-alt{color:#d2cec4}
+/* Email and phone alongside every booking button. */
+.contact-alt{margin:16px 0 0;font-size:14px;line-height:1.6}
+.contact-alt a{color:inherit;text-underline-offset:3px;display:inline-block;padding:6px 0}
+/* Verified client result directly under the hero. */
+.proof-strip{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:26px clamp(22px,6vw,96px);background:var(--ink);color:var(--white);border-top:1px solid rgba(255,255,255,.12)}
+.proof-strip p{margin:0;max-width:980px;font-size:17px;line-height:1.5;color:#d2cec4}
+.proof-strip strong{color:var(--white);font-weight:600}
+.proof-label{display:inline-block;margin-right:10px;text-transform:uppercase;font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--red)}
+.proof-strip .text-link{color:var(--white);flex-shrink:0}
+@media(max-width:800px){
+  .hero-copy{margin-bottom:30px}
+  .proof-strip{flex-direction:column;align-items:flex-start;gap:14px}
+  .contact-alt a{min-height:44px;display:inline-flex;align-items:center}
+}
+@media(prefers-reduced-motion:reduce){.hero-video{display:none}}

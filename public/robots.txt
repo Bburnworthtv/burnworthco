@@ -23,3 +23,7 @@ User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://burnworthco.com/sitemap.xml
+Sitemap: https://burnworthco.com/sitemap-core.xml
+Sitemap: https://burnworthco.com/sitemap-services.xml
+Sitemap: https://burnworthco.com/sitemap-work.xml
+Sitemap: https://burnworthco.com/sitemap-research.xml

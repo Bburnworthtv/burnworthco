@@ -14,13 +14,18 @@ class Page(HTMLParser):
    self.ids.add(a['id'])
   if tag=='h1':self.h1+=1
   if tag=='a' and a.get('href'):self.links.append(a['href'])
-  if tag in ('img','script') and a.get('src'):self.assets.append(a['src'])
+  if tag in ('img','script','source') and a.get('src'):self.assets.append(a['src'])
+  if tag=='video':
+   self.assets.extend(v for k,v in a.items() if k.startswith('data-src') or k=='poster')
   if tag=='img' and a.get('srcset'):
    self.assets.extend(x.strip().split()[0] for x in a['srcset'].split(','))
   if tag=='link' and a.get('rel') in ['stylesheet','icon','apple-touch-icon','manifest']:self.assets.append(a['href'])
 pages={};titles=set();descriptions=set();base='https://burnworthco.com'
 for f in root.rglob('*.html'):
- text=f.read_text();p=Page();p.feed(text)
+ text=f.read_text()
+ # Search Console verification files must stay byte-exact; they are not pages.
+ if f.name.startswith('google') and 'google-site-verification' in text:continue
+ p=Page();p.feed(text)
  route='/' if f==root/'index.html' else '/'+f.relative_to(root).with_suffix('').as_posix()
  pages[route]=p
  assert p.h1==1,(f,'expected one h1',p.h1)
@@ -66,15 +71,29 @@ cc_blocks=[b for b in headers_text.split('\n/') if 'Cache-Control' in b]
 assert not any(b.startswith('*') for b in cc_blocks),'Cache-Control on /* collides with the per-path rules'
 for icon in json.loads((root/'site.webmanifest').read_text())['icons']:
  assert (root/icon['src'].lstrip('/')).is_file()
-urls=[n.text for n in ET.parse(root/'sitemap.xml').findall('.//{*}loc')]
-assert set(urls)=={base+p for p in pages if p!='/404'}
+# /sitemap.xml is a sitemap index; each section sitemap lists its own pages.
+index=ET.parse(root/'sitemap.xml').getroot()
+assert index.tag.endswith('sitemapindex'),'sitemap.xml should be a sitemap index'
+robots=(root/'robots.txt').read_text()
+assert 'Sitemap: '+base+'/sitemap.xml' in robots
+urls=[]
+for loc in index.findall('.//{*}loc'):
+ child=root/urlsplit(loc.text).path.lstrip('/')
+ assert child.is_file(),('missing section sitemap',loc.text)
+ assert 'Sitemap: '+loc.text in robots,('robots.txt should list',loc.text)
+ assert '/'+child.name in rules,('missing a _headers rule',child.name)
+ for u in ET.parse(child).getroot().findall('{*}url'):
+  urls.append(u.find('{*}loc').text)
+  for img in u.findall('.//{*}image/{*}loc'):
+   assert (root/urlsplit(img.text).path.lstrip('/')).is_file(),('missing sitemap image',img.text)
+assert set(urls)=={base+p for p in pages if p!='/404'},set(urls)^{base+p for p in pages if p!='/404'}
 assert len(urls)==len(set(urls))
-assert 'Sitemap: '+base+'/sitemap.xml' in (root/'robots.txt').read_text()
-MAGIC={'.png':(b'\x89PNG',),'.jpg':(b'\xff\xd8',),'.webp':(b'RIFF',),'.woff2':(b'wOF2',),'.txt':None,'.svg':(b'<svg',b'<?xml')}
+MAGIC={'.mp4':None,'.webm':(b'\x1aE\xdf\xa3',),'.png':(b'\x89PNG',),'.jpg':(b'\xff\xd8',),'.webp':(b'RIFF',),'.woff2':(b'wOF2',),'.txt':None,'.svg':(b'<svg',b'<?xml')}
 for f in list((root/'assets').glob('*'))+list((root/'images').glob('*')):
  b=f.read_bytes()
  assert f.suffix in MAGIC,(f,'unexpected asset type')
  assert MAGIC[f.suffix] is None or any(b.startswith(m) for m in MAGIC[f.suffix]),f
  assert f.suffix!='.webp' or b[8:12]==b'WEBP',f
+ assert f.suffix!='.mp4' or b[4:8]==b'ftyp',f
 print(f'PASS: {len(pages)} HTML documents; {len(urls)} canonical sitemap URLs; local links, fragments, assets, metadata and JSON-LD valid.')
 print('Static checks only. Live status codes, redirects, hosting rules, browser layout and analytics need post-deployment verification.')

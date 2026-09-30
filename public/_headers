@@ -26,6 +26,10 @@
   Cache-Control: public, max-age=2592000
 /assets/*.svg
   Cache-Control: public, max-age=2592000
+/assets/*.mp4
+  Cache-Control: public, max-age=2592000
+/assets/*.webm
+  Cache-Control: public, max-age=2592000
 
 # Handed out to third parties, so it must stay a stable 200 at this exact
 # path. Not a redirect: some directory validators and image scrapers do not
@@ -38,6 +42,8 @@
 /styles.css
   Cache-Control: public, max-age=0, must-revalidate
 /script.js
+  Cache-Control: public, max-age=0, must-revalidate
+/analytics.js
   Cache-Control: public, max-age=0, must-revalidate
 
 # Icons, enumerated rather than globbed: a root /*.png pattern would also match
@@ -62,6 +68,14 @@
 /robots.txt
   Cache-Control: public, max-age=3600
 /sitemap.xml
+  Cache-Control: public, max-age=3600
+/sitemap-core.xml
+  Cache-Control: public, max-age=3600
+/sitemap-services.xml
+  Cache-Control: public, max-age=3600
+/sitemap-work.xml
+  Cache-Control: public, max-age=3600
+/sitemap-research.xml
   Cache-Control: public, max-age=3600
 /llms.txt
   Cache-Control: public, max-age=3600

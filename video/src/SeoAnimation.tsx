@@ -1317,7 +1317,8 @@ export const SeoBackgroundLoop: React.FC = () => {
 	const frame = useCurrentFrame();
 	const t = (frame / BG_LOOP_FRAMES) * Math.PI * 2;
 	// Camera circles slowly around the pin and returns to its start on the last frame.
-	const cam: Pt = [260 * Math.sin(t) - 420, 180 * Math.cos(t) - 120];
+	// The pin stays in the right third, clear of a left-aligned HTML headline.
+	const cam: Pt = [150 * Math.sin(t) - 620, 160 * Math.cos(t) - 120];
 	const zoom = 0.95 + 0.06 * Math.sin(t);
 
 	return (

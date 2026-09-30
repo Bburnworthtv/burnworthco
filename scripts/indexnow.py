@@ -5,7 +5,7 @@ accepts JobPosting and BroadcastEvent, so Google still needs Search Console.
 IndexNow covers Bing, Yandex, Seznam and Naver - and Bing is upstream of
 Copilot and part of ChatGPT's search, which is the point for this site.
 
-Dependency-free. Run after a deploy: python3 scripts/indexnow.py
+Dependency-free. Run once a deploy is live on burnworthco.com: python3 scripts/indexnow.py
 """
 import json, urllib.request, xml.etree.ElementTree as ET
 from pathlib import Path
@@ -18,7 +18,11 @@ if not keys:
     raise SystemExit("No IndexNow key file found in public/ (a 32-char .txt whose name matches its contents).")
 key = keys[0].stem
 
-urls = [u.find("{*}loc").text for u in ET.parse(root / "sitemap.xml").getroot().findall("{*}url")]
+# /sitemap.xml is a sitemap index; collect the pages from each section sitemap it lists.
+urls = []
+for loc in ET.parse(root / "sitemap.xml").getroot().iter("{http://www.sitemaps.org/schemas/sitemap/0.9}loc"):
+    section = root / loc.text.split(f"https://{HOST}/", 1)[1]
+    urls += [u.find("{*}loc").text for u in ET.parse(section).getroot().findall("{*}url")]
 
 payload = {
     "host": HOST,
