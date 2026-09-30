@@ -27,12 +27,30 @@ export const DURATION_IN_FRAMES = 15 * FPS; // 450
 // Scenes overlap by XFADE frames so every cut is a cross-dissolve.
 const XFADE = 12;
 const SCENES = {
-	problem: {from: 0, duration: 96},
-	solution: {from: 84, duration: 102},
-	ai: {from: 174, duration: 84},
-	data: {from: 246, duration: 120},
-	cta: {from: 354, duration: 96},
+	problem: {from: 0, duration: 90},
+	solution: {from: 78, duration: 90},
+	ai: {from: 156, duration: 72},
+	// Heatmap -> phone -> city -> globe -> CTA is one continuous camera move.
+	finale: {from: 216, duration: 234},
 } as const;
+
+// Finale beats, in frames from the start of the finale.
+const FIN = {
+	phoneFrom: 60, // phone rises out of the heatmap flash
+	pushStart: 102, // camera starts pushing into the phone's map
+	pushEnd: 122, // map fills the frame; hand-off to the full-screen city
+	cityOutEnd: 166, // city has shrunk to a glow
+	globeFrom: 148, // globe starts, zoomed in on the city
+	globeSettled: 184,
+	ctaFrom: 166,
+} as const;
+
+// City map: the phone's map is the same render, so the push-in cut is seamless.
+const PHONE_MAP_W = 332;
+const PHONE_MAP_H = 220;
+const CITY_ZOOM = 3.2; // full-screen zoom at the hand-off
+const PUSH_SCALE = WIDTH / PHONE_MAP_W;
+const UI_BOOST = 2.2; // pin and icon size multiplier inside the phone
 
 // Brand values from public/styles.css and docs/brand-mark.md.
 const C = {
@@ -728,9 +746,9 @@ const AiScene: React.FC<{headlineText: string; prompt: string; business: string;
 	const {fps} = useVideoConfig();
 	const panel = useSpring(2, {damping: 18, stiffness: 90});
 	const bubble = useSpring(6);
-	const promptText = typed(prompt, frame, 8, 30);
-	const answer = useSpring(30);
-	const cite = spring({frame: frame - 50, fps, config: {damping: 11, stiffness: 140}});
+	const promptText = typed(prompt, frame, 8, 26);
+	const answer = useSpring(26);
+	const cite = spring({frame: frame - 44, fps, config: {damping: 11, stiffness: 140}});
 	const platforms = ['AI Overviews', 'ChatGPT', 'Gemini', 'Copilot'];
 
 	return (
@@ -804,7 +822,7 @@ const AiScene: React.FC<{headlineText: string; prompt: string; business: string;
 						}}
 					>
 						{promptText}
-						{frame < 34 ? <Cursor height={28} color={C.paper} /> : null}
+						{frame < 30 ? <Cursor height={28} color={C.paper} /> : null}
 					</div>
 				</div>
 
@@ -815,7 +833,7 @@ const AiScene: React.FC<{headlineText: string; prompt: string; business: string;
 					</div>
 					<div style={{flex: 1}}>
 						{[0.95, 0.82, 0.9].map((w, i) => {
-							const s = interpolate(frame, [32 + i * 5, 46 + i * 5], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
+							const s = interpolate(frame, [28 + i * 5, 40 + i * 5], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
 							return (
 								<div
 									key={i}
@@ -836,7 +854,7 @@ const AiScene: React.FC<{headlineText: string; prompt: string; business: string;
 								fontSize: 30,
 								lineHeight: 1.35,
 								color: C.paper,
-								opacity: interpolate(frame, [44, 54], [0, 1], clamp),
+								opacity: interpolate(frame, [38, 48], [0, 1], clamp),
 							}}
 						>
 							A strong local option is{' '}
@@ -1154,34 +1172,191 @@ const HeatmapZoom: React.FC<{zoomStart: number; zoomEnd: number}> = ({zoomStart,
 	);
 };
 
-const MapTile: React.FC<{pinDrop: number; pulse: number}> = ({pinDrop, pulse}) => (
-	<svg width="100%" height="100%" viewBox="0 0 340 200" preserveAspectRatio="xMidYMid slice">
-		<rect width="340" height="200" fill="#ece8df" />
-		<path d="M-10 60 C80 40 140 90 350 70" stroke="#fff" strokeWidth="14" fill="none" />
-		<path d="M-10 150 C90 170 220 120 350 150" stroke="#fff" strokeWidth="10" fill="none" />
-		<path d="M110 -10 C120 60 90 140 120 210" stroke="#fff" strokeWidth="10" fill="none" />
-		<path d="M250 -10 C240 80 270 150 250 210" stroke="#fff" strokeWidth="8" fill="none" />
-		<ellipse cx="300" cy="30" rx="50" ry="26" fill="#cfe3c8" />
-		<ellipse cx="40" cy="100" rx="34" ry="22" fill="#cfe3c8" />
-		<circle cx="178" cy="104" r={16 + 30 * pulse} fill={C.red} opacity={0.25 * (1 - pulse)} />
-		<g transform={`translate(178 ${104 - (1 - pinDrop) * 80})`} opacity={Math.min(1, pinDrop * 3)}>
-			<path d="M0 0 C-14 -18 -16 -24 -16 -30 A16 16 0 1 1 16 -30 C16 -24 14 -18 0 0 Z" fill={C.red} />
-			<rect x="-5" y="-35" width="10" height="10" fill={C.paper} />
-		</g>
-	</svg>
-);
+/* City map with searchers (phones) driving to the pin                 */
 
-const PhoneInHand: React.FC<{query: string; business: string}> = ({query, business}) => {
+const BLOCK = 120; // world units between streets
+const EXTENT = 3600;
+
+type Agent = {path: Pt[]; len: number; speed: number; phase: number};
+
+const AGENTS: Agent[] = Array.from({length: 22}, (_, i) => {
+	const ax = Math.round((random(`ax-${i}`) - 0.5) * 26) || 4;
+	const by = Math.round((random(`by-${i}`) - 0.5) * 26) || -5;
+	const start: Pt = [ax * BLOCK, by * BLOCK];
+	const mid: Pt = random(`hf-${i}`) > 0.5 ? [0, by * BLOCK] : [ax * BLOCK, 0];
+	return {
+		path: [start, mid, [0, 0]],
+		len: (Math.abs(ax) + Math.abs(by)) * BLOCK,
+		speed: 16 + random(`sp-${i}`) * 16,
+		phase: random(`ph-${i}`),
+	};
+});
+
+const posAt = (a: Agent, d: number): Pt => {
+	let rest = Math.max(0, d);
+	for (let i = 0; i < a.path.length - 1; i++) {
+		const [x0, y0] = a.path[i];
+		const [x1, y1] = a.path[i + 1];
+		const seg = Math.abs(x1 - x0) + Math.abs(y1 - y0);
+		if (rest <= seg || i === a.path.length - 2) {
+			const k = seg === 0 ? 1 : Math.min(1, rest / seg);
+			return [x0 + (x1 - x0) * k, y0 + (y1 - y0) * k];
+		}
+		rest -= seg;
+	}
+	return a.path[a.path.length - 1];
+};
+
+const BUILDINGS = (() => {
+	const out: {x: number; y: number; w: number; h: number}[] = [];
+	for (let bx = -9; bx < 9; bx++) {
+		for (let by = -9; by < 9; by++) {
+			const n = 2 + Math.floor(random(`bn-${bx}-${by}`) * 3);
+			for (let k = 0; k < n; k++) {
+				const r = (key: string) => random(`b-${bx}-${by}-${k}-${key}`);
+				const w = 22 + r('w') * 38;
+				const h = 22 + r('h') * 38;
+				out.push({x: bx * BLOCK + 14 + r('x') * (BLOCK - 28 - w), y: by * BLOCK + 14 + r('y') * (BLOCK - 28 - h), w, h});
+			}
+		}
+	}
+	return out;
+})();
+
+const CityMap: React.FC<{
+	width: number;
+	height: number;
+	zoom: number; // screen px per world unit
+	time: number; // frame clock shared by the phone and full-screen versions
+	uiScale: number; // size of pin and phone icons
+	pinDrop?: number;
+	labels?: number; // override for street names and the business chip
+	business: string;
+}> = ({width, height, zoom, time, uiScale, pinDrop = 1, labels, business}) => {
+	const cx = width / 2;
+	const cy = height / 2;
+	const toScreen = ([x, y]: Pt): Pt => [cx + x * zoom, cy + y * zoom];
+	const lines = Array.from({length: (EXTENT / BLOCK) * 2 + 1}, (_, i) => -EXTENT + i * BLOCK);
+	const far = interpolate(zoom, [0.04, 0.5], [1, 0], clamp); // 1 when zoomed out
+	const iconAlpha = interpolate(zoom, [0.18, 0.5], [0, 1], clamp);
+	const pulse = (time % 24) / 24;
+	const labelAlpha = labels ?? interpolate(zoom, [0.9, 1.8], [0, 1], clamp);
+
+	return (
+		<svg width={width} height={height} style={{display: 'block', background: '#131110'}}>
+			<defs>
+				<radialGradient id={`cityGlow-${width}`}>
+					<stop offset="0%" stopColor={C.amber} stopOpacity={0.9} />
+					<stop offset="30%" stopColor={C.red} stopOpacity={0.55} />
+					<stop offset="100%" stopColor={C.red} stopOpacity={0} />
+				</radialGradient>
+			</defs>
+			<g transform={`translate(${cx} ${cy}) scale(${zoom})`}>
+				<rect x={-EXTENT} y={-EXTENT} width={EXTENT * 2} height={EXTENT * 2} fill="#181614" />
+				{/* river and parks */}
+				<path
+					d={`M ${-EXTENT} ${-900} C ${-1800} ${-400}, ${-900} ${-1500}, 0 ${-1080} S ${1800} ${-300}, ${EXTENT} ${-1300}`}
+					stroke="#10191c"
+					strokeWidth={150}
+					fill="none"
+				/>
+				<rect x={2 * BLOCK} y={1 * BLOCK} width={2 * BLOCK} height={BLOCK} fill="#15201a" />
+				<rect x={-6 * BLOCK} y={3 * BLOCK} width={BLOCK * 3} height={BLOCK * 2} fill="#15201a" />
+				<rect x={-3 * BLOCK} y={-6 * BLOCK} width={BLOCK} height={BLOCK * 2} fill="#15201a" />
+				{BUILDINGS.map((b, i) => (
+					<rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx={3} fill="#211d1a" />
+				))}
+				{/* streets */}
+				{lines.map((v) => {
+					const major = Math.round(v / BLOCK) % 5 === 0;
+					const w = major ? 24 : 11;
+					const col = major ? '#3d352e' : '#2b2622';
+					return (
+						<g key={v}>
+							<line x1={v} y1={-EXTENT} x2={v} y2={EXTENT} stroke={col} strokeWidth={w} />
+							<line x1={-EXTENT} y1={v} x2={EXTENT} y2={v} stroke={col} strokeWidth={w} />
+						</g>
+					);
+				})}
+				<line x1={-EXTENT} y1={EXTENT * 0.7} x2={EXTENT} y2={-EXTENT * 0.55} stroke="#453b33" strokeWidth={30} />
+				{/* street names */}
+				<g opacity={labelAlpha} fontFamily={MONO} fontSize={11} fill="#8a8279" letterSpacing={2}>
+					<text x={-BLOCK * 2.6} y={4}>MAIN ST</text>
+					<text x={-4} y={BLOCK * 1.3} transform={`rotate(90 -4 ${BLOCK * 1.3})`}>5TH AVE</text>
+				</g>
+				{/* searcher trails */}
+				{AGENTS.map((a, i) => {
+					const d = (time * a.speed + a.phase * a.len) % a.len;
+					const pts = [0, 50, 100, 150, 200, 260].map((k) => posAt(a, d - k));
+					return (
+						<polyline
+							key={i}
+							points={pts.map((q) => q.join(',')).join(' ')}
+							fill="none"
+							stroke={C.red}
+							strokeOpacity={0.75}
+							strokeWidth={3 * Math.max(uiScale, 0.5)}
+							strokeLinecap="round"
+							vectorEffect="non-scaling-stroke"
+						/>
+					);
+				})}
+				{/* city glow that the globe's heat bloom takes over */}
+				<circle cx={0} cy={0} r={EXTENT * 0.9} fill={`url(#cityGlow-${width})`} opacity={far * 0.9} />
+			</g>
+
+			{/* phone icons, constant screen size */}
+			{AGENTS.map((a, i) => {
+				const d = (time * a.speed + a.phase * a.len) % a.len;
+				const [x, y] = toScreen(posAt(a, d));
+				if (x < -40 || y < -40 || x > width + 40 || y > height + 40) return null;
+				const s = uiScale;
+				return (
+					<g key={i} transform={`translate(${x} ${y})`}>
+						<circle r={3 * Math.max(s, 0.6)} fill={C.amber} opacity={1 - iconAlpha} />
+						<g opacity={iconAlpha}>
+							<circle r={24 * s} fill={C.red} opacity={0.22} />
+							<rect x={-9 * s} y={-15 * s} width={18 * s} height={30 * s} rx={4 * s} fill={C.paper} />
+							<rect x={-6.5 * s} y={-11 * s} width={13 * s} height={20 * s} rx={2 * s} fill={C.red} />
+							<rect x={-3 * s} y={11.5 * s} width={6 * s} height={1.6 * s} rx={0.8 * s} fill="#9a948a" />
+						</g>
+					</g>
+				);
+			})}
+
+			{/* business pin */}
+			<g transform={`translate(${cx} ${cy})`}>
+				<circle r={(18 + 60 * pulse) * uiScale} fill="none" stroke={C.red} strokeWidth={3 * uiScale} opacity={(1 - pulse) * pinDrop} />
+				<g transform={`translate(0 ${-(1 - pinDrop) * 90 * uiScale}) scale(${uiScale * 1.6})`} opacity={Math.min(1, pinDrop * 3)}>
+					<path d="M0 0 C-14 -18 -16 -24 -16 -30 A16 16 0 1 1 16 -30 C16 -24 14 -18 0 0 Z" fill={C.red} stroke={C.paper} strokeWidth={1.5} />
+					<rect x="-5" y="-35" width="10" height="10" fill={C.paper} />
+				</g>
+				<g opacity={labelAlpha * pinDrop} transform={`translate(${34 * uiScale} ${-70 * uiScale}) scale(${uiScale})`}>
+					<rect x={0} y={-22} width={190} height={40} rx={20} fill={C.paper} />
+					<text x={20} y={5} fontFamily={FONT} fontWeight={700} fontSize={19} fill={C.ink}>
+						{business}
+					</text>
+				</g>
+			</g>
+		</svg>
+	);
+};
+
+const PhoneInHand: React.FC<{query: string; business: string; push: number; mapTime: number}> = ({
+	query,
+	business,
+	push,
+	mapTime,
+}) => {
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const rise = spring({frame, fps, config: {damping: 16, stiffness: 70}});
-	const text = typed(query, frame, 8, 26);
-	const map = useSpring(22);
-	const pinDrop = spring({frame: frame - 26, fps, config: {damping: 9, stiffness: 180}});
-	const pulse = ((frame - 26) % 24) / 24;
-	const card = spring({frame: frame - 30, fps, config: {damping: 14, stiffness: 120}});
-	const tap = interpolate(frame, [44, 56], [0, 1], clamp);
-	const press = frame >= 44 && frame < 50 ? 0.94 : 1;
+	const text = typed(query, frame, 6, 22);
+	const map = useSpring(18);
+	const pinDrop = spring({frame: frame - 22, fps, config: {damping: 9, stiffness: 180}});
+	const card = spring({frame: frame - 26, fps, config: {damping: 14, stiffness: 120}});
+	const tap = interpolate(frame, [34, 46], [0, 1], clamp);
+	const press = frame >= 34 && frame < 40 ? 0.94 : 1;
 
 	const skin = 'url(#handSkin)';
 	return (
@@ -1192,7 +1367,7 @@ const PhoneInHand: React.FC<{query: string; business: string}> = ({query, busine
 				top: 70,
 				width: 700,
 				height: 1000,
-				transform: `translateY(${(1 - rise) * 700}px) rotate(${interpolate(rise, [0, 1], [-12, -5])}deg)`,
+				transform: `translateY(${(1 - rise) * 700}px) rotate(${interpolate(rise, [0, 1], [-12, -5]) * (1 - push)}deg)`,
 				transformOrigin: '50% 100%',
 			}}
 		>
@@ -1233,7 +1408,7 @@ const PhoneInHand: React.FC<{query: string; business: string}> = ({query, busine
 					}}
 				>
 					{/* status bar + island */}
-					<div style={{display: 'flex', justifyContent: 'space-between', padding: '20px 30px 0', fontSize: 17, fontWeight: 600, color: C.ink}}>
+					<div style={{display: 'flex', justifyContent: 'space-between', height: 40, boxSizing: 'border-box', padding: '20px 30px 0', fontSize: 17, lineHeight: '20px', fontWeight: 600, color: C.ink}}>
 						<span>9:41</span>
 						<span style={{display: 'flex', gap: 5, alignItems: 'center'}}>
 							<span style={{width: 18, height: 10, background: C.ink, borderRadius: 2}} />
@@ -1260,21 +1435,31 @@ const PhoneInHand: React.FC<{query: string; business: string}> = ({query, busine
 					>
 						<SearchIcon size={22} color="#6b665e" />
 						<span>{text}</span>
-						{frame < 30 ? <Cursor height={24} /> : null}
+						{frame < 26 ? <Cursor height={24} /> : null}
 					</div>
 
 					{/* map */}
 					<div
 						style={{
 							margin: '18px 20px 0',
-							height: 220,
-							borderRadius: 22,
+							width: PHONE_MAP_W,
+							height: PHONE_MAP_H,
+							borderRadius: 22 * (1 - push),
 							overflow: 'hidden',
 							opacity: map,
 							transform: `translateY(${(1 - map) * 20}px)`,
 						}}
 					>
-						<MapTile pinDrop={pinDrop} pulse={frame > 26 ? pulse : 0} />
+						<CityMap
+							width={PHONE_MAP_W}
+							height={PHONE_MAP_H}
+							zoom={CITY_ZOOM / PUSH_SCALE}
+							time={mapTime}
+							uiScale={UI_BOOST / PUSH_SCALE}
+							pinDrop={pinDrop}
+							labels={push}
+							business={business}
+						/>
 					</div>
 
 					{/* top result */}
@@ -1379,39 +1564,101 @@ const PhoneInHand: React.FC<{query: string; business: string}> = ({query, busine
 	);
 };
 
-const DataScene: React.FC<{headlineText: string; query: string; business: string}> = ({headlineText, query, business}) => {
+const FinaleScene: React.FC<{p: SeoAnimationProps}> = ({p}) => {
 	const frame = useCurrentFrame();
-	const zoomStart = 44;
-	const zoomEnd = 66;
-	const phoneFrom = 60;
 	const heatOpacity = interpolate(frame, [62, 70], [1, 0], clamp);
 	const flash = interpolate(frame, [58, 63, 70], [0, 0.95, 0], clamp);
 
+	// 1. Push into the phone's map until it fills the frame.
+	const push = interpolate(frame, [FIN.pushStart, FIN.pushEnd], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
+	const pushScale = Math.pow(PUSH_SCALE, push);
+	// Map centre inside the phone stage, in screen pixels, once the phone is upright.
+	const MAP_X = 1060 + 150 + 14 + 20 + PHONE_MAP_W / 2;
+	const MAP_Y = 70 + 80 + 14 + 146 + PHONE_MAP_H / 2;
+	const captionOut = interpolate(frame, [FIN.pushStart - 4, FIN.pushStart + 8], [1, 0], clamp);
+	const phoneVisible = frame < FIN.pushEnd;
+
+	// 2. Pull back over the city, accelerating.
+	const out = interpolate(frame, [FIN.pushEnd, FIN.cityOutEnd], [0, 1], {...clamp, easing: Easing.in(Easing.quad)});
+	const cityZoom = CITY_ZOOM * Math.pow(0.012, out);
+	const cityUi = interpolate(frame, [FIN.pushEnd, FIN.pushEnd + 20], [UI_BOOST, 1], {...clamp, easing: Easing.out(Easing.quad)});
+	const cityOpacity = interpolate(frame, [FIN.globeFrom - 2, FIN.cityOutEnd - 4], [1, 0], clamp);
+	// Soft circular edge so the shrinking city melts into the globe's heat bloom.
+	const cityMaskR = EXTENT * cityZoom * 0.95;
+
+	// 3. Globe takes over, starting zoomed in on the same spot.
+	const globeZoom = interpolate(frame, [FIN.globeFrom, FIN.globeSettled], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
+	const globeIn = interpolate(frame, [FIN.globeFrom, FIN.globeFrom + 12], [0, 1], clamp);
+
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill style={{opacity: heatOpacity}}>
-				<HeatmapZoom zoomStart={zoomStart} zoomEnd={zoomEnd} />
-			</AbsoluteFill>
-
-			<Sequence from={phoneFrom} layout="none">
-				<AbsoluteFill>
-					<div
-						style={{
-							position: 'absolute',
-							left: 900,
-							top: 80,
-							width: 1100,
-							height: 1100,
-							borderRadius: '50%',
-							background: 'radial-gradient(circle, rgba(226,70,47,0.3), transparent 60%)',
-						}}
-					/>
-					<div style={{position: 'absolute', left: 140, top: 330, width: 820}}>
-						<Eyebrow delay={4}>Near me, right now</Eyebrow>
-						<Words text={headlineText} start={8} stagger={4} accent="search." style={{...headline, marginTop: 34}} />
-					</div>
-					<PhoneInHand query={query} business={business} />
+			{frame < 72 ? (
+				<AbsoluteFill style={{opacity: heatOpacity}}>
+					<HeatmapZoom zoomStart={44} zoomEnd={66} />
 				</AbsoluteFill>
+			) : null}
+
+			{frame >= FIN.globeFrom ? (
+				<Sequence from={FIN.globeFrom} layout="none">
+					<AbsoluteFill style={{opacity: globeIn}}>
+						<DataGlobe cx={WIDTH / 2} cy={HEIGHT / 2} r={450} zoom={globeZoom} />
+					</AbsoluteFill>
+				</Sequence>
+			) : null}
+
+			{frame >= FIN.pushEnd && cityOpacity > 0 ? (
+				<AbsoluteFill
+					style={{
+						opacity: cityOpacity,
+						maskImage: `radial-gradient(circle ${cityMaskR}px at 50% 50%, black 35%, transparent 100%)`,
+						WebkitMaskImage: `radial-gradient(circle ${cityMaskR}px at 50% 50%, black 35%, transparent 100%)`,
+					}}
+				>
+					<CityMap width={WIDTH} height={HEIGHT} zoom={cityZoom} time={frame} uiScale={cityUi} business={p.businessName} />
+				</AbsoluteFill>
+			) : null}
+
+			{phoneVisible ? (
+				<Sequence from={FIN.phoneFrom} layout="none">
+					<AbsoluteFill>
+						<div
+							style={{
+								position: 'absolute',
+								left: 900,
+								top: 80,
+								width: 1100,
+								height: 1100,
+								borderRadius: '50%',
+								background: 'radial-gradient(circle, rgba(226,70,47,0.3), transparent 60%)',
+								opacity: captionOut,
+							}}
+						/>
+						<div style={{position: 'absolute', left: 140, top: 330, width: 820, opacity: captionOut}}>
+							<Eyebrow delay={4}>Near me, right now</Eyebrow>
+							<Words text={p.dataHeadline} start={6} stagger={4} accent="search." style={{...headline, marginTop: 34}} />
+						</div>
+						<AbsoluteFill
+							style={{
+								transformOrigin: `${MAP_X}px ${MAP_Y}px`,
+								transform: `translate(${(WIDTH / 2 - MAP_X) * push}px, ${(HEIGHT / 2 - MAP_Y) * push}px) scale(${pushScale})`,
+							}}
+						>
+							<PhoneInHand query={p.phoneQuery} business={p.businessName} push={push} mapTime={frame} />
+						</AbsoluteFill>
+					</AbsoluteFill>
+				</Sequence>
+			) : null}
+
+			{/* soft vignette so the CTA sits on the globe */}
+			<AbsoluteFill
+				style={{
+					background: 'radial-gradient(ellipse 80% 70% at 50% 50%, transparent 55%, rgba(17,16,15,0.6) 100%)',
+					opacity: interpolate(frame, [FIN.ctaFrom, FIN.ctaFrom + 12], [0, 1], clamp),
+				}}
+			/>
+
+			<Sequence from={FIN.ctaFrom} layout="none">
+				<CtaScene text={p.ctaHeadline} accent={p.ctaAccent} button={p.ctaButton} url={p.url} />
 			</Sequence>
 
 			<AbsoluteFill style={{background: '#fff4ea', opacity: flash, mixBlendMode: 'screen'}} />
@@ -1481,15 +1728,20 @@ const slerp = (a: V3, b: V3, t: number): V3 => {
 	return [a[0] * s0 + b[0] * s1, a[1] * s0 + b[1] * s1, a[2] * s0 + b[2] * s1];
 };
 
-const DataGlobe: React.FC<{cx: number; cy: number; r: number}> = ({cx, cy, r}) => {
-	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
-	const enter = spring({frame, fps, config: {damping: 20, stiffness: 60}});
-	const R = r * interpolate(enter, [0, 1], [0.7, 1]);
+// zoom 0 = close over the home city (hand-off from the street map), 1 = whole globe.
+const GLOBE_CLOSE = 14;
+const HOME = CITIES[0];
 
-	// Camera: spin east while slowly tilting.
-	const lon0 = -88 + frame * 0.42 + (1 - enter) * -30;
-	const lat0 = 24 - frame * 0.04;
+const DataGlobe: React.FC<{cx: number; cy: number; r: number; zoom: number}> = ({cx, cy, r, zoom}) => {
+	const frame = useCurrentFrame();
+	const enter = 1;
+	const R = r * Math.pow(GLOBE_CLOSE, 1 - zoom);
+
+	// Camera: start locked on the home city, then spin east while slowly tilting.
+	// Stay locked on the home city until the street map has dissolved, then drift.
+	const aim = Math.pow(zoom, 3);
+	const lon0 = HOME.lon + (-88 + frame * 0.42 - HOME.lon) * aim;
+	const lat0 = HOME.lat + (24 - frame * 0.04 - HOME.lat) * aim;
 	const sl = Math.sin(lat0 * RAD);
 	const cl = Math.cos(lat0 * RAD);
 
@@ -1618,7 +1870,7 @@ const DataGlobe: React.FC<{cx: number; cy: number; r: number}> = ({cx, cy, r}) =
 				{/* land dots, heat-coloured */}
 				{dots.map((d, i) => {
 					const q = project(d.v);
-					if (q.z <= 0.02) return null;
+					if (q.z <= 0.02 || q.x < -20 || q.y < -20 || q.x > WIDTH + 20 || q.y > HEIGHT + 20) return null;
 					const h = d.heat * (0.8 + 0.2 * Math.sin(frame / 5 + d.phase));
 					const color = h > 0.08 ? heatColor(Math.min(1, 0.45 + h * 0.6)) : C.paper;
 					return (
@@ -1635,7 +1887,7 @@ const DataGlobe: React.FC<{cx: number; cy: number; r: number}> = ({cx, cy, r}) =
 
 				{/* great-circle tracking arcs */}
 				{ARCS.map(([a, b], i) => {
-					const start = 8 + i * 4;
+					const start = 14 + i * 4;
 					const t = interpolate(frame, [start, start + 26], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
 					if (t <= 0) return null;
 					const va = toVec(CITIES[a].lon, CITIES[a].lat);
@@ -1732,13 +1984,13 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const mark = useSpring(0, {damping: 16, stiffness: 120});
-	const btn = spring({frame: frame - 30, fps, config: {damping: 11, stiffness: 140}});
-	const urlIn = useSpring(44);
-	const breathe = 1 + 0.035 * Math.sin((frame - 30) / 5) * interpolate(frame, [40, 50], [0, 1], clamp);
+	const btn = spring({frame: frame - 16, fps, config: {damping: 11, stiffness: 140}});
+	const urlIn = useSpring(24);
+	const breathe = 1 + 0.035 * Math.sin((frame - 16) / 5) * interpolate(frame, [24, 32], [0, 1], clamp);
 
 	// cursor glides in and clicks at CLICK
-	const CLICK = 62;
-	const glide = interpolate(frame, [42, CLICK], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
+	const CLICK = 42;
+	const glide = interpolate(frame, [26, CLICK], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
 	const pressed = frame >= CLICK && frame < CLICK + 5;
 	const burst = interpolate(frame, [CLICK, CLICK + 20], [0, 1], clamp);
 
@@ -1752,9 +2004,6 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 				}}
 			/>
 
-			{/* data globe behind the copy */}
-			<DataGlobe cx={WIDTH / 2} cy={560} r={450} />
-
 			{/* scrim keeps the headline and button readable over the globe */}
 			<AbsoluteFill
 				style={{
@@ -1765,7 +2014,7 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 
 			{/* sonar rings behind the button */}
 			{[0, 1, 2].map((k) => {
-				const t = (((frame - 36 + k * 14) % 42) + 42) % 42 / 42;
+				const t = (((frame - 22 + k * 14) % 42) + 42) % 42 / 42;
 				return (
 					<div
 						key={k}
@@ -1778,7 +2027,7 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 							borderRadius: 999,
 							border: `2px solid ${C.red}`,
 							transform: `scale(${1 + t * 0.6}, ${1 + t * 1.6})`,
-							opacity: frame > 36 ? (1 - t) * 0.55 : 0,
+							opacity: frame > 22 ? (1 - t) * 0.55 : 0,
 						}}
 					/>
 				);
@@ -1805,8 +2054,8 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 
 			<Words
 				text={text}
-				start={6}
-				stagger={3}
+				start={2}
+				stagger={2}
 				accent={accent}
 				style={{
 					...headline,
@@ -1850,10 +2099,10 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 						top: 0,
 						bottom: 0,
 						width: 160,
-						left: interpolate((frame - 40) % 40, [0, 40], [-200, 860]),
+						left: interpolate((((frame - 26) % 40) + 40) % 40, [0, 40], [-200, 860]),
 						background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent)',
 						transform: 'skewX(-20deg)',
-						opacity: frame > 40 ? 1 : 0,
+						opacity: frame > 26 ? 1 : 0,
 					}}
 				/>
 				<span style={{position: 'relative'}}>{button}</span>
@@ -1889,7 +2138,7 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 					position: 'absolute',
 					left: interpolate(glide, [0, 1], [WIDTH / 2 + 520, WIDTH / 2 + 120]),
 					top: interpolate(glide, [0, 1], [BTN_Y + 260, BTN_Y + 10]),
-					opacity: interpolate(frame, [40, 46], [0, 1], clamp),
+					opacity: interpolate(frame, [24, 30], [0, 1], clamp),
 					transform: `scale(${pressed ? 0.85 : 1})`,
 					filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.5))',
 				}}
@@ -1950,15 +2199,9 @@ export const SeoAnimation: React.FC<SeoAnimationProps> = (props) => {
 				</SceneFade>
 			</Sequence>
 
-			<Sequence from={SCENES.data.from} durationInFrames={SCENES.data.duration} name="4 Data to phone">
-				<SceneFade duration={SCENES.data.duration}>
-					<DataScene headlineText={p.dataHeadline} query={p.phoneQuery} business={p.businessName} />
-				</SceneFade>
-			</Sequence>
-
-			<Sequence from={SCENES.cta.from} durationInFrames={SCENES.cta.duration} name="5 Call to action">
-				<SceneFade duration={SCENES.cta.duration}>
-					<CtaScene text={p.ctaHeadline} accent={p.ctaAccent} button={p.ctaButton} url={p.url} />
+			<Sequence from={SCENES.finale.from} durationInFrames={SCENES.finale.duration} name="4-5 Phone to globe to CTA">
+				<SceneFade duration={SCENES.finale.duration}>
+					<FinaleScene p={p} />
 				</SceneFade>
 			</Sequence>
 

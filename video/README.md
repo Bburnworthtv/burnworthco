@@ -21,11 +21,13 @@ npm run typecheck
 
 | Scene | Frames | Content |
 | ----- | ------ | ------- |
-| 1 Problem | 0-96 | Hook, falling visibility chart, position counter |
-| 2 Solution | 84-186 | Search bar, your listing climbs, rising bar chart |
-| 3 AI answers | 174-258 | Prompt, AI answer, your domain cited as a source |
-| 4 Data to phone | 246-366 | Heatmap zoom into a phone search, map pin, Call now tap |
-| 5 Call to action | 354-450 | Rotating data globe (heat blooms, tracking arcs, orbit HUD) behind the headline, pulsing button, cursor click, URL |
+| 1 Problem | 0-90 | Hook, falling visibility chart, position counter |
+| 2 Solution | 78-168 | Search bar, your listing climbs, rising bar chart |
+| 3 AI answers | 156-228 | Prompt, AI answer, your domain cited as a source |
+| 4-5 Finale | 216-450 | One camera move: heatmap zoom, phone "near me" search, push into the phone's map, pull back over the city as phones drive to your pin, out to the data globe, then the CTA over the globe |
+
+The phone's map is the same `CityMap` render as the full-screen city, scaled down, so the push-in hand-off is exact.
+Beat timings for the finale live in `FIN` at the top of `src/SeoAnimation.tsx`.
 
 Scenes overlap by 12 frames for cross-dissolves. The last frame fades to ink, so the loop is seamless.
 
