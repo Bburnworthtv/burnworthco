@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://burnworthco.com/</loc>
     <lastmod>2026-09-30</lastmod>
-    <image:image><image:loc>https://burnworthco.com/assets/hero-local-map-poster-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/overview-poster-1280.jpg</image:loc></image:image>
+    <video:video>
+      <video:thumbnail_loc>https://burnworthco.com/assets/overview-poster-1280.jpg</video:thumbnail_loc>
+      <video:title>Burnworth Co. in 26 seconds</video:title>
+      <video:description>How customers find a local service business on Google, in Maps and in AI answers, and turn that search into an estimate request. Ends with the free visibility review offer.</video:description>
+      <video:content_loc>https://burnworthco.com/assets/overview-1280.mp4</video:content_loc>
+      <video:duration>26</video:duration>
+      <video:family_friendly>yes</video:family_friendly>
+    </video:video>
   </url>
   <url>
     <loc>https://burnworthco.com/about</loc>

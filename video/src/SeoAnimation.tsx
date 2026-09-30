@@ -287,10 +287,14 @@ const subline: CSSProperties = {
 /* Scene wrapper: blur/scale cross-dissolve in and out                 */
 /* ------------------------------------------------------------------ */
 
-const SceneFade: React.FC<{duration: number; children: React.ReactNode}> = ({duration, children}) => {
+const SceneFade: React.FC<{duration: number; fadeOut?: boolean; children: React.ReactNode}> = ({
+	duration,
+	fadeOut = true,
+	children,
+}) => {
 	const frame = useCurrentFrame();
 	const inP = interpolate(frame, [0, XFADE], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
-	const outP = interpolate(frame, [duration - XFADE, duration], [1, 0], {
+	const outP = !fadeOut ? 1 : interpolate(frame, [duration - XFADE, duration], [1, 0], {
 		...clamp,
 		easing: Easing.in(Easing.cubic),
 	});
@@ -1299,7 +1303,8 @@ export const SeoAnimation: React.FC<SeoAnimationProps> = (props) => {
 			</Sequence>
 
 			<Sequence from={SCENES.finale.from} durationInFrames={SCENES.finale.duration} name="4-5 Inquiry, map, end card">
-				<SceneFade duration={SCENES.finale.duration}>
+				{/* No fade at the end: the video holds on the end card, where the site's form takes over. */}
+				<SceneFade duration={SCENES.finale.duration} fadeOut={false}>
 					<FinaleScene p={p} />
 				</SceneFade>
 			</Sequence>
