@@ -1420,6 +1420,311 @@ const DataScene: React.FC<{headlineText: string; query: string; business: string
 };
 
 /* ------------------------------------------------------------------ */
+/* Data globe: dot-matrix Earth with heat, arcs and orbit HUD          */
+/* ------------------------------------------------------------------ */
+
+// Coarse continent outlines as [lon, lat]. Only used to decide where dots go.
+const LAND: Pt[][] = [
+	[[-168, 66], [-156, 71], [-130, 70], [-95, 72], [-80, 73], [-62, 60], [-55, 52], [-66, 45], [-76, 35], [-81, 25], [-97, 26], [-97, 20], [-87, 21], [-83, 10], [-79, 8], [-92, 15], [-105, 20], [-112, 30], [-118, 34], [-124, 40], [-124, 48], [-135, 58], [-150, 60], [-165, 60]],
+	[[-55, 60], [-44, 60], [-20, 70], [-20, 82], [-60, 82], [-72, 77]],
+	[[-80, 8], [-60, 10], [-50, 0], [-35, -5], [-40, -22], [-48, -28], [-58, -38], [-65, -55], [-72, -50], [-72, -30], [-70, -18], [-81, -5]],
+	[[-10, 36], [-9, 43], [-2, 48], [-5, 58], [5, 62], [15, 70], [30, 71], [40, 66], [40, 45], [28, 41], [20, 40], [12, 38], [3, 43]],
+	[[-5, 50], [1, 51], [-2, 56], [-5, 58], [-6, 54]],
+	[[-17, 15], [-17, 21], [-10, 30], [-6, 36], [10, 37], [32, 31], [35, 28], [43, 12], [51, 11], [40, -3], [40, -16], [32, -28], [20, -35], [15, -25], [12, -5], [8, 5], [-8, 4]],
+	[[36, 30], [35, 28], [43, 12], [52, 16], [58, 22], [50, 30]],
+	[[40, 66], [70, 73], [110, 77], [140, 72], [180, 68], [180, 64], [160, 60], [142, 52], [135, 43], [122, 40], [122, 30], [110, 20], [106, 10], [100, 13], [98, 8], [92, 22], [80, 15], [77, 8], [72, 20], [57, 25], [50, 30], [48, 30], [36, 36], [28, 41], [40, 45]],
+	[[130, 31], [141, 36], [142, 44], [140, 41]],
+	[[114, -22], [122, -18], [131, -12], [137, -12], [142, -11], [146, -19], [153, -28], [150, -37], [141, -38], [131, -32], [115, -34]],
+];
+
+const inPoly = (x: number, y: number, poly: Pt[]) => {
+	let inside = false;
+	for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+		const [xi, yi] = poly[i];
+		const [xj, yj] = poly[j];
+		if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+	}
+	return inside;
+};
+
+type City = {name: string; lon: number; lat: number; heat: number};
+const CITIES: City[] = [
+	{name: 'BOISE', lon: -116.2, lat: 43.6, heat: 1},
+	{name: 'LOS ANGELES', lon: -118.2, lat: 34.1, heat: 0.9},
+	{name: 'NEW YORK', lon: -74, lat: 40.7, heat: 0.95},
+	{name: 'CHICAGO', lon: -87.6, lat: 41.9, heat: 0.6},
+	{name: 'DALLAS', lon: -96.8, lat: 32.8, heat: 0.6},
+	{name: 'MIAMI', lon: -80.2, lat: 25.8, heat: 0.55},
+	{name: 'SÃO PAULO', lon: -46.6, lat: -23.5, heat: 0.7},
+	{name: 'LONDON', lon: -0.1, lat: 51.5, heat: 0.85},
+	{name: 'LAGOS', lon: 3.4, lat: 6.5, heat: 0.5},
+	{name: 'DUBAI', lon: 55.3, lat: 25.2, heat: 0.6},
+];
+const ARCS: [number, number][] = [
+	[0, 1], [0, 2], [0, 4], [2, 7], [1, 3], [5, 6], [2, 5], [7, 8], [7, 9], [3, 2], [4, 6], [0, 7],
+];
+
+const RAD = Math.PI / 180;
+type V3 = [number, number, number];
+const toVec = (lon: number, lat: number): V3 => [
+	Math.cos(lat * RAD) * Math.cos(lon * RAD),
+	Math.cos(lat * RAD) * Math.sin(lon * RAD),
+	Math.sin(lat * RAD),
+];
+
+const slerp = (a: V3, b: V3, t: number): V3 => {
+	const dot = Math.min(1, Math.max(-1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]));
+	const om = Math.acos(dot);
+	if (om < 1e-6) return a;
+	const s0 = Math.sin((1 - t) * om) / Math.sin(om);
+	const s1 = Math.sin(t * om) / Math.sin(om);
+	return [a[0] * s0 + b[0] * s1, a[1] * s0 + b[1] * s1, a[2] * s0 + b[2] * s1];
+};
+
+const DataGlobe: React.FC<{cx: number; cy: number; r: number}> = ({cx, cy, r}) => {
+	const frame = useCurrentFrame();
+	const {fps} = useVideoConfig();
+	const enter = spring({frame, fps, config: {damping: 20, stiffness: 60}});
+	const R = r * interpolate(enter, [0, 1], [0.7, 1]);
+
+	// Camera: spin east while slowly tilting.
+	const lon0 = -88 + frame * 0.42 + (1 - enter) * -30;
+	const lat0 = 24 - frame * 0.04;
+	const sl = Math.sin(lat0 * RAD);
+	const cl = Math.cos(lat0 * RAD);
+
+	// Project a unit vector (optionally lifted) to screen, with depth.
+	const project = (v: V3, lift = 1) => {
+		const lon = Math.atan2(v[1], v[0]) - lon0 * RAD;
+		const lat = Math.asin(Math.max(-1, Math.min(1, v[2])));
+		const x = Math.cos(lat) * Math.sin(lon);
+		const y = cl * Math.sin(lat) - sl * Math.cos(lat) * Math.cos(lon);
+		const z = sl * Math.sin(lat) + cl * Math.cos(lat) * Math.cos(lon);
+		return {x: cx + x * R * lift, y: cy - y * R * lift, z, lift};
+	};
+	const visible = (p: {x: number; y: number; z: number}) =>
+		p.z > 0 || Math.hypot(p.x - cx, p.y - cy) > R + 1;
+
+	const dots = useMemo(() => {
+		const out: {v: V3; heat: number; phase: number}[] = [];
+		const cityVecs = CITIES.map((c) => toVec(c.lon, c.lat));
+		for (let lat = -58; lat <= 80; lat += 2.1) {
+			const step = 2.1 / Math.max(0.2, Math.cos(lat * RAD));
+			for (let lon = -180; lon < 180; lon += step) {
+				if (!LAND.some((poly) => inPoly(lon, lat, poly))) continue;
+				const v = toVec(lon, lat);
+				let heat = 0;
+				cityVecs.forEach((c, i) => {
+					const d = Math.acos(Math.min(1, v[0] * c[0] + v[1] * c[1] + v[2] * c[2])) / RAD;
+					heat = Math.max(heat, CITIES[i].heat * Math.exp(-(d * d) / (2 * 5.5 * 5.5)));
+				});
+				out.push({v, heat, phase: random(`g-${lon}-${lat}`) * Math.PI * 2});
+			}
+		}
+		return out;
+	}, []);
+
+	const graticule = useMemo(() => {
+		const lines: V3[][] = [];
+		for (let lon = -180; lon < 180; lon += 20) {
+			lines.push(Array.from({length: 61}, (_, i) => toVec(lon, -90 + i * 3)));
+		}
+		for (let lat = -60; lat <= 60; lat += 20) {
+			lines.push(Array.from({length: 121}, (_, i) => toVec(-180 + i * 3, lat)));
+		}
+		return lines;
+	}, []);
+
+	const pathFor = (pts: ReturnType<typeof project>[]) => {
+		let d = '';
+		let pen = false;
+		for (const q of pts) {
+			if (visible(q)) {
+				d += `${pen ? 'L' : 'M'}${q.x.toFixed(1)} ${q.y.toFixed(1)} `;
+				pen = true;
+			} else pen = false;
+		}
+		return d;
+	};
+
+	const orbit = frame * 1.6;
+
+	return (
+		<svg width={WIDTH} height={HEIGHT} style={{position: 'absolute', inset: 0, overflow: 'visible'}}>
+			<defs>
+				<radialGradient id="globeBody" cx="42%" cy="36%" r="70%">
+					<stop offset="0%" stopColor="#2a1a15" />
+					<stop offset="60%" stopColor="#150f0d" />
+					<stop offset="100%" stopColor="#0b0908" />
+				</radialGradient>
+				<radialGradient id="globeAtmo" cx="50%" cy="50%" r="50%">
+					<stop offset="80%" stopColor={C.red} stopOpacity={0} />
+					<stop offset="82.5%" stopColor={C.red} stopOpacity={0.5} />
+					<stop offset="88%" stopColor={C.red} stopOpacity={0.1} />
+					<stop offset="100%" stopColor={C.red} stopOpacity={0} />
+				</radialGradient>
+				<radialGradient id="heatBloom">
+					<stop offset="0%" stopColor={C.amber} stopOpacity={0.9} />
+					<stop offset="35%" stopColor={C.red} stopOpacity={0.45} />
+					<stop offset="100%" stopColor={C.red} stopOpacity={0} />
+				</radialGradient>
+				<radialGradient id="globeSpec" cx="35%" cy="28%" r="45%">
+					<stop offset="0%" stopColor={C.paper} stopOpacity={0.08} />
+					<stop offset="100%" stopColor={C.paper} stopOpacity={0} />
+				</radialGradient>
+				<filter id="arcGlow" x="-50%" y="-50%" width="200%" height="200%">
+					<feGaussianBlur stdDeviation="4" result="b" />
+					<feMerge>
+						<feMergeNode in="b" />
+						<feMergeNode in="SourceGraphic" />
+					</feMerge>
+				</filter>
+			</defs>
+
+			<g opacity={enter}>
+				{/* atmosphere and body */}
+				<circle cx={cx} cy={cy} r={R * 1.22} fill="url(#globeAtmo)" />
+				<circle cx={cx} cy={cy} r={R} fill="url(#globeBody)" />
+				<circle cx={cx} cy={cy} r={R} fill="none" stroke={C.red} strokeOpacity={0.35} strokeWidth={1.5} />
+
+				<circle cx={cx} cy={cy} r={R} fill="url(#globeSpec)" />
+
+				{/* heat blooms under the dots */}
+				{CITIES.map((c) => {
+					const q = project(toVec(c.lon, c.lat));
+					if (q.z <= 0) return null;
+					const size = R * (0.1 + 0.1 * c.heat) * (1 + 0.08 * Math.sin(frame / 6 + c.lon));
+					const ang = Math.atan2(q.y - cy, q.x - cx) / RAD;
+					return (
+						<ellipse
+							key={c.name}
+							cx={q.x}
+							cy={q.y}
+							rx={size}
+							ry={size * Math.max(0.25, q.z)}
+							transform={`rotate(${ang + 90} ${q.x} ${q.y})`}
+							fill="url(#heatBloom)"
+							opacity={Math.min(1, q.z * 1.6) * c.heat}
+							style={{mixBlendMode: 'screen'}}
+						/>
+					);
+				})}
+
+				{/* graticule */}
+				{graticule.map((line, i) => (
+					<path key={i} d={pathFor(line.map((v) => project(v)))} fill="none" stroke={C.paper} strokeOpacity={0.06} strokeWidth={1} />
+				))}
+
+				{/* land dots, heat-coloured */}
+				{dots.map((d, i) => {
+					const q = project(d.v);
+					if (q.z <= 0.02) return null;
+					const h = d.heat * (0.8 + 0.2 * Math.sin(frame / 5 + d.phase));
+					const color = h > 0.08 ? heatColor(Math.min(1, 0.45 + h * 0.6)) : C.paper;
+					return (
+						<circle
+							key={i}
+							cx={q.x}
+							cy={q.y}
+							r={(2.1 + 1.8 * h) * (0.55 + 0.45 * q.z)}
+							fill={color}
+							opacity={(h > 0.08 ? 0.7 + 0.3 * h : 0.4) * (0.3 + 0.7 * q.z)}
+						/>
+					);
+				})}
+
+				{/* great-circle tracking arcs */}
+				{ARCS.map(([a, b], i) => {
+					const start = 8 + i * 4;
+					const t = interpolate(frame, [start, start + 26], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
+					if (t <= 0) return null;
+					const va = toVec(CITIES[a].lon, CITIES[a].lat);
+					const vb = toVec(CITIES[b].lon, CITIES[b].lat);
+					const span = Math.acos(Math.min(1, va[0] * vb[0] + va[1] * vb[1] + va[2] * vb[2]));
+					const N = 48;
+					const pts = Array.from({length: N + 1}, (_, k) => {
+						const u = k / N;
+						return project(slerp(va, vb, u), 1 + 0.35 * span * Math.sin(Math.PI * u));
+					});
+					const upto = Math.max(1, Math.round(t * N));
+					const drawn = pts.slice(0, upto + 1);
+					const head = drawn[drawn.length - 1];
+					const comet = drawn.slice(Math.max(0, drawn.length - 9));
+					const land = interpolate(frame, [start + 26, start + 46], [0, 1], clamp);
+					const end = pts[N];
+					return (
+						<g key={i}>
+							<path d={pathFor(drawn)} fill="none" stroke={C.amber} strokeOpacity={0.35} strokeWidth={1.6} />
+							{t < 1 ? (
+								<>
+									<path d={pathFor(comet)} fill="none" stroke="#fff1d6" strokeWidth={3} strokeLinecap="round" filter="url(#arcGlow)" />
+									{visible(head) ? <circle cx={head.x} cy={head.y} r={4.5} fill="#fff1d6" filter="url(#arcGlow)" /> : null}
+								</>
+							) : null}
+							{land > 0 && land < 1 && visible(end) ? (
+								<circle cx={end.x} cy={end.y} r={4 + 26 * land} fill="none" stroke={C.red} strokeWidth={2} opacity={1 - land} />
+							) : null}
+						</g>
+					);
+				})}
+
+				{/* city beacons and labels */}
+				{CITIES.map((c, i) => {
+					const q = project(toVec(c.lon, c.lat));
+					if (q.z < 0.15) return null;
+					const pulse = ((frame + i * 7) % 30) / 30;
+					// Labels stay out of the headline band so they never collide with the copy.
+					const showLabel = c.heat >= 0.85 && (q.y < 250 || q.y > 540);
+					return (
+						<g key={c.name} opacity={Math.min(1, (q.z - 0.15) * 4)}>
+							<circle cx={q.x} cy={q.y} r={5 + 18 * pulse} fill="none" stroke={C.amber} strokeWidth={1.5} opacity={0.8 * (1 - pulse)} />
+							<circle cx={q.x} cy={q.y} r={4} fill="#fff1d6" />
+							{showLabel ? (
+								<g>
+									<line x1={q.x} y1={q.y} x2={q.x + 26} y2={q.y - 26} stroke={C.paper} strokeOpacity={0.5} />
+									<text x={q.x + 30} y={q.y - 30} fill={C.paper} fillOpacity={0.75} fontFamily={MONO} fontSize={15} letterSpacing="0.14em">
+										{c.name}
+									</text>
+								</g>
+							) : null}
+						</g>
+					);
+				})}
+
+				{/* orbit HUD: tilted rings with tick marks and a tracking satellite */}
+				<g transform={`translate(${cx} ${cy}) rotate(-18)`}>
+					<ellipse rx={R * 1.32} ry={R * 0.34} fill="none" stroke={C.paper} strokeOpacity={0.14} strokeDasharray="2 10" strokeDashoffset={-orbit * 2} />
+					<ellipse rx={R * 1.48} ry={R * 0.42} fill="none" stroke={C.red} strokeOpacity={0.22} strokeDasharray="60 18 4 18" strokeDashoffset={orbit * 3} />
+					{(() => {
+						const a = (orbit * 1.4 * RAD) % (Math.PI * 2);
+						const sx = Math.cos(a) * R * 1.32;
+						const sy = Math.sin(a) * R * 0.34;
+						const front = Math.sin(a) > 0;
+						return (
+							<g opacity={front ? 1 : 0.25}>
+								<circle cx={sx} cy={sy} r={14} fill="none" stroke={C.amber} strokeOpacity={0.6} />
+								<circle cx={sx} cy={sy} r={5} fill={C.amber} />
+							</g>
+						);
+					})()}
+				</g>
+				<circle
+					cx={cx}
+					cy={cy}
+					r={R * 1.1}
+					fill="none"
+					stroke={C.paper}
+					strokeOpacity={0.12}
+					strokeWidth={10}
+					strokeDasharray="1 11"
+					transform={`rotate(${frame * 0.5} ${cx} ${cy})`}
+				/>
+			</g>
+		</svg>
+	);
+};
+
+/* ------------------------------------------------------------------ */
 /* Scene 5 - Call to action                                            */
 /* ------------------------------------------------------------------ */
 
@@ -1437,17 +1742,6 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 	const pressed = frame >= CLICK && frame < CLICK + 5;
 	const burst = interpolate(frame, [CLICK, CLICK + 20], [0, 1], clamp);
 
-	const particles = useMemo(
-		() =>
-			Array.from({length: 70}, (_, i) => ({
-				a: random(`pa-${i}`) * Math.PI * 2,
-				r: 500 + random(`pr-${i}`) * 700,
-				speed: 0.4 + random(`ps-${i}`) * 0.8,
-				size: 2 + random(`pz-${i}`) * 4,
-			})),
-		[],
-	);
-
 	const BTN_Y = 760;
 
 	return (
@@ -1458,23 +1752,16 @@ const CtaScene: React.FC<{text: string; accent: string; button: string; url: str
 				}}
 			/>
 
-			{/* inward particle drift */}
-			<svg width={WIDTH} height={HEIGHT} style={{position: 'absolute', inset: 0}}>
-				{particles.map((p, i) => {
-					const t = ((frame * p.speed * 0.012 + i / particles.length) % 1 + 1) % 1;
-					const r = p.r * (1 - t);
-					return (
-						<circle
-							key={i}
-							cx={WIDTH / 2 + Math.cos(p.a) * r * 1.4}
-							cy={BTN_Y + Math.sin(p.a) * r * 0.8}
-							r={p.size * (1 - t * 0.6)}
-							fill={i % 3 === 0 ? C.red : C.paper}
-							opacity={0.5 * Math.sin(Math.PI * t)}
-						/>
-					);
-				})}
-			</svg>
+			{/* data globe behind the copy */}
+			<DataGlobe cx={WIDTH / 2} cy={560} r={450} />
+
+			{/* scrim keeps the headline and button readable over the globe */}
+			<AbsoluteFill
+				style={{
+					background:
+						'radial-gradient(ellipse 48% 16% at 50% 36%, rgba(17,16,15,0.78), transparent 100%), radial-gradient(ellipse 30% 10% at 50% 70%, rgba(17,16,15,0.6), transparent 100%)',
+				}}
+			/>
 
 			{/* sonar rings behind the button */}
 			{[0, 1, 2].map((k) => {

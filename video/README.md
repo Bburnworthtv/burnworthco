@@ -25,7 +25,7 @@ npm run typecheck
 | 2 Solution | 84-186 | Search bar, your listing climbs, rising bar chart |
 | 3 AI answers | 174-258 | Prompt, AI answer, your domain cited as a source |
 | 4 Data to phone | 246-366 | Heatmap zoom into a phone search, map pin, Call now tap |
-| 5 Call to action | 354-450 | Headline, pulsing button, cursor click, URL |
+| 5 Call to action | 354-450 | Rotating data globe (heat blooms, tracking arcs, orbit HUD) behind the headline, pulsing button, cursor click, URL |
 
 Scenes overlap by 12 frames for cross-dissolves. The last frame fades to ink, so the loop is seamless.
 
