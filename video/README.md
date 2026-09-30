@@ -1,6 +1,6 @@
 # Hero video
 
-A 17-second, 1920x1080, 30 fps hero animation built with [Remotion](https://www.remotion.dev/).
+A 25-second, 1920x1080, 30 fps hero animation built with [Remotion](https://www.remotion.dev/).
 It is a separate project, not part of the deployed site. Only the rendered file belongs in `public/`.
 
 ## Commands
@@ -21,10 +21,10 @@ npm run typecheck
 
 | Scene | Frames | Content |
 | ----- | ------ | ------- |
-| 1 Problem | 0-90 | Hook, falling visibility chart, position counter |
-| 2 Solution | 78-168 | Search bar, your listing climbs, rising bar chart |
-| 3 AI answers | 156-228 | Prompt, AI answer, your domain cited as a source |
-| 4-5 Finale | 216-510 | One camera move: heatmap zoom, phone "near me" search, push into the phone's map, pull back over the city as phones drive to your pin, out to the data globe, then the CTA over the globe |
+| 1 Problem | 0-135 | Hook, falling visibility chart, position counter |
+| 2 Solution | 123-258 | Search bar, your listing climbs, rising bar chart |
+| 3 AI answers | 246-366 | Prompt, AI answer, your domain cited as a source |
+| 4-5 Finale | 354-750 | One camera move: heatmap zoom, phone "near me" search, push into the phone's map, pull back over the city as phones drive to your pin, out to the data globe, then the CTA over the globe |
 
 The phone's map is the same `CityMap` render as the full-screen city, scaled down, so the push-in hand-off is exact.
 Beat timings for the finale live in `FIN` at the top of `src/SeoAnimation.tsx`.

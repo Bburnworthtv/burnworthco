@@ -22,27 +22,30 @@ import {
 export const FPS = 30;
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
-export const DURATION_IN_FRAMES = 17 * FPS; // 510
+export const DURATION_IN_FRAMES = 25 * FPS; // 750
 
 // Scenes overlap by XFADE frames so every cut is a cross-dissolve.
 const XFADE = 12;
 const SCENES = {
-	problem: {from: 0, duration: 90},
-	solution: {from: 78, duration: 90},
-	ai: {from: 156, duration: 72},
+	// Each scene holds after its animation finishes so the copy can be read.
+	problem: {from: 0, duration: 135},
+	solution: {from: 123, duration: 135},
+	ai: {from: 246, duration: 120},
 	// Heatmap -> phone -> city -> globe -> CTA is one continuous camera move.
-	finale: {from: 216, duration: 294},
+	finale: {from: 354, duration: 396},
 } as const;
 
 // Finale beats, in frames from the start of the finale.
 const FIN = {
-	phoneFrom: 60, // phone rises out of the heatmap flash
-	pushStart: 102, // camera starts pushing into the phone's map
-	pushEnd: 122, // map fills the frame; hand-off to the full-screen city
-	cityOutEnd: 166, // city has shrunk to a glow
-	globeFrom: 148, // globe starts, zoomed in on the city
-	globeSettled: 184,
-	ctaFrom: 166,
+	heatZoomStart: 74, // heatmap holds, then the camera dives into the hotspot
+	heatZoomEnd: 96,
+	phoneFrom: 90, // phone rises out of the heatmap flash
+	pushStart: 170, // camera starts pushing into the phone's map
+	pushEnd: 190, // map fills the frame; hand-off to the full-screen city
+	cityOutEnd: 246, // city has shrunk to a glow
+	globeFrom: 228, // globe starts, zoomed in on the city
+	globeSettled: 264,
+	ctaFrom: 246, // CTA then holds for about 5 seconds
 } as const;
 
 // City map: the phone's map is the same render, so the push-in cut is seamless.
@@ -1610,8 +1613,8 @@ const PhoneInHand: React.FC<{query: string; business: string; push: number; mapT
 
 const FinaleScene: React.FC<{p: SeoAnimationProps}> = ({p}) => {
 	const frame = useCurrentFrame();
-	const heatOpacity = interpolate(frame, [62, 70], [1, 0], clamp);
-	const flash = interpolate(frame, [58, 63, 70], [0, 0.95, 0], clamp);
+	const heatOpacity = interpolate(frame, [FIN.phoneFrom + 2, FIN.phoneFrom + 10], [1, 0], clamp);
+	const flash = interpolate(frame, [FIN.phoneFrom - 2, FIN.phoneFrom + 3, FIN.phoneFrom + 10], [0, 0.95, 0], clamp);
 
 	// 1. Push into the phone's map until it fills the frame.
 	const push = interpolate(frame, [FIN.pushStart, FIN.pushEnd], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
@@ -1636,9 +1639,9 @@ const FinaleScene: React.FC<{p: SeoAnimationProps}> = ({p}) => {
 
 	return (
 		<AbsoluteFill>
-			{frame < 72 ? (
+			{frame < FIN.phoneFrom + 12 ? (
 				<AbsoluteFill style={{opacity: heatOpacity}}>
-					<HeatmapZoom zoomStart={44} zoomEnd={66} />
+					<HeatmapZoom zoomStart={FIN.heatZoomStart} zoomEnd={FIN.heatZoomEnd} />
 				</AbsoluteFill>
 			) : null}
 
