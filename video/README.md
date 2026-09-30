@@ -1,43 +1,44 @@
 # Hero video
 
-A 25-second, 1920x1080, 30 fps hero animation built with [Remotion](https://www.remotion.dev/).
-It is a separate project, not part of the deployed site. Only the rendered file belongs in `public/`.
+Two [Remotion](https://www.remotion.dev/) compositions, 1920x1080 at 30 fps. This is a separate project, not part of the deployed site. Only rendered files belong in `public/`.
+
+| Composition | Length | Use |
+| ----------- | ------ | --- |
+| `SeoHero` | about 26 s | Explainer or ad. Has its own headlines and end card. |
+| `SeoHeroBackground` | 12 s, seamless loop | Behind the site's HTML hero. No copy; the left side stays calm for the headline and a real, clickable button. |
 
 ## Commands
 
 ```
 npm install
-npm run studio     # preview and edit props live
-npm run render     # out/seo-hero.mp4
-npm run poster     # out/seo-hero-poster.jpg (frame 66, a finished scene)
+npm run studio      # preview and edit props live
+npm run render      # out/seo-hero.mp4
+npm run render:bg   # out/seo-hero-background.mp4
+npm run poster      # explainer poster frame
+npm run poster:bg   # background poster frame
 npm run typecheck
 ```
 
-## Structure
-
-- `src/Root.tsx` registers the `SeoHero` composition.
-- `src/SeoAnimation.tsx` holds all five scenes, the timeline and the default copy (`defaultSeoProps`).
-- `public/archivo-latin.woff2` is the site's own Archivo file, copied from `../public/assets/`. Licence: `public/archivo-OFL.txt`.
+## Explainer structure
 
 | Scene | Frames | Content |
 | ----- | ------ | ------- |
-| 1 Problem | 0-135 | Hook, falling visibility chart, position counter |
-| 2 Solution | 123-258 | Search bar, your listing climbs, rising bar chart |
-| 3 AI answers | 246-366 | Prompt, AI answer, your domain cited as a source |
-| 4-5 Finale | 354-750 | One camera move: heatmap zoom, phone "near me" search, push into the phone's map, pull back over the city as phones drive to your pin, out to the data globe, then the CTA over the globe |
+| 1 Opportunity | 0-135 | "Your next customer is searching." with the searches customers type |
+| 2 Found in search | 123-258 | "We get you found." with the listing moving to the top |
+| 3 Search, Maps and AI | 246-381 | "Build visibility across search, Maps, and AI answers." |
+| 4-5 Finale | 369-789 | Phone search ends in a sent estimate request; push into its map; local map with "Understand how customers find you. Track the inquiries that follow."; Burnworth Co. end card with the review offer |
 
-The phone's map is the same `CityMap` render as the full-screen city, scaled down, so the push-in hand-off is exact.
-Beat timings for the finale live in `FIN` at the top of `src/SeoAnimation.tsx`.
-
-Scenes overlap by 12 frames for cross-dissolves. The last frame fades to ink, so the loop is seamless.
+Finale beats live in `FIN` at the top of `src/SeoAnimation.tsx`; all copy is in `defaultSeoProps`.
+The phone's map is the same `LocalMap` render as the full-screen map, scaled down, so the push-in hand-off is exact.
 
 ## Copy rules
 
 The README at the repository root applies: no ranking, review or outcome claims without evidence.
-The site's local SEO FAQ says Burnworth Co. does not guarantee first place, so the default copy does not say "#1".
-Before publishing, make sure the CTA offer ("free audit") matches `search-visibility-audit.html`, which currently says audit pricing depends on scope.
+
+- No simulated metrics: no counters, percentages or "live" data labels. Map activity and inquiry cards are illustrations, not reported results.
+- No placement promises: the AI line is "Build visibility across search, Maps, and AI answers."
+- The end card offer lists what the review covers. Use it only if those are the deliverables, and make sure "free" matches `search-visibility-audit.html`, which currently says pricing depends on scope.
 
 ## Embedding
 
-Render a smaller web copy (for example `--crf=28`) and a WebM, then use a muted, looping, `playsinline` video with the poster frame.
-Respect `prefers-reduced-motion` by showing the poster instead, and keep the page's real H1 and CTA in HTML.
+For the site hero, keep the headline and button in HTML and use `SeoHeroBackground` as a muted, looping, `playsinline` video with its poster frame. Show the poster alone under `prefers-reduced-motion`. Use `SeoHero` where people choose to watch it, such as a section video or an ad.
