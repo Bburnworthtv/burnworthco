@@ -4,7 +4,7 @@ Two [Remotion](https://www.remotion.dev/) compositions, 1920x1080 at 30 fps. Thi
 
 | Composition | Length | Use |
 | ----------- | ------ | --- |
-| `SeoHero` | about 26 s | Explainer or ad. Has its own headlines and end card. |
+| `SeoHero` | about 26 s | The homepage hero (`public/assets/overview-*.mp4`/`.webm`). Holds on its end card; the site lays a real link over the drawn button. |
 | `SeoHeroBackground` | 12 s, seamless loop | Behind the site's HTML hero. No copy; the left side stays calm for the headline and a real, clickable button. |
 
 ## Commands

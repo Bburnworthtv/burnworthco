@@ -32,9 +32,19 @@ This is plain HTML, CSS and JavaScript. There is no dependency installation or b
 
 After committing content changes, run `python3 scripts/sync_dates.py`. After a deploy is live, run `python3 scripts/indexnow.py`, then resubmit `/sitemap.xml` in Search Console and request indexing for the changed pages.
 
+## Visibility review form
+
+The homepage form posts to `api/review-request.js`, a Vercel function that emails each request through [Resend](https://resend.com). Set these in Vercel → Project → Settings → Environment Variables (Production), then redeploy:
+
+- `RESEND_API_KEY` (required). Without it the form shows visitors the email and phone fallback instead.
+- `REVIEW_TO` (optional, defaults to `Brandon@burnworthco.com`).
+- `REVIEW_FROM` (optional). Until `burnworthco.com` is verified in Resend, the default `onboarding@resend.dev` sender only delivers to the Resend account's own email, so sign up to Resend with `Brandon@burnworthco.com` or verify the domain.
+
+Spam protection is a hidden field plus a minimum time on the page. The form also works without JavaScript: the function redirects back to `/?review=sent#review`.
+
 ## Analytics
 
-`public/analytics.js` loads on every page. Once `TAG_ID` is set it sends `click_to_call`, `email_click`, `book_call_click` and `cta_click`, each with `link_url`, `cta_text` and `cta_location`. Mark the first three as key events in GA4.
+`public/analytics.js` loads on every page. Once `TAG_ID` is set it sends `click_to_call`, `email_click`, `book_call_click` and `cta_click`, each with `link_url`, `cta_text` and `cta_location`; the homepage also sends `overview_video_start`, `overview_video_complete`, `review_form_start` and `generate_lead`. Mark `generate_lead`, `click_to_call`, `email_click` and `book_call_click` as key events in GA4.
 
 ## Recovery boundary
 

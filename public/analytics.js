@@ -11,6 +11,10 @@
     email_click      mailto: links              link_url, cta_location
     book_call_click  Calendly booking links     link_url, cta_text, cta_location
     cta_click        other buttons and CTAs     link_url, cta_text, cta_location
+  And from script.js on the homepage:
+    overview_video_start, overview_video_complete   the hero video
+    review_form_start                               first keystroke in the review form
+    generate_lead                                   review request sent (mark as a key event)
 */
 (function () {
   var TAG_ID = '';
@@ -42,6 +46,8 @@
     if (isGA4) gtag('event', name, params);
     else window.dataLayer.push(Object.assign({event: name}, params));
   }
+  // Used by script.js for video and form events.
+  window.bwTrack = function (name, params) { send(name, Object.assign({page_path: location.pathname}, params || {})); };
 
   // Where on the page the click happened: header, footer, or the nearest section.
   function locationOf(el) {
@@ -65,6 +71,6 @@
     if (href.indexOf('tel:') === 0) send('click_to_call', params);
     else if (href.indexOf('mailto:') === 0) send('email_click', params);
     else if (href.indexOf('calendly.com') !== -1) send('book_call_click', params);
-    else if (link.matches('.button, .header-cta, .text-link')) send('cta_click', params);
+    else if (link.matches('.button, .header-cta, .text-link, .film-cta')) send('cta_click', params);
   }, true);
 })();
