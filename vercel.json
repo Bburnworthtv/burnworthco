@@ -42,7 +42,7 @@
       ]
     },
     {
-      "source": "/assets/:file*.(jpg|webp|png|txt|svg)",
+      "source": "/assets/:file*.(jpg|webp|png|txt|svg|mp4|webm)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -60,7 +60,7 @@
       ]
     },
     {
-      "source": "/(styles.css|script.js)",
+      "source": "/(styles.css|script.js|analytics.js)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -78,7 +78,7 @@
       ]
     },
     {
-      "source": "/(robots.txt|sitemap.xml|llms.txt)",
+      "source": "/(robots.txt|sitemap.xml|sitemap-core.xml|sitemap-services.xml|sitemap-work.xml|sitemap-research.xml|llms.txt)",
       "headers": [
         {
           "key": "Cache-Control",
