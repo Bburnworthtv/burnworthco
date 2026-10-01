@@ -2,8 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://burnworthco.com/</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <image:image><image:loc>https://burnworthco.com/assets/overview-poster-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/brandon-burnworth-portrait-480.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/zenande-burnworth-portrait-380.jpg</image:loc></image:image>
     <video:video>
       <video:thumbnail_loc>https://burnworthco.com/assets/overview-poster-1280.jpg</video:thumbnail_loc>
       <video:title>Burnworth Co. in 26 seconds</video:title>
@@ -15,7 +17,7 @@
   </url>
   <url>
     <loc>https://burnworthco.com/about</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-01</lastmod>
     <image:image><image:loc>https://burnworthco.com/assets/brandon-burnworth-academy-awards-1100.jpg</image:loc></image:image>
     <image:image><image:loc>https://burnworthco.com/assets/brandon-burnworth-portrait-480.jpg</image:loc></image:image>
     <image:image><image:loc>https://burnworthco.com/assets/zenande-burnworth-portrait-380.jpg</image:loc></image:image>
