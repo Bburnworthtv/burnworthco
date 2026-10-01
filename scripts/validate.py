@@ -51,6 +51,8 @@ for route,p in pages.items():
   if u.fragment:assert u.fragment in pages[target].ids,(route,'missing fragment',link)
  for asset in p.assets:
   if urlsplit(asset).scheme:continue
+  # Skip Vercel-provided assets like /_vercel/insights/script.js
+  if asset.startswith('/_vercel/'):continue
   assert (root/asset.lstrip('/')).is_file(),(route,'missing asset',asset)
 # _headers: every HTML route needs its own Cache-Control rule, because
 # Cloudflare Pages merges all matching rules rather than picking the most
