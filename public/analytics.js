@@ -4,7 +4,8 @@
   Paste ONE ID below and deploy:
     - a GA4 measurement ID (G-XXXXXXXXXX) loads gtag.js directly, or
     - a Tag Manager container ID (GTM-XXXXXXX) loads the container.
-  While TAG_ID is empty nothing is loaded and nothing is sent.
+  Currently set to the GA4 stream for burnworthco.com. If TAG_ID is ever emptied,
+  nothing is loaded and nothing is sent.
 
   Events sent on click (mark the first three as key events in GA4):
     click_to_call    tel: links                 link_url, cta_location
@@ -17,7 +18,7 @@
     generate_lead                                   review request sent (mark as a key event)
 */
 (function () {
-  var TAG_ID = '';
+  var TAG_ID = 'G-WJL1CE5Z1Z';
 
   window.dataLayer = window.dataLayer || [];
   var isGA4 = /^G-[A-Z0-9]+$/.test(TAG_ID);
