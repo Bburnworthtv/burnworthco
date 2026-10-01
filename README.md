@@ -14,7 +14,7 @@ The site is static HTML in `public/`. A Vercel project named `burnworthco` is co
 - `scripts/validate.py`: dependency-free static release checks.
 - `scripts/sync_dates.py`: sets each sitemap `lastmod` from git history and rolls the newest date up into the sitemap index.
 - `scripts/indexnow.py`: after a deploy is live, submits every sitemap URL to IndexNow (Bing, Yandex, Seznam, Naver; not Google).
-- `public/analytics.js`: GA4 and Google Tag Manager, plus click tracking, on every page. GA4 (`GA4_ID`) is live; paste the Tag Manager container ID into `GTM_ID` to load GTM alongside it.
+- `public/analytics.js`: GA4 and Google Tag Manager, plus click tracking, on every page. GA4 (`GA4_ID`) is live; Tag Manager (`GTM_ID`, `GTM-M6S6RWJP`) loads alongside it.
 - `video/`: Remotion source for the homepage background video and the longer explainer. Not deployed; see `video/README.md`.
 - `docs/brand-mark.md`: how the B mark is constructed from the Archivo outlines, and which file to use where.
 - `docs/research/`: study template, evidence and publishing process, and an unpublished Top Tier draft.
@@ -44,7 +44,7 @@ Spam protection is a hidden field plus a minimum time on the page. The form also
 
 ## Analytics
 
-`public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`) and, once `GTM_ID` holds a `GTM-` container ID, also loads Tag Manager and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.
+`public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`), loads Tag Manager through `GTM_ID` (`GTM-M6S6RWJP`) and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.
 
 Click events: `click_to_call`, `email_click`, `book_call_click`, `free_audit_click` (any link to the free audit form at `/#review-form`) and `cta_click`, each with `link_url`, `cta_text` and `cta_location`. The homepage also sends `overview_video_start`, `overview_video_complete`, `review_form_start` and `generate_lead` (free audit form submitted). Mark `generate_lead`, `click_to_call`, `email_click`, `book_call_click` and `free_audit_click` as key events in GA4.
 

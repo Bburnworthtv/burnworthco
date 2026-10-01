@@ -24,7 +24,7 @@
 */
 (function () {
   var GA4_ID = 'G-WJL1CE5Z1Z';
-  var GTM_ID = '';
+  var GTM_ID = 'GTM-M6S6RWJP';
 
   window.dataLayer = window.dataLayer || [];
   var useGA4 = /^G-[A-Z0-9]+$/.test(GA4_ID);
