@@ -430,3 +430,5 @@ h1,h2,h3{text-wrap:balance}
   .field-row{grid-template-columns:1fr;gap:0}
   .film-toggle{right:10px;bottom:10px;min-height:32px;padding:4px 12px;font-size:12px}
 }
+/* Homepage header: the same solid bar at the top as after scrolling, so the video never washes out the menu. */
+.site-header:not(.solid){position:fixed;background:rgba(17,16,15,.98);backdrop-filter:none;-webkit-backdrop-filter:none}
