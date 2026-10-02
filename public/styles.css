@@ -7,7 +7,7 @@
 @media(max-width:800px){.site-header{grid-template-columns:1fr auto;height:68px}.site-header nav{display:none}.hero{height:auto;min-height:740px}.hero-image{object-position:62% center}.hero-shade{background:linear-gradient(90deg,rgba(9,9,8,.96),rgba(9,9,8,.62)),linear-gradient(0deg,rgba(9,9,8,.8),transparent)}.hero-content{padding-top:130px}.hero h1{font-size:clamp(50px,14vw,72px);margin:36px 0}.hero-foot,.thesis{display:block}.hero-foot>p{margin-bottom:30px}.actions{align-items:flex-start;flex-direction:column}.signal-strip{justify-content:flex-start}.section-head,.about,.method{grid-template-columns:1fr}.section-head{margin-bottom:50px}.stats{grid-template-columns:1fr}.stats article,.stats article+article{border-right:0;border-bottom:1px solid var(--line);padding:32px 0}.stats article:last-child{border-bottom:0}.stats p{min-height:0}.thesis .button{margin-top:30px}.service-list article{grid-template-columns:42px 1fr}.service-list .tags{grid-column:2}.method-intro{position:static}.about{gap:26px}footer{grid-template-columns:1fr 1fr}footer div{grid-column:1/-1}.report-hero{padding-top:80px}.report-meta{flex-direction:column;gap:8px}.report-body{grid-template-columns:1fr;padding-top:60px}.report-body aside{display:none}.prose h2{font-size:42px}.comparison{grid-template-columns:1fr}.comparison div+div{border-left:0;border-top:1px solid var(--line)}.source-list a{grid-template-columns:1fr auto}.source-list span{grid-column:1/-1}}
 @media(max-width:800px){
   .site-header{height:112px;grid-template-columns:1fr auto;grid-template-rows:68px 44px;padding:0 18px}
-  .site-header>.wordmark,.site-header>.header-cta{grid-row:1}
+  .site-header>.wordmark,.site-header>.header-cta,.site-header>.header-ctas{grid-row:1}
   .site-header>.wordmark{min-height:44px;display:flex;align-items:center}
   .site-header nav{display:flex;grid-column:1/-1;grid-row:2;align-self:stretch;justify-content:space-evenly;gap:0;margin:0 -18px;border-top:1px solid rgba(255,255,255,.14)}
   .site-header nav a{min-height:44px;display:flex;align-items:center;justify-content:center;padding:0 10px;font-size:12px}
@@ -445,3 +445,39 @@ h1,h2,h3{text-wrap:balance}
 .team-strip .text-link{margin:0;white-space:nowrap}
 @media(max-width:1100px){.team-strip{grid-template-columns:1fr 1fr}.team-strip-head,.team-strip .text-link{grid-column:1/-1}}
 @media(max-width:700px){.team-strip{grid-template-columns:1fr}.team-strip img{width:88px;height:88px}}
+/* Free audit offered beside every booking link: a red chip in the header, an outline button in the body. */
+.header-ctas{justify-self:end;display:flex;align-items:center;gap:22px}
+.header-audit{display:inline-flex;align-items:center;min-height:34px;padding:0 14px;background:var(--red);color:#fff;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap}
+.header-audit:hover{background:#c93622}
+.header-ctas .header-cta{white-space:nowrap}
+.cta-pair{display:flex;flex-wrap:wrap;align-items:center;gap:14px 16px}
+.closing .cta-pair{justify-content:center}
+.closing .cta-pair .button{margin:0}
+.button.ghost{background:transparent;color:inherit;border-color:currentColor}
+.button.ghost:hover{background:rgba(127,127,127,.14)}
+@media(max-width:800px){
+  .header-ctas{gap:14px}
+  .header-audit{min-height:36px;padding:0 10px;font-size:12px}
+  .header-ctas .header-cta{font-size:12px}
+}
+@media(max-width:360px){.site-header .wordmark{font-size:15px;letter-spacing:.06em}.header-ctas{gap:10px}.header-audit{padding:0 8px}.header-ctas .header-cta .icon-ne{display:none}}
+/* About hero: text only. Each founder appears once, in "Who you work with". */
+.founder-hero{grid-template-columns:minmax(0,1fr);min-height:0}
+.founder-copy{max-width:1100px;padding-top:clamp(64px,8vw,120px);padding-bottom:clamp(56px,7vw,104px)}
+.founder-copy h1{max-width:18ch}
+.founder-deck{max-width:60ch}
+
+/* Tighter vertical rhythm. Sections had stacked paddings (up to ~300px of
+   empty space before the footer on content pages). */
+.band{padding-top:clamp(64px,7vw,112px);padding-bottom:clamp(64px,7vw,112px)}
+.closing{padding-top:clamp(80px,9vw,136px);padding-bottom:clamp(80px,9vw,136px)}
+.closing.compact{padding-top:clamp(72px,7vw,96px);padding-bottom:clamp(72px,7vw,96px)}
+.report{padding-bottom:0}
+.report-body{padding-top:72px;padding-bottom:96px}
+.prose section{padding-bottom:64px}
+.prose section:last-child{padding-bottom:0}
+@media(max-width:800px){
+  .report-body{padding-top:48px;padding-bottom:64px}
+  .prose section{padding-bottom:48px}
+  .prose section:last-child{padding-bottom:0}
+}
