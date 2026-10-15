@@ -549,3 +549,6 @@ html:has(.audit-pop[open]){overflow:hidden}
 .choice-grid .choice+.choice{margin-top:0}
 .estimate-form.review-thanks h3{margin:0 0 10px}
 @media(max-width:600px){.choice-grid{grid-template-columns:1fr}}
+/* "Other (write in)" budget: the text box shows only when Other is chosen. */
+.estimate-form .budget-other{display:none}
+.estimate-form:has(select[name="budget"] option[value="Other"]:checked) .budget-other{display:block}
