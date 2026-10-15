@@ -18,6 +18,9 @@
   const write = (value) => { try { localStorage.setItem(KEY, value); } catch {} };
   const onHome = location.pathname === '/' || location.pathname === '/index.html';
   const inlineForm = document.querySelector('[data-review-form]');
+  // Pages with the website estimate form (web development) keep the visitor on
+  // that form: no automatic popup there, though Free audit links still open it.
+  const estimateForm = document.querySelector('[data-estimate-form]');
   const auditLink = /#review(-form)?$/;
   const fallback = 'Please email <a href="mailto:Brandon@burnworthco.com">Brandon@burnworthco.com</a> or call <a href="tel:+12088812382">(208) 881-2382</a>.';
 
@@ -121,6 +124,7 @@
 
   // Automatic open.
   const state = read();
+  if (estimateForm) return;
   if (state === 'sent') return;
   if (state && Date.now() - Number(state) < QUIET_DAYS * 864e5) return;
 
