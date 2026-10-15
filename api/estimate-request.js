@@ -22,7 +22,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PROJECTS = ['New website', 'Redesign of an existing site', 'Landing or sales pages', 'Fixes to an existing site'];
 const PAGES = ['1-5', '6-15', '16-30', '30+', 'Not sure'];
 const TIMELINES = ['As soon as possible', 'Within 1-3 months', 'In 3-6 months', 'Flexible'];
-const BUDGETS = ['Under $5,000', '$5,000-$10,000', '$10,000-$20,000', '$20,000+', 'Not sure yet'];
+const BUDGETS = ['$2,500-$3,500', '$5,000', '$10,000-$20,000', '$20,000+', 'Not sure yet'];
 const FEATURES = ['Contact or quote forms', 'Online booking or scheduling', 'Photo gallery or project portfolio',
   'Blog or news', 'Online payments or e-commerce', 'Multiple locations or service areas', 'Help writing the content'];
 const pick = (value, allowed) => (allowed.includes(line(value, 80)) ? line(value, 80) : '');
