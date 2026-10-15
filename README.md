@@ -43,6 +43,16 @@ The homepage form posts to `api/review-request.js`, a Vercel function that email
 
 Spam protection is a hidden field plus a minimum time on the page. The form also works without JavaScript: the function redirects back to `/?review=sent#review`.
 
+## Free audit popup
+
+`public/audit-popup.js` (loaded on every page except 404) adds a free audit popup that posts to the same `api/review-request.js` as the homepage form. The email it sends says which form it came from and the page it was opened on.
+
+- Opens by itself at most once: after half the page is scrolled and 20 seconds have passed, or, for mouse users, when the pointer leaves through the top of the window after 8 seconds.
+- Never opens while the homepage form is on screen, or after someone has started or sent that form.
+- Stays closed for 14 days after it is dismissed (close button, "No thanks", Escape or the backdrop) and for good once a request is sent. The state is kept in the visitor's browser under `bw_audit_popup`.
+- On every page except the homepage, "Free audit" links (`/#review-form`) open the popup in place instead of leaving the page.
+- Events: `audit_popup_view` and `audit_popup_dismiss` (each with `trigger`: `engaged`, `exit_intent` or `link`), plus `review_form_start` and `generate_lead` with `form: audit_popup`.
+
 ## Analytics
 
 `public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`), loads Tag Manager through `GTM_ID` (`GTM-M6S6RWJP`) and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.
