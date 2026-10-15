@@ -53,6 +53,17 @@ Spam protection is a hidden field plus a minimum time on the page. The form also
 - On every page except the homepage, "Free audit" links (`/#review-form`) open the popup in place instead of leaving the page.
 - Events: `audit_popup_view` and `audit_popup_dismiss` (each with `trigger`: `engaged`, `exit_intent` or `link`), plus `review_form_start` and `generate_lead` with `form: audit_popup`.
 
+## Website build estimate form
+
+The web development page has a website build estimate form at `/web-development#estimate`. It posts to `api/estimate-request.js`, which emails each request through Resend using the same `RESEND_API_KEY`, `REVIEW_TO` and `REVIEW_FROM` variables as the review form. `public/estimate.js` handles the in-page submission, and the form also works without JavaScript (the function redirects back to `/web-development?estimate=sent#estimate`).
+
+- Required: name, email and project type. Optional: phone, business, current website, page count, timeline, features, budget and details. The choice fields only accept the listed answers.
+- The budget ranges are in two places: the `<select name="budget">` in `web-development.html` and `BUDGETS` in `api/estimate-request.js`. Change both together.
+- Events: `estimate_form_start` and `generate_lead` with `form: website_estimate`. Mark `generate_lead` as a key event in GA4 if it isn't already.
+- The free audit popup does not open by itself on this page.
+
+Website builds are offered across the site: "Websites" in the main menu, a "Website builds" section and Web Development listed first on the homepage, and "Get a website estimate" buttons on the homepage, services page and web development page.
+
 ## Analytics
 
 `public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`), loads Tag Manager through `GTM_ID` (`GTM-M6S6RWJP`) and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.
