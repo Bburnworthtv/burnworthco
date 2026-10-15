@@ -22,7 +22,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PROJECTS = ['New website', 'Redesign of an existing site', 'Landing or sales pages', 'Fixes to an existing site'];
 const PAGES = ['1-5', '6-15', '16-30', '30+', 'Not sure'];
 const TIMELINES = ['As soon as possible', 'Within 1-3 months', 'In 3-6 months', 'Flexible'];
-const BUDGETS = ['Under $5,000', '$5,000-$10,000', '$10,000-$20,000', '$20,000+', 'Not sure yet'];
+const BUDGETS = ['$2,500-$3,500', '$5,000', '$10,000-$20,000', '$20,000+', 'Other', 'Not sure yet'];
 const FEATURES = ['Contact or quote forms', 'Online booking or scheduling', 'Photo gallery or project portfolio',
   'Blog or news', 'Online payments or e-commerce', 'Multiple locations or service areas', 'Help writing the content'];
 const pick = (value, allowed) => (allowed.includes(line(value, 80)) ? line(value, 80) : '');
@@ -65,7 +65,12 @@ module.exports = async (req, res) => {
   const project = pick(body.project, PROJECTS);
   const pages = pick(body.pages, PAGES);
   const timeline = pick(body.timeline, TIMELINES);
-  const budget = pick(body.budget, BUDGETS);
+  // "Other" comes with a written-in amount; a written-in amount is kept even if
+  // the visitor forgot to choose "Other".
+  const budgetOther = line(body.budget_other, 100);
+  let budget = pick(body.budget, BUDGETS);
+  if (budgetOther && (budget === 'Other' || !budget)) budget = `Other: ${budgetOther}`;
+  else if (budget === 'Other') budget = 'Other (not specified)';
   const features = list(body.features).filter((f) => FEATURES.includes(f));
   const details = String(body.details ?? '').trim().slice(0, 3000);
 

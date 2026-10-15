@@ -145,13 +145,15 @@
               <label>Budget <span>(optional)</span>
                 <select name="budget">
                   <option value="">Choose one</option>
-                  <option value="Under $5,000">Under $5,000</option>
-                  <option value="$5,000-$10,000">$5,000–$10,000</option>
+                  <option value="$2,500-$3,500">$2,500–$3,500</option>
+                  <option value="$5,000">$5,000</option>
                   <option value="$10,000-$20,000">$10,000–$20,000</option>
                   <option value="$20,000+">$20,000+</option>
+                  <option value="Other">Other (write in)</option>
                   <option value="Not sure yet">Not sure yet</option>
                 </select>
               </label>
+              <label class="budget-other">Your budget<input name="budget_other" maxlength="100" placeholder="For example: $7,500, or a monthly amount"></label>
               <label>Tell us about the project <span>(optional)</span><textarea name="details" rows="4" maxlength="3000" placeholder="What the site needs to do, sites you like, anything that has to carry over from your current site"></textarea></label>
               <label class="hp" aria-hidden="true">Leave this empty<input name="company" tabindex="-1" autocomplete="off"></label>
               <input type="hidden" name="started" value="">
