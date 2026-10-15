@@ -16,7 +16,8 @@ The site is static HTML in `public/`. A Vercel project named `burnworthco` is co
 - `scripts/indexnow.py`: after a deploy is live, submits every sitemap URL to IndexNow (Bing, Yandex, Seznam, Naver; not Google).
 - `public/analytics.js`: GA4 and Google Tag Manager, plus click tracking, on every page. GA4 (`GA4_ID`) is live; Tag Manager (`GTM_ID`, `GTM-M6S6RWJP`) loads alongside it.
 - `video/`: Remotion source for the homepage background video and the longer explainer. Not deployed; see `video/README.md`.
-- `docs/brand-mark.md`: how the B mark is constructed from the Archivo outlines, and which file to use where.
+- `docs/brand-mark.md`: how the "Burnworth Co." serif wordmark and B. mark are built from Lora outlines, how the inline SVG wordmark keeps the name readable as text, and which file to use where.
+- `scripts/build_logo.py`: regenerates the wordmark and mark SVGs (needs fontTools and Lora).
 - `docs/research/`: study template, evidence and publishing process, and an unpublished Top Tier draft.
 - `video/`: Remotion source for the 15-second hero video. Not deployed; see `video/README.md`.
 
