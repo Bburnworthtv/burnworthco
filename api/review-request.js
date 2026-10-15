@@ -1,5 +1,6 @@
 /*
-  POST /api/review-request - free visibility review requests from the homepage form.
+  POST /api/review-request - free visibility review requests from the homepage form
+  and the free audit popup (source=popup, page=path it was opened on).
 
   Sends one plain-text email per request through Resend (https://resend.com).
   Vercel environment variables:
@@ -44,6 +45,8 @@ module.exports = async (req, res) => {
   const phone = line(body.phone, 40);
   let website = line(body.website, 300);
   const message = String(body.message ?? '').trim().slice(0, 2000);
+  const source = line(body.source, 40) === 'popup' ? 'Popup' : 'Homepage form';
+  const page = line(body.page, 200);
   if (website && !/^https?:\/\//i.test(website)) website = 'https://' + website;
 
   const missing = [!name && 'name', !EMAIL.test(email) && 'email', !website && 'website'].filter(Boolean);
@@ -58,6 +61,7 @@ module.exports = async (req, res) => {
     `Email:    ${email}`,
     `Phone:    ${phone || '-'}`,
     `Website:  ${website}`,
+    `Form:     ${source}${page ? ` on ${page}` : ''}`,
     '',
     'What they want more of:',
     message || '-',

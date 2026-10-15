@@ -45,6 +45,8 @@
   Cache-Control: public, max-age=0, must-revalidate
 /analytics.js
   Cache-Control: public, max-age=0, must-revalidate
+/audit-popup.js
+  Cache-Control: public, max-age=0, must-revalidate
 
 # Icons, enumerated rather than globbed: a root /*.png pattern would also match
 # /assets/*.png and re-create the double-header problem described above.

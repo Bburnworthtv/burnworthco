@@ -60,7 +60,7 @@
       ]
     },
     {
-      "source": "/(styles.css|script.js|analytics.js)",
+      "source": "/(styles.css|script.js|analytics.js|audit-popup.js)",
       "headers": [
         {
           "key": "Cache-Control",

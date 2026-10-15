@@ -90,6 +90,7 @@ if (reviewForm) {
   const submit = reviewForm.querySelector('button[type="submit"]');
   const fallback = 'Please email <a href="mailto:Brandon@burnworthco.com">Brandon@burnworthco.com</a> or call <a href="tel:+12088812382">(208) 881-2382</a>.';
   const thanks = () => {
+    try { localStorage.setItem('bw_audit_popup', 'sent'); } catch {}
     reviewForm.classList.add('review-thanks');
     reviewForm.innerHTML = '<h2>Request received.</h2><p>Thanks. Brandon will reply by email with your visibility review.</p>';
   };
@@ -102,7 +103,7 @@ if (reviewForm) {
 
   let formStarted = false;
   reviewForm.addEventListener('input', () => {
-    if (!formStarted) { formStarted = true; track('review_form_start', { form: 'visibility_review' }); }
+    if (!formStarted) { formStarted = true; reviewForm.dataset.started = '1'; track('review_form_start', { form: 'visibility_review' }); }
   });
 
   reviewForm.addEventListener('submit', async (event) => {
