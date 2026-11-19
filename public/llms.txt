@@ -26,6 +26,8 @@
 ## About
 
 - [About Brandon & Zenande Burnworth](https://burnworthco.com/about): Brandon and Zenande Burnworth founded Burnworth Co. A broadcast engineer and an operations lead building websites, SEO and AI search visibility.
+- [Privacy Policy](https://burnworthco.com/privacy): What Burnworth Co. collects through this website and Burnworth OS, including QuickBooks data, how it is used, who handles it and how to ask for removal.
+- [Terms of Use and License](https://burnworthco.com/terms): The terms for using burnworthco.com and the license for Burnworth OS, the invitation-only tool Burnworth Co. uses to manage client work and billing.
 
 ## Contact
 
