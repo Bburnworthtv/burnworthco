@@ -7,9 +7,14 @@
     REVIEW_TO       optional, defaults to Brandon@burnworthco.com.
     REVIEW_FROM     optional verified sender.
 
+  Each request is also filed as a lead in Burnworth OS when OS_INTAKE_URL and
+  OS_INTAKE_SECRET are set; see api/_os-intake.js.
+
   Answers JSON when the request asks for it (the page's script does); otherwise it
   redirects back to the form, so it still works without JavaScript.
 */
+const fileInOs = require('./_os-intake.js');
+
 const TO = process.env.REVIEW_TO || 'Brandon@burnworthco.com';
 const FROM = process.env.REVIEW_FROM || 'Burnworth Co <onboarding@resend.dev>';
 
@@ -77,7 +82,30 @@ module.exports = async (req, res) => {
   const missing = [!name && 'name', !EMAIL.test(email) && 'email', !project && 'project'].filter(Boolean);
   if (missing.length) return reply(400, {ok: false, error: 'invalid', fields: missing});
 
-  if (!process.env.RESEND_API_KEY) return reply(503, {ok: false, error: 'not_configured'});
+  // File the lead in the CRM while the email is sent; the reply waits for both.
+  const filed = fileInOs({
+    form: 'estimate',
+    name,
+    email,
+    phone,
+    business,
+    website,
+    message: details.slice(0, 2000),
+    page: '/web-development',
+    details: {
+      Project: project,
+      Pages: pages,
+      Timeline: timeline,
+      Budget: budget,
+      Features: features.join(', ').slice(0, 500),
+    },
+  });
+  const finish = async (status, result) => {
+    await filed;
+    return reply(status, result);
+  };
+
+  if (!process.env.RESEND_API_KEY) return finish(503, {ok: false, error: 'not_configured'});
 
   const text = [
     'New website build estimate request from burnworthco.com',
@@ -112,11 +140,11 @@ module.exports = async (req, res) => {
     });
     if (!r.ok) {
       console.error('Resend rejected the email', r.status, await r.text());
-      return reply(502, {ok: false, error: 'send_failed'});
+      return finish(502, {ok: false, error: 'send_failed'});
     }
   } catch (err) {
     console.error('Resend request failed', err);
-    return reply(502, {ok: false, error: 'send_failed'});
+    return finish(502, {ok: false, error: 'send_failed'});
   }
-  return reply(200, {ok: true});
+  return finish(200, {ok: true});
 };

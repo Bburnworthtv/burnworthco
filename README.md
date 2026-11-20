@@ -64,6 +64,15 @@ The web development page has a website build estimate form at `/web-development#
 
 Website builds are offered across the site: "Websites" in the main menu, a "Website builds" section and Web Development listed first on the homepage, and "Get a website estimate" buttons on the homepage, services page and web development page.
 
+## Leads in Burnworth OS
+
+Both forms also file each valid request as a lead in Burnworth OS, the agency's CRM, through `api/_os-intake.js` (not a route; Vercel ignores `api` files that start with an underscore). Set these in Vercel → Project → Settings → Environment Variables (Production), then redeploy:
+
+- `OS_INTAKE_URL`: `https://burnworth-co-os.vercel.app/api/leads/intake`.
+- `OS_INTAKE_SECRET`: the same value as `LEAD_INTAKE_SECRET` in the Burnworth OS project.
+
+Without both, nothing is sent and the forms work as before. Filing is best effort: it waits at most four seconds, and a CRM failure never changes what the visitor sees or stops the email. Spam caught by the hidden field or the time check is not filed.
+
 ## Analytics
 
 `public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`), loads Tag Manager through `GTM_ID` (`GTM-M6S6RWJP`) and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.
