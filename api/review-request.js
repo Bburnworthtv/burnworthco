@@ -9,9 +9,14 @@
     REVIEW_FROM     optional. Until burnworthco.com is verified in Resend, the default
                     onboarding@resend.dev sender only delivers to the Resend account's own email.
 
+  Each request is also filed as a lead in Burnworth OS when OS_INTAKE_URL and
+  OS_INTAKE_SECRET are set; see api/_os-intake.js.
+
   Answers JSON when the request asks for it (the page's script does); otherwise it
   redirects back to the homepage, so the form still works without JavaScript.
 */
+const fileInOs = require('./_os-intake.js');
+
 const TO = process.env.REVIEW_TO || 'Brandon@burnworthco.com';
 const FROM = process.env.REVIEW_FROM || 'Burnworth Co <onboarding@resend.dev>';
 
@@ -52,7 +57,23 @@ module.exports = async (req, res) => {
   const missing = [!name && 'name', !EMAIL.test(email) && 'email', !website && 'website'].filter(Boolean);
   if (missing.length) return reply(400, {ok: false, error: 'invalid', fields: missing});
 
-  if (!process.env.RESEND_API_KEY) return reply(503, {ok: false, error: 'not_configured'});
+  // File the lead in the CRM while the email is sent; the reply waits for both.
+  const filed = fileInOs({
+    form: 'audit',
+    name,
+    email,
+    phone,
+    website,
+    message,
+    page: page || '/',
+    details: {Form: source},
+  });
+  const finish = async (status, result) => {
+    await filed;
+    return reply(status, result);
+  };
+
+  if (!process.env.RESEND_API_KEY) return finish(503, {ok: false, error: 'not_configured'});
 
   const text = [
     'New free visibility review request from burnworthco.com',
@@ -81,11 +102,11 @@ module.exports = async (req, res) => {
     });
     if (!r.ok) {
       console.error('Resend rejected the email', r.status, await r.text());
-      return reply(502, {ok: false, error: 'send_failed'});
+      return finish(502, {ok: false, error: 'send_failed'});
     }
   } catch (err) {
     console.error('Resend request failed', err);
-    return reply(502, {ok: false, error: 'send_failed'});
+    return finish(502, {ok: false, error: 'send_failed'});
   }
-  return reply(200, {ok: true});
+  return finish(200, {ok: true});
 };
