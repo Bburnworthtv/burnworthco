@@ -1,3 +1,5 @@
 # Cloudflare Pages already redirects .html URLs to clean paths.
 # Redirect duplicate www host to the canonical apex host.
 https://www.burnworthco.com/* https://burnworthco.com/:splat 301
+# The contractor SEO hub replaced the local SEO page.
+/local-seo /contractor-seo 301
