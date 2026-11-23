@@ -3,6 +3,13 @@
   "outputDirectory": "public",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/local-seo",
+      "destination": "/contractor-seo",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -96,7 +103,7 @@
       ]
     },
     {
-      "source": "/(about|privacy|terms|services|web-development|local-seo|search-visibility-audit|generative-engine-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
+      "source": "/(about|privacy|terms|services|web-development|contractor-seo|seo-for-flooring-companies|search-visibility-audit|generative-engine-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
       "headers": [
         {
           "key": "Cache-Control",

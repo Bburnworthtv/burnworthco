@@ -99,7 +99,9 @@
   Cache-Control: public, max-age=0, must-revalidate
 /web-development
   Cache-Control: public, max-age=0, must-revalidate
-/local-seo
+/contractor-seo
+  Cache-Control: public, max-age=0, must-revalidate
+/seo-for-flooring-companies
   Cache-Control: public, max-age=0, must-revalidate
 /search-visibility-audit
   Cache-Control: public, max-age=0, must-revalidate
