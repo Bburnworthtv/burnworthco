@@ -725,6 +725,12 @@ html:not(.js) .flow-step,.flow-plain .flow-step{margin-top:26px}
 .prose .cards h3{margin:0 0 8px;font-size:20px}
 .prose .cards p{margin:0;font-size:15px;line-height:1.55}
 @media(hover:hover){.cards article:hover{transform:translateY(-4px);box-shadow:var(--shadow)}}
+/* Ratios: one number over another, as a fraction. */
+.prose .ratios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0 26px;padding:0;list-style:none}
+.prose .ratios li{display:grid;align-content:center;gap:10px;padding:22px 18px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--card);box-shadow:var(--shadow-sm);font-size:15px;line-height:1.3;text-align:center}
+.prose .ratios strong{padding-bottom:10px;border-bottom:2px solid var(--red);font-size:17px;font-weight:500;letter-spacing:-.02em}
+.prose .ratios span{color:var(--muted)}
+@media(max-width:700px){.prose .ratios{grid-template-columns:1fr}}
 /* Questions inside an article. */
 .prose .faq-list{margin:26px 0 30px}
 .faq-list summary h3,.prose .faq-list summary h3{margin:0;font:inherit;letter-spacing:inherit;line-height:inherit}
@@ -767,7 +773,8 @@ html:not(.js) .flow-step,.flow-plain .flow-step{margin-top:26px}
 .prose .process li{counter-increment:step;padding:20px 20px 4px 0;font-size:15px;line-height:1.55}
 .prose .process li+li{padding-left:20px;border-left:1px solid var(--line)}
 .prose .process li::before{content:counter(step,decimal-leading-zero);display:block;margin-bottom:26px;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--red-ink)}
-.prose .process strong{display:block;margin-bottom:8px;font-size:22px;font-weight:500;letter-spacing:-.03em}
+.prose .process strong{display:block;margin-bottom:8px;font-size:22px;font-weight:500;letter-spacing:-.03em;line-height:1.12}
+.prose .process li:has(strong:only-child){padding-bottom:16px}
 @media(max-width:800px){
   .prose .tiles{grid-template-columns:1fr}
   .prose .tiles li,.prose .tiles li:nth-child(n+4){grid-column:auto}
