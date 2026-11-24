@@ -591,7 +591,7 @@ html:has(.audit-pop[open]){overflow:hidden}
 
 /* ==== Website showcase (November 24, 2026) ====
    Real screenshots of a site we built, drawn inside a browser window and a phone. The frames are CSS; only the
-   screenshots are images. To show a different site, replace the three pacific-earthworks-* image sets in /assets. */
+   screenshots are images. Each site has its own image set in /assets (pacific-earthworks-*, go-virtuality-*). */
 .browser{background:#1c1b19;border:1px solid rgba(255,255,255,.16);border-radius:10px;overflow:hidden;box-shadow:0 34px 80px rgba(0,0,0,.42);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
 .browser-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:#262522}
 .browser-bar i{width:9px;height:9px;border-radius:50%;background:#55524c}
@@ -616,8 +616,12 @@ html:has(.audit-pop[open]){overflow:hidden}
 .showcase-facts li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:12px;vertical-align:2px}
 @media(max-width:900px){.showcase{grid-template-columns:1fr;padding-left:20px;padding-right:20px}}
 
-/* Homepage: the same screenshots under the "Website builds" band. */
-.build-band .stage{grid-column:1/-1;max-width:1040px;width:100%;justify-self:center;margin-top:clamp(8px,2vw,28px)}
+.showcase+.showcase{padding-top:clamp(56px,7vw,100px);border-top:1px solid rgba(255,255,255,.12)}
+@media(min-width:901px){.showcase-flip{grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr)}.showcase-flip .stage{order:-1}}
+
+/* Homepage: two builds side by side under the "Website builds" band. */
+.build-band .stage-pair{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,4vw,64px);margin-top:clamp(8px,2vw,28px)}
+@media(max-width:800px){.build-band .stage-pair{grid-template-columns:1fr;gap:44px}}
 
 /* ==== Web development page: tiles, checklist, price and steps in place of plain lists (November 24, 2026) ==== */
 .prose .tiles,.prose .checks,.prose .process{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:14px}
