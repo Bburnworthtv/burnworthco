@@ -1,14 +1,15 @@
 /*
   POST /api/estimate-request - website build estimate requests from /web-development#estimate.
 
-  Sends one plain-text email per request through Resend, with the same Vercel
-  environment variables as api/review-request.js:
-    RESEND_API_KEY  required. Without it the form answers 503 and shows the email/phone fallback.
-    REVIEW_TO       optional, defaults to Brandon@burnworthco.com.
-    REVIEW_FROM     optional verified sender.
-
-  Each request is also filed as a lead in Burnworth OS when OS_INTAKE_URL and
-  OS_INTAKE_SECRET are set; see api/_os-intake.js.
+  Each valid request goes to two places, like api/review-request.js:
+    1. An email through Resend, using the same Vercel environment variables:
+         RESEND_API_KEY  without it no email is sent (the lead is still filed in Burnworth OS).
+         REVIEW_TO       optional, defaults to Brandon@burnworthco.com.
+         REVIEW_FROM     optional verified sender.
+    2. A lead in Burnworth OS when OS_INTAKE_URL and OS_INTAKE_SECRET are set;
+       see api/_os-intake.js.
+  The visitor sees "received" when either one succeeds. Only when both fail does
+  the form show the email and phone fallback.
 
   Answers JSON when the request asks for it (the page's script does); otherwise it
   redirects back to the form, so it still works without JavaScript.
@@ -83,7 +84,7 @@ module.exports = async (req, res) => {
   if (missing.length) return reply(400, {ok: false, error: 'invalid', fields: missing});
 
   // File the lead in the CRM while the email is sent; the reply waits for both.
-  const filed = fileInOs({
+  const filing = fileInOs({
     form: 'estimate',
     name,
     email,
@@ -100,13 +101,6 @@ module.exports = async (req, res) => {
       Features: features.join(', ').slice(0, 500),
     },
   });
-  const finish = async (status, result) => {
-    await filed;
-    return reply(status, result);
-  };
-
-  if (!process.env.RESEND_API_KEY) return finish(503, {ok: false, error: 'not_configured'});
-
   const text = [
     'New website build estimate request from burnworthco.com',
     '',
@@ -126,25 +120,36 @@ module.exports = async (req, res) => {
     details || '-',
   ].join('\n');
 
-  try {
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        from: FROM,
-        to: [TO],
-        reply_to: email,
-        subject: `Website estimate request: ${business || name} (${project})`,
-        text,
-      }),
-    });
-    if (!r.ok) {
-      console.error('Resend rejected the email', r.status, await r.text());
-      return finish(502, {ok: false, error: 'send_failed'});
+  const sendEmail = async () => {
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('RESEND_API_KEY is not set: no email sent for this request');
+      return false;
     }
-  } catch (err) {
-    console.error('Resend request failed', err);
-    return finish(502, {ok: false, error: 'send_failed'});
-  }
-  return finish(200, {ok: true});
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          from: FROM,
+          to: [TO],
+          reply_to: email,
+          subject: `Website estimate request: ${business || name} (${project})`,
+          text,
+        }),
+      });
+      if (!r.ok) {
+        console.error('Resend rejected the email', r.status, await r.text());
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error('Resend request failed', err);
+      return false;
+    }
+  };
+
+  const [emailed, filed] = await Promise.all([sendEmail(), filing]);
+  if (emailed || filed) return reply(200, {ok: true});
+  const configured = process.env.RESEND_API_KEY || (process.env.OS_INTAKE_URL && process.env.OS_INTAKE_SECRET);
+  return configured ? reply(502, {ok: false, error: 'send_failed'}) : reply(503, {ok: false, error: 'not_configured'});
 };

@@ -11,6 +11,7 @@
 - [SEO for Contractors](https://burnworthco.com/contractor-seo): Contractor SEO from a two-person studio in Oceanside, CA. Service pages, Google Business Profile, project proof and lead tracking, from $1,000 a month.
 - [SEO for Flooring Companies](https://burnworthco.com/seo-for-flooring-companies): SEO for flooring contractors, installers and showrooms. Separate pages for refinishing and installation, service areas backed by real jobs, and tracked calls.
 - [SEO & AI Visibility Audit](https://burnworthco.com/search-visibility-audit): Find crawl problems, missing service content and gaps in Google and AI visibility. Get a prioritized action plan tied to qualified inquiries.
+- Paid ad campaigns: planned, built and managed alongside the SEO work, so paid and organic search point at the same service pages. See https://burnworthco.com/services#more.
 - [What Is Generative Engine Optimization?](https://burnworthco.com/generative-engine-optimization): A practical, evidence-led explanation of generative engine optimization and how GEO works with SEO to improve visibility in AI answers.
 
 ## Price and terms
@@ -37,14 +38,15 @@
 ## About
 
 - [About Brandon & Zenande Burnworth](https://burnworthco.com/about): Brandon and Zenande Burnworth founded Burnworth Co. A broadcast engineer and an operations lead building websites, SEO and AI search visibility.
-- [Privacy Policy](https://burnworthco.com/privacy): What Burnworth Co. collects through this website and Burnworth OS, including QuickBooks data, how it is used, who handles it and how to ask for removal.
+- [Privacy Policy](https://burnworthco.com/privacy): What Burnworth Co. collects through this website and Burnworth OS, including ad measurement and QuickBooks data, how it is used and how to ask for removal.
 - [Terms of Use and License](https://burnworthco.com/terms): The terms for using burnworthco.com and the license for Burnworth OS, the invitation-only tool Burnworth Co. uses to manage client work and billing.
+- [Accessibility Statement](https://burnworthco.com/accessibility): How burnworthco.com is built to work with a keyboard, a screen reader, a phone or with motion switched off, what was tested, and how to report a barrier.
 
 ## Contact
 
 - Email: Brandon@burnworthco.com
 - Telephone: +1-208-881-2382
-- Free visibility review (request form): https://burnworthco.com/#review-form
+- Free audit (answer three questions, then leave a name and email): https://burnworthco.com/start
 - Website build estimate (request form): https://burnworthco.com/web-development#estimate
 - Booking: https://calendly.com/bburnworthtv/30min
 - Email or call directly; no booking needed.

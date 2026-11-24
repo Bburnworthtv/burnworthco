@@ -2,7 +2,7 @@
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit
-import json,re,xml.etree.ElementTree as ET
+import json,re,shutil,subprocess,xml.etree.ElementTree as ET
 root=Path(__file__).resolve().parents[1]/'public'
 class Page(HTMLParser):
  def __init__(self):
@@ -21,6 +21,9 @@ class Page(HTMLParser):
    self.assets.extend(x.strip().split()[0] for x in a['srcset'].split(','))
   if tag=='link' and a.get('rel') in ['stylesheet','icon','apple-touch-icon','manifest']:self.assets.append(a['href'])
 pages={};titles=set();descriptions=set();base='https://burnworthco.com'
+# Pages kept out of search: the 404, the ad landing page (/start) and its
+# thank-you page. They carry "noindex,follow", no canonical, and are in no sitemap.
+utility=set()
 for f in root.rglob('*.html'):
  text=f.read_text()
  # Search Console verification files must stay byte-exact; they are not pages.
@@ -34,14 +37,18 @@ for f in root.rglob('*.html'):
  assert title not in titles,(f,'duplicate title');titles.add(title)
  assert desc not in descriptions,(f,'duplicate description');descriptions.add(desc)
  assert '/cdn-cgi/' not in text,(f,'edge-injected code retained')
- if f!=root/'404.html':
+ if 'content="noindex' in text:
+  utility.add(route)
+  assert '<meta name="robots" content="noindex,follow">' in text,(f,'utility pages use noindex,follow')
+  assert 'rel="canonical"' not in text,(f,'a noindex page should not declare a canonical')
+ else:
   assert re.findall(r'<link rel="canonical" href="([^"]+)"',text)==[base+route],f
   assert 'noindex' not in text,f
   graphs=re.findall(r'<script type="application/ld\+json">(.*?)</script>',text,re.S)
   assert len(graphs)==1,f
   data=json.loads(graphs[0]);nodes=data['@graph']
   assert any(n.get('@type')=='Organization' and n['name']=='Burnworth Co.' for n in nodes),f
- else:assert 'noindex,follow' in text,f
+assert '/404' in utility,'404.html must be noindex'
 for route,p in pages.items():
  for link in p.links:
   u=urlsplit(link)
@@ -61,9 +68,7 @@ for route,p in pages.items():
 headers_text=(root/'_headers').read_text()
 rules={l.strip() for l in headers_text.splitlines() if l.startswith('/') and not l.startswith('//')}
 for route in pages:
- if route=='/404':continue
  assert route in rules,(route,'missing a _headers rule')
-assert '/404' in rules,('/404','missing a _headers rule')
 vercel=json.loads((root.parent/'vercel.json').read_text())
 cache_rules={h['source'] for h in vercel['headers'] if any(x['key']=='Cache-Control' for x in h['headers'])}
 for route in pages:
@@ -88,7 +93,8 @@ for loc in index.findall('.//{*}loc'):
   urls.append(u.find('{*}loc').text)
   for img in u.findall('.//{*}image/{*}loc'):
    assert (root/urlsplit(img.text).path.lstrip('/')).is_file(),('missing sitemap image',img.text)
-assert set(urls)=={base+p for p in pages if p!='/404'},set(urls)^{base+p for p in pages if p!='/404'}
+indexed={base+p for p in pages if p not in utility}
+assert set(urls)==indexed,set(urls)^indexed
 assert len(urls)==len(set(urls))
 MAGIC={'.mp4':None,'.webm':(b'\x1aE\xdf\xa3',),'.png':(b'\x89PNG',),'.jpg':(b'\xff\xd8',),'.webp':(b'RIFF',),'.woff2':(b'wOF2',),'.txt':None,'.svg':(b'<svg',b'<?xml')}
 for f in list((root/'assets').glob('*'))+list((root/'images').glob('*')):
@@ -98,4 +104,12 @@ for f in list((root/'assets').glob('*'))+list((root/'images').glob('*')):
  assert f.suffix!='.webp' or b[8:12]==b'WEBP',f
  assert f.suffix!='.mp4' or b[4:8]==b'ftyp',f
 print(f'PASS: {len(pages)} HTML documents; {len(urls)} canonical sitemap URLs; local links, fragments, assets, metadata and JSON-LD valid.')
+# The header, footer and question flow are written into each page by
+# scripts/sync_partials.js; make sure no page has drifted, and that the answers
+# the server accepts still match the questions asked.
+if shutil.which('node'):
+ check=subprocess.run(['node',str(root.parent/'scripts'/'sync_partials.js'),'--check'],capture_output=True,text=True)
+ assert check.returncode==0,(check.stderr or check.stdout).strip()
+ print(check.stdout.strip())
+else:print('node not found: skipped "node scripts/sync_partials.js --check".')
 print('Static checks only. Live status codes, redirects, hosting rules, browser layout and analytics need post-deployment verification.')

@@ -8,24 +8,40 @@ The site is static HTML in `public/`. A Vercel project named `burnworthco` is co
 
 ## Files
 
-- `public/`: complete deployable site, including recovered images, styles, scripts, favicon assets and all six original page URLs.
-- `docs/seo-audit-2026-09-11.md`: observed baseline, implemented improvements, limitations and the next 90 days.
-- `docs/deployment.md`: Cloudflare release and rollback steps.
-- `scripts/validate.py`: dependency-free static release checks.
+- `public/`: complete deployable site, including images, styles, scripts, favicon assets and every page URL.
+- `public/styles.css`: one stylesheet for every page, in numbered sections (tokens, header, buttons, question flow, homepage, report pages and so on). See "Design system" below.
+- `public/flow.js`: the "Explore my options" question flow, the main way a visitor asks for a free audit. See "Free audit: the question flow".
+- `public/script.js`: page behaviour (menu, scroll-in motion, counting numbers, contents rail, video).
+- `public/analytics.js`: GA4, Google Tag Manager and an optional Meta Pixel, plus click tracking, on every page.
+- `api/review-request.js`, `api/estimate-request.js`: the two form endpoints (Vercel functions). `api/_os-intake.js` files each request in Burnworth OS.
+- `scripts/sync_partials.js`: writes the shared header, footer, `<head>` lines, scripts and the question flow into every page. See "Shared parts of every page".
+- `scripts/validate.py`: dependency-free static release checks. `scripts/test_api.js`: tests for the form endpoints.
 - `scripts/sync_dates.py`: sets each sitemap `lastmod` from git history and rolls the newest date up into the sitemap index.
 - `scripts/indexnow.py`: after a deploy is live, submits every sitemap URL to IndexNow (Bing, Yandex, Seznam, Naver; not Google).
-- `public/analytics.js`: GA4 and Google Tag Manager, plus click tracking, on every page. GA4 (`GA4_ID`) is live; Tag Manager (`GTM_ID`, `GTM-M6S6RWJP`) loads alongside it.
-- `video/`: Remotion source for the homepage background video and the longer explainer. Not deployed; see `video/README.md`.
-- `docs/brand-mark.md`: how the "Burnworth Co." serif wordmark and B. mark are built from Lora outlines, how the inline SVG wordmark keeps the name readable as text, and which file to use where.
-- `scripts/build_logo.py`: regenerates the wordmark and mark SVGs (needs fontTools and Lora).
+- `scripts/build_art.js`: draws the contour-line artwork and the share card. `scripts/build_logo.py`: regenerates the wordmark and mark SVGs (needs fontTools and Lora).
+- `docs/seo-audit-2026-09-11.md`: observed baseline, implemented improvements, limitations and the next 90 days.
+- `docs/deployment.md`: Cloudflare release and rollback steps (historical).
+- `docs/brand-mark.md`: how the "Burnworth Co." serif wordmark and B. mark are built from Lora outlines, and which file to use where.
 - `docs/research/`: study template, evidence and publishing process, and an unpublished Top Tier draft.
-- `video/`: Remotion source for the 15-second hero video. Not deployed; see `video/README.md`.
+- `video/`: Remotion source for the overview video. Not deployed; see `video/README.md`.
 
 ## Validate
 
-Run `python3 scripts/validate.py` and `node --check public/script.js`.
+```
+python3 scripts/validate.py     # pages, links, anchors, assets, metadata, sitemaps, and the shared-parts check
+node scripts/test_api.js        # the two form endpoints, with no network
+node --check public/script.js && node --check public/flow.js
+```
 
-This is plain HTML, CSS and JavaScript. There is no dependency installation or build step. Publish the **contents of `public/`**, not the repository root. Keep `docs/` and `scripts/` outside the deployed directory.
+This is plain HTML, CSS and JavaScript. There is no dependency installation and no build step: the pages in `public/` deploy exactly as they are. Publish the **contents of `public/`**, not the repository root. Keep `docs/` and `scripts/` outside the deployed directory.
+
+## Shared parts of every page
+
+The header, footer, shared `<head>` lines, shared scripts and the question flow are the same on every page. They are written into the pages by `scripts/sync_partials.js`, between pairs of comments such as `<!-- header -->` and `<!-- /header -->`.
+
+- To change the menu, the footer links, the phone number or the booking link: edit the templates at the top of `scripts/sync_partials.js`, then run `node scripts/sync_partials.js`. Do not edit the text between the comments; the next run replaces it.
+- A new page needs the four regions `head`, `header`, `footer` and `scripts`. Copy them from an existing page (empty is fine) and run the script. Use `<!-- header:minimal -->` and `<!-- footer:minimal -->` for a landing page with no menu.
+- `node scripts/sync_partials.js --check` fails if any page is out of date. `scripts/validate.py` runs it for you.
 
 ## Sitemaps and indexing
 
@@ -33,34 +49,49 @@ This is plain HTML, CSS and JavaScript. There is no dependency installation or b
 
 After committing content changes, run `python3 scripts/sync_dates.py`. After a deploy is live, run `python3 scripts/indexnow.py`, then resubmit `/sitemap.xml` in Search Console and request indexing for the changed pages.
 
-## Visibility review form
+## Free audit: the question flow
 
-The homepage form posts to `api/review-request.js`, a Vercel function that emails each request through [Resend](https://resend.com). Set these in Vercel → Project → Settings → Environment Variables (Production), then redeploy:
+The free audit is requested through three tap questions instead of a form: what the visitor wants help with (website, SEO, paid ads, or "not sure"), where their leads come from today, and whether they have a website. The last step shows where we would start, built from those answers, and asks for a name and email (website and phone are optional). It is defined in `public/flow.js` and posts to `api/review-request.js`.
 
-- `RESEND_API_KEY` (required). Without it the form shows visitors the email and phone fallback instead.
-- `REVIEW_TO` (optional, defaults to `Brandon@burnworthco.com`).
-- `REVIEW_FROM` (optional). Until `burnworthco.com` is verified in Resend, the default `onboarding@resend.dev` sender only delivers to the Resend account's own email, so sign up to Resend with `Brandon@burnworthco.com` or verify the domain.
+Where it appears:
 
-Spam protection is a hidden field plus a minimum time on the page. The form also works without JavaScript: the function redirects back to `/?review=sent#review`.
+- **Homepage** (`/#review-form`) and **`/start`**: the flow is in the page, in the first screen on a phone.
+- **Every other page**: any link with `data-flow-open` opens the same flow in a pop-up. The links point at `/start`, so they still work if the script does not run. Add `data-flow-interest="website"`, `"seo"`, `"ads"` or `"unsure"` to answer the first question for the visitor, as the service cards on the homepage do.
+- **Phones**: an "Explore my options" bar with a call button is fixed to the bottom of the screen once the visitor scrolls.
+- **Desktop**: the pop-up is offered once when the pointer leaves through the top of the window, not within 14 days of being closed, and never after a request is sent. There is no timed pop-up.
 
-## Free audit popup
+How it behaves:
 
-`public/audit-popup.js` (loaded on every page except 404) adds a free audit popup that posts to the same `api/review-request.js` as the homepage form. The email it sends says which form it came from and the page it was opened on.
+- A tap moves to the next question by itself. With a keyboard, arrow keys choose and a Continue button moves on. Answers are kept while the tab is open, so the flow resumes on another page.
+- Without JavaScript, or if `flow.js` fails to load, the same markup is an ordinary form with every question showing. It posts normally and the server redirects to `/thanks`.
+- Each request carries where the visit came from: campaign tags (`utm_source` and so on), whether it was a Meta or Google ad click, the referring site and the first page seen. They appear in the email and in Burnworth OS.
+- Spam protection is a hidden field plus a minimum time on the page.
 
-- Opens by itself at most once: after half the page is scrolled and 20 seconds have passed, or, for mouse users, when the pointer leaves through the top of the window after 8 seconds.
-- Never opens while the homepage form is on screen, or after someone has started or sent that form.
-- Stays closed for 14 days after it is dismissed (close button, "No thanks", Escape or the backdrop) and for good once a request is sent. The state is kept in the visitor's browser under `bw_audit_popup`.
-- On every page except the homepage, "Free audit" links (`/#review-form`) open the popup in place instead of leaving the page.
-- Events: `audit_popup_view` and `audit_popup_dismiss` (each with `trigger`: `engaged`, `exit_intent` or `link`), plus `review_form_start` and `generate_lead` with `form: audit_popup`.
+To change a question or an answer: edit `FLOW` in `public/flow.js`, add the same value to `ANSWERS` in `api/review-request.js`, then run `node scripts/sync_partials.js` (it rewrites the markup in the two pages and checks the two lists match). The text shown on the last step comes from `PLANS` and `CONTEXT` in `flow.js`; keep it to what the audit covers and never promise a result.
+
+Environment variables (Vercel → Project → Settings → Environment Variables, Production), then redeploy:
+
+- `RESEND_API_KEY`: sends each request as an email through [Resend](https://resend.com). `REVIEW_TO` (optional, defaults to `Brandon@burnworthco.com`) and `REVIEW_FROM` (optional). Until `burnworthco.com` is verified in Resend, the default `onboarding@resend.dev` sender only delivers to the Resend account's own email.
+- `OS_INTAKE_URL` and `OS_INTAKE_SECRET`: file each request as a lead in Burnworth OS (see "Leads in Burnworth OS").
+
+A request counts as received when **either** the email or the CRM filing succeeds, so a problem with one never shows a real lead an error. Only when both fail does the visitor see the email and phone fallback. Set both so there is always a second copy.
+
+## Ad landing page
+
+`/start` is the page to send paid traffic to (Instagram, Facebook, Google). It has no menu, one headline, the question flow and three proof tiles. It is `noindex` and is not in the sitemaps; `/thanks` is its plain confirmation page.
+
+- Match the headline to the ad with `?v=`: `/start?v=website`, `/start?v=seo` or `/start?v=ads`. Each shows its own headline (edit them in the `landing-variants` block in `public/start.html`) and answers the first question, so the visitor starts on the second.
+- Tag the link so each lead shows its ad: `https://burnworthco.com/start?v=seo&utm_source=instagram&utm_medium=paid_social&utm_campaign=<campaign>&utm_content=<ad name>`.
 
 ## Website build estimate form
 
-The web development page has a website build estimate form at `/web-development#estimate`. It posts to `api/estimate-request.js`, which emails each request through Resend using the same `RESEND_API_KEY`, `REVIEW_TO` and `REVIEW_FROM` variables as the review form. `public/estimate.js` handles the in-page submission, and the form also works without JavaScript (the function redirects back to `/web-development?estimate=sent#estimate`).
+The web development page has a website build estimate form at `/web-development#estimate`. It posts to `api/estimate-request.js`, which emails each request through Resend using the same `RESEND_API_KEY`, `REVIEW_TO` and `REVIEW_FROM` variables as the free audit. `public/estimate.js` handles the in-page submission, and the form also works without JavaScript (the function redirects back to `/web-development?estimate=sent#estimate`).
 
 - Required: name, email and project type. Optional: phone, business, current website, page count, timeline, features, budget and details. The choice fields only accept the listed answers.
 - The budget ranges are in two places: the `<select name="budget">` in `web-development.html` and `BUDGETS` in `api/estimate-request.js`. Change both together.
 - Events: `estimate_form_start` and `generate_lead` with `form: website_estimate`. Mark `generate_lead` as a key event in GA4 if it isn't already.
-- The free audit popup does not open by itself on this page.
+- Like the audit endpoint, it succeeds when either the email or the Burnworth OS filing succeeds.
+- The question flow's desktop pop-up does not offer itself on this page.
 
 Website builds are offered across the site: "Websites" in the main menu, a "Website builds" section and Web Development listed first on the homepage, and "Get a website estimate" buttons on the homepage, services page and web development page.
 
@@ -71,21 +102,48 @@ Both forms also file each valid request as a lead in Burnworth OS, the agency's 
 - `OS_INTAKE_URL`: `https://burnworth-co-os.vercel.app/api/leads/intake`.
 - `OS_INTAKE_SECRET`: the same value as `LEAD_INTAKE_SECRET` in the Burnworth OS project.
 
-Without both, nothing is sent and the forms work as before. Filing is best effort: it waits at most four seconds, and a CRM failure never changes what the visitor sees or stops the email. Spam caught by the hidden field or the time check is not filed.
+Without both, nothing is filed. Filing waits at most four seconds and never stops the email. Each lead carries the visitor's answers and where the visit came from in `details`, and a one-line summary in `message`. Spam caught by the hidden field or the time check is not filed.
 
-## Website showcase and button interactions
+## Design system
 
-The web development page and the homepage "Website builds" band show real screenshots of two sites we built, Pacific Earthworks and Go Virtuality, each inside a browser window and a phone. The frames are CSS (`.browser`, `.phone`, `.stage` in `styles.css`); only the screenshots are images: `public/assets/pacific-earthworks-home-*`, `-services-*` and `-phone-*`, and `public/assets/go-virtuality-home-*` and `-phone-*`, each as WebP with a JPEG fallback. The screenshots were taken from pacific-earthworks.vercel.app and govirtuality-crm.vercel.app on November 24, 2026. Go Virtuality had not relaunched on its own domain then, so it is labelled "Launching soon"; change that label to "Recent build" once it is live. To show a different site, add its image set and a `.stage` figure with its own caption, and only show sites Burnworth Co. built.
+One stylesheet, `public/styles.css`, in numbered sections. Pages are light "paper" with ink panels set into them; corners are rounded, buttons are pills.
 
-Buttons (`.button`, and the "Free audit" chip in the header) fill from the left on hover or keyboard focus, move their arrow and dip when pressed. The fill colour comes from `--sweep` and `--sweep-text`: ink on light sections, white on dark ones. Dark sections are listed in one rule under "Button and link interactions" in `styles.css`; add any new dark section there or its buttons will fill with ink on ink. Motion is switched off for visitors who ask for reduced motion.
+- **Tokens** are at the top: colours, radii, spacing, shadows and easing. `--red` is the brand red for the logo, large type and marks. White text sits on `--red-deep`, small red text on light uses `--red-ink`, and red text on ink uses `--red-soft`; each passes WCAG AA where it is used.
+- **Dark surfaces** are listed once, in section 2. Add a new dark block to that list and its text, rules, eyebrows and buttons follow. Buttons fill from the left on hover or keyboard focus; the fill colour comes from `--btn-sweep`, which the dark-surface rule sets.
+- **Type** is Archivo (self-hosted, variable). The emphasised words in headings (`<em>`) are set in the italic behind "Co" in the wordmark: Lora Italic 500, cut down to basic Latin and renamed as its license asks (`assets/accent-italic.woff2`, `assets/lora-OFL.txt`).
+- **Motion**: content rises in as it scrolls into view (`data-reveal`, staggered with `style="--i:1"`), numbers count up (`data-count`), charts draw, and pages cross-fade where the browser supports it. All of it is switched off for visitors who ask for reduced motion, and none of it hides content if a script fails.
+- **Article pages** (`.report`): plain lists become ruled checklists. Use `<dl class="facts">` for labelled facts such as price and terms, `<div class="cards">` for a row of short cards, `<div class="faq-list">` with `<details name="faq">` for questions, and the `.tile` blocks for a headline number.
+
+## Website showcase
+
+The web development page, the work page and the homepage show real screenshots of two sites we built, Pacific Earthworks and Go Virtuality, each inside a browser window and a phone. The frames are CSS (`.browser`, `.phone`, `.stage` in `styles.css`); only the screenshots are images: `public/assets/pacific-earthworks-home-*`, `-services-*` and `-phone-*`, and `public/assets/go-virtuality-home-*` and `-phone-*`, each as WebP with a JPEG fallback. The screenshots were taken from pacific-earthworks.vercel.app and govirtuality-crm.vercel.app on November 24, 2026. Go Virtuality had not relaunched on its own domain then, so it is labelled "Launching soon"; change that label to "Recent build" once it is live. To show a different site, add its image set and a `.stage` figure with its own caption, and only show sites Burnworth Co. built.
+
+## Artwork and charts
+
+- `node scripts/build_art.js` draws the contour-line ("topographic") artwork from a seeded noise field, in ink, paper and brand red: `assets/art-topo-dark-*.webp` and `art-topo-light-1400.webp`. It also renders the share card used for link previews, `assets/og-burnworth-1200.jpg`. It needs Playwright with Chromium at build time only.
+- The four drawings on the homepage service cards are inline SVG, styled by the `.a-*` rules in `styles.css`.
+- The small charts are HTML and CSS: `.meter` for one share of a whole, `.dots` for "1 in 100", `.milestones` for dated points on a line, and `.figure` for a headline number. Every number shown is one already stated in the page text with its source. A number that is the whole story is shown as a number, not forced into a chart.
 
 ## Analytics
 
 `public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`), loads Tag Manager through `GTM_ID` (`GTM-M6S6RWJP`) and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.
 
-Click events: `click_to_call`, `email_click`, `book_call_click`, `free_audit_click` (any link to the free audit form at `/#review-form`) and `cta_click`, each with `link_url`, `cta_text` and `cta_location`. The homepage also sends `overview_video_start`, `overview_video_complete`, `review_form_start` and `generate_lead` (free audit form submitted). Mark `generate_lead`, `click_to_call`, `email_click`, `book_call_click` and `free_audit_click` as key events in GA4.
+**Meta Pixel (Instagram and Facebook ads).** Put the pixel ID in `META_PIXEL_ID` at the top of `analytics.js`. It is empty until then, and no pixel was present on the site before this change, so Meta could not see which ads produced leads. With the ID set, every page sends `PageView` and a sent request sends `Lead`: choose "Leads" as the campaign's conversion so Meta optimises for requests rather than clicks. Starting the questions sends the custom event `FlowStart` and reaching the last step sends `FlowContact`, which are useful as conversions while lead volume is low. The pixel is not loaded for a visitor whose browser sends Global Privacy Control or Do Not Track; the privacy policy says so. Do not add the same pixel inside Tag Manager as well.
 
-Every "Book a call" link is paired with a free audit link: a red "Free audit" chip in each page header and a "Get a free audit" button beside each booking button in the page body.
+Events:
+
+- Clicks: `click_to_call`, `email_click`, `book_call_click`, `free_audit_click` (any link that opens the question flow) and `cta_click`, each with `link_url`, `cta_text` and `cta_location`.
+- Question flow: `flow_view`, `flow_start`, `flow_step` (with `step`, `question` and `answer`), `flow_contact_view`, `review_form_start`, `generate_lead` (with `form: options_flow`, `placement`, `interest`, `lead_source` and `site`), `flow_dismiss` and `flow_error`. In GA4, a funnel of `flow_view` → `flow_start` → `flow_contact_view` → `generate_lead` shows where visitors stop.
+- Other: `overview_video_start`, `overview_video_complete`, `estimate_form_start`, `generate_lead` with `form: website_estimate`, and `page_not_found` (with the missing address and where the link came from).
+
+Mark `generate_lead`, `click_to_call`, `email_click`, `book_call_click` and `free_audit_click` as key events in GA4.
+
+## Legal pages and accessibility
+
+- `/privacy` covers the question flow, visit attribution, ad measurement (Meta Pixel), browser privacy signals and California residents, as well as Burnworth OS and QuickBooks. Update it, and its date, whenever what the site collects changes. It is a plain-language policy, not legal advice; have a lawyer review it if the business grows into laws that set thresholds, such as the CCPA.
+- `/terms` covers use of the site and the Burnworth OS license.
+- `/accessibility` states what the site aims for (WCAG 2.2 AA), what was tested and how to report a barrier. Update the date when you retest.
+- `404.html` is the page shown for any address that does not exist. It records a `page_not_found` event so broken links can be found.
 
 ## Recovery boundary
 

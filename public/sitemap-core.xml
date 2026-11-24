@@ -4,12 +4,14 @@
     <loc>https://burnworthco.com/</loc>
     <lastmod>2026-11-24</lastmod>
     <image:image><image:loc>https://burnworthco.com/assets/overview-poster-1280.jpg</image:loc></image:image>
-    <image:image><image:loc>https://burnworthco.com/assets/brandon-burnworth-portrait-480.jpg</image:loc></image:image>
-    <image:image><image:loc>https://burnworthco.com/assets/zenande-burnworth-portrait-380.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/pacific-earthworks-home-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/go-virtuality-home-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/brandon-burnworth-avatar-240.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/zenande-burnworth-avatar-240.jpg</image:loc></image:image>
     <video:video>
       <video:thumbnail_loc>https://burnworthco.com/assets/overview-poster-1280.jpg</video:thumbnail_loc>
       <video:title>Burnworth Co. in 26 seconds</video:title>
-      <video:description>How customers find a local service business on Google, in Maps and in AI answers, and turn that search into an estimate request. Ends with the free visibility review offer.</video:description>
+      <video:description>How customers find a local service business on Google, in Maps and in AI answers, and turn that search into an estimate request. Ends with the free audit offer.</video:description>
       <video:content_loc>https://burnworthco.com/assets/overview-1280.mp4</video:content_loc>
       <video:duration>26</video:duration>
       <video:family_friendly>yes</video:family_friendly>
@@ -24,6 +26,10 @@
   <url>
     <loc>https://burnworthco.com/privacy</loc>
     <lastmod>2026-11-23</lastmod>
+  </url>
+  <url>
+    <loc>https://burnworthco.com/accessibility</loc>
+    <lastmod>2026-11-24</lastmod>
   </url>
   <url>
     <loc>https://burnworthco.com/terms</loc>
