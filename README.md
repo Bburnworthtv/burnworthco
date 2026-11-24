@@ -37,7 +37,7 @@ This is plain HTML, CSS and JavaScript. There is no dependency installation and 
 
 ## Shared parts of every page
 
-The header, footer, shared `<head>` lines, shared scripts and the question flow are the same on every page. They are written into the pages by `scripts/sync_partials.js`, between pairs of comments such as `<!-- header -->` and `<!-- /header -->`.
+The header, footer, shared `<head>` lines, shared scripts, the question flow and the row of sites we built are the same wherever they appear. They are written into the pages by `scripts/sync_partials.js`, between pairs of comments such as `<!-- header -->` and `<!-- /header -->`.
 
 - To change the menu, the footer links, the phone number or the booking link: edit the templates at the top of `scripts/sync_partials.js`, then run `node scripts/sync_partials.js`. Do not edit the text between the comments; the next run replaces it.
 - A new page needs the four regions `head`, `header`, `footer` and `scripts`. Copy them from an existing page (empty is fine) and run the script. Use `<!-- header:minimal -->` and `<!-- footer:minimal -->` for a landing page with no menu.
@@ -112,16 +112,26 @@ One stylesheet, `public/styles.css`, in numbered sections. Pages are light "pape
 - **Dark surfaces** are listed once, in section 2. Add a new dark block to that list and its text, rules, eyebrows and buttons follow. Buttons fill from the left on hover or keyboard focus; the fill colour comes from `--btn-sweep`, which the dark-surface rule sets.
 - **Type** is Archivo (self-hosted, variable). The emphasised words in headings (`<em>`) are set in the italic behind "Co" in the wordmark: Lora Italic 500, cut down to basic Latin and renamed as its license asks (`assets/accent-italic.woff2`, `assets/lora-OFL.txt`).
 - **Motion**: content rises in as it scrolls into view (`data-reveal`, staggered with `style="--i:1"`), numbers count up (`data-count`), charts draw, and pages cross-fade where the browser supports it. All of it is switched off for visitors who ask for reduced motion, and none of it hides content if a script fails.
+- **Alignment**: everything hangs on one pair of lines, `--pad` in from each side of the window (`--wrap` wide at most). Page sections use `padding-inline: var(--pad)`. The header bar is exactly that wide, so its ends sit on the same lines as the cards below. Ink panels sit `--edge` from the window and use `--panel-pad` so their content lands on the same lines (`--panel-pad-in` for a child of a panel that has no side padding of its own). On article pages the text starts on the left line under the page heading and the contents rail sits on the right line.
+- **Buttons** come in three heights: `--btn-lg` (52px, the default `.button`), `--btn-md` (48px: the header button, the menu button, the phone bar) and `--btn-sm` (44px: `.button.small`, the header on phones, arrows and other round controls). Use the tokens, not new numbers. In the header the button sits 8px inside the bar on every side.
+- **Header**: links, "Book a call" and the button from 1200px; without "Book a call" from 1101px; at 1100px and under the links move into the menu (the same number is in `script.js`). On phones the button reads "Free audit" and the logo scales with the screen so the three parts always fit.
 - **Article pages** (`.report`): plain lists become ruled checklists. Use `<dl class="facts">` for labelled facts such as price and terms, `<div class="cards">` for a row of short cards, `<div class="faq-list">` with `<details name="faq">` for questions, and the `.tile` blocks for a headline number.
 
 ## Website showcase
 
-The web development page, the work page and the homepage show real screenshots of two sites we built, Pacific Earthworks and Go Virtuality, each inside a browser window and a phone. The frames are CSS (`.browser`, `.phone`, `.stage` in `styles.css`); only the screenshots are images: `public/assets/pacific-earthworks-home-*`, `-services-*` and `-phone-*`, and `public/assets/go-virtuality-home-*` and `-phone-*`, each as WebP with a JPEG fallback. The screenshots were taken from pacific-earthworks.vercel.app and govirtuality-crm.vercel.app on November 24, 2026. Go Virtuality had not relaunched on its own domain then, so it is labelled "Launching soon"; change that label to "Recent build" once it is live. To show a different site, add its image set and a `.stage` figure with its own caption, and only show sites Burnworth Co. built.
+The homepage, the work page and the web development page show the sites we designed and built as one row to swipe through: Top Tier Custom Floors, Pacific Earthworks, Model Home, Inc., Fluid Pictures and Go Virtuality. Each card is a real screenshot of the site in a browser window and a phone, a two or three word note on its look, who the client is, and a "Visit site" link where the site is live on its own domain.
+
+- The list is `BUILDS` in `scripts/sync_partials.js`. The row is written into a page between `<!-- builds -->` and `<!-- /builds -->` (`<!-- builds:column -->` inside a column of text). To add a site, save its screenshots, add an entry to `BUILDS` and run `node scripts/sync_partials.js`. Only show sites Burnworth Co. built, and take the description from the client's own site.
+- Screenshots: a 1280 x 800 window saved as `public/assets/<slug>-home-1600.webp`, `-home-960.webp` and `-home-1280.jpg`, and a 390 x 737 phone saved as `<slug>-phone-480.webp`, `-phone-300.webp` and `-phone-480.jpg`. The frames around them are CSS (`.browser`, `.phone`, `.stage`).
+- Top Tier Custom Floors, Model Home and Fluid Pictures were captured from their live sites (toptierfloors.com, modelhomeinc.com, fluidpicturesinc.com), and Pacific Earthworks and Go Virtuality from pacific-earthworks.vercel.app and govirtuality-crm.vercel.app, all on November 24, 2026. Go Virtuality had not relaunched on its own domain then, so it is marked "Launching soon": give it a `url` in `BUILDS` and remove `status` once it is live. Give Pacific Earthworks a `url` once its own domain serves the new site.
+- The row scrolls by itself: swipe on a phone, trackpad or arrow keys on a computer, and a visible scrollbar if the script does not load. `script.js` adds the arrow buttons, the progress bar, the "2 / 5" count and dragging with a mouse (`.reel` in `styles.css`).
+- Fluid Pictures is named here as a website build. The ranking case study at `/work-los-angeles-production-company` still describes its client only as a Los Angeles production company; change the two together if that should change.
+- `public/assets/pacific-earthworks-services-*` is the services-page screenshot used further down the web development page.
 
 ## Artwork and charts
 
 - `node scripts/build_art.js` draws the contour-line ("topographic") artwork from a seeded noise field, in ink, paper and brand red: `assets/art-topo-dark-*.webp` and `art-topo-light-1400.webp`. It also renders the share card used for link previews, `assets/og-burnworth-1200.jpg`. It needs Playwright with Chromium at build time only.
-- The four drawings on the homepage service cards are inline SVG, styled by the `.a-*` rules in `styles.css`.
+- The four drawings on the homepage service cards are inline SVG, styled by the `.a-*` rules in `styles.css`. Keep all four in that one style.
 - The small charts are HTML and CSS: `.meter` for one share of a whole, `.dots` for "1 in 100", `.milestones` for dated points on a line, and `.figure` for a headline number. Every number shown is one already stated in the page text with its source. A number that is the whole story is shown as a number, not forced into a chart.
 
 ## Analytics
@@ -134,7 +144,7 @@ Events:
 
 - Clicks: `click_to_call`, `email_click`, `book_call_click`, `free_audit_click` (any link that opens the question flow) and `cta_click`, each with `link_url`, `cta_text` and `cta_location`.
 - Question flow: `flow_view`, `flow_start`, `flow_step` (with `step`, `question` and `answer`), `flow_contact_view`, `review_form_start`, `generate_lead` (with `form: options_flow`, `placement`, `interest`, `lead_source` and `site`), `flow_dismiss` and `flow_error`. In GA4, a funnel of `flow_view` → `flow_start` → `flow_contact_view` → `generate_lead` shows where visitors stop.
-- Other: `overview_video_start`, `overview_video_complete`, `estimate_form_start`, `generate_lead` with `form: website_estimate`, and `page_not_found` (with the missing address and where the link came from).
+- Other: `overview_video_start`, `overview_video_complete`, `showcase_swipe` (the first time a visitor moves the row of sites), `estimate_form_start`, `generate_lead` with `form: website_estimate`, and `page_not_found` (with the missing address and where the link came from).
 
 Mark `generate_lead`, `click_to_call`, `email_click`, `book_call_click` and `free_audit_click` as key events in GA4.
 

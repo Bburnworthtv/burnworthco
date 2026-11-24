@@ -28,7 +28,8 @@
     flow_view, flow_start, flow_step, flow_contact_view, review_form_start,
     generate_lead (request sent), flow_dismiss, flow_error
   From script.js and estimate.js:
-    overview_video_start, overview_video_complete, estimate_form_start,
+    overview_video_start, overview_video_complete, showcase_swipe (the row of
+    sites we built was moved), estimate_form_start,
     generate_lead (form: website_estimate)
 
   What the Meta Pixel is sent:

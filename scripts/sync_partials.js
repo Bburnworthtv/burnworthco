@@ -18,6 +18,8 @@
     <!-- footer:minimal -->  ... <!-- /footer -->
     <!-- flow:hero -->       ... <!-- /flow -->       the question flow, from public/flow.js
     <!-- flow:landing -->    ... <!-- /flow -->
+    <!-- builds -->          ... <!-- /builds -->     the row of sites we built, to swipe through
+    <!-- builds:column -->   ... <!-- /builds -->     the same row inside a narrow text column
     <!-- scripts -->         ... <!-- /scripts -->
 
   --check also confirms the answers accepted by api/review-request.js match the
@@ -127,15 +129,103 @@ const head = () => `<script>document.documentElement.classList.add('js')</script
 const scripts = () => `<script src="/script.js" defer></script>
   <script src="/flow.js" defer onerror="document.documentElement.classList.add('flow-plain')"></script>`;
 
+// Sites we designed and built, in the order they are shown. To add one, save its
+// screenshots as public/assets/<slug>-home-1600.webp, -home-960.webp, -home-1280.jpg
+// (a 1280 x 800 window) and <slug>-phone-480.webp, -phone-300.webp, -phone-480.jpg
+// (a 390 x 737 phone), add it here and run this script. Only sites we built.
+//   look  two or three words for the visual style, shown above the name
+//   text  who the client is, in their own words where possible
+//   url   the live site; leave out until the site is on its own domain
+const BUILDS = [
+  {
+    slug: 'top-tier-custom-floors',
+    name: 'Top Tier Custom Floors',
+    look: 'Black and gold',
+    text: 'Owner-operated flooring contractor in San Diego County.',
+    url: 'https://www.toptierfloors.com/',
+    desk: 'Top Tier Custom Floors homepage on a laptop: the heading Custom Flooring Installation in San Diego County in white and gold on black, beside two photos of a wood staircase.',
+    phone: 'The same Top Tier Custom Floors homepage on a phone, with the call button in view.',
+  },
+  {
+    slug: 'pacific-earthworks',
+    name: 'Pacific Earthworks',
+    look: 'Bold and industrial',
+    text: 'Grading and excavation contractor in San Diego County.',
+    desk: 'Pacific Earthworks homepage on a laptop: a wheel loader on a graded site under the heading Grading and Excavation, San Diego County.',
+    phone: 'The same Pacific Earthworks homepage on a phone, with the estimate button in view.',
+  },
+  {
+    slug: 'model-home',
+    name: 'Model Home, Inc.',
+    look: 'Warm showroom',
+    text: 'Flooring contractor and cabinet showroom in San Marcos.',
+    url: 'https://www.modelhomeinc.com/',
+    desk: 'Model Home homepage on a laptop: the heading Flooring Contractor and Cabinet Showroom in San Marcos, CA over a photo of a wood floor being laid.',
+    phone: 'The same Model Home homepage on a phone, with the Get a Free Estimate button in view.',
+  },
+  {
+    slug: 'fluid-pictures',
+    name: 'Fluid Pictures',
+    look: 'Dark and cinematic',
+    text: 'Specialty camera rentals for live television and film in Los Angeles.',
+    url: 'https://www.fluidpicturesinc.com/',
+    desk: 'Fluid Pictures homepage on a laptop: the heading Trusted by Television’s Biggest Shows beside a photo of a camera tower on a stage lit in blue.',
+    phone: 'The same Fluid Pictures homepage on a phone, with the heading and the stage photo in view.',
+  },
+  {
+    slug: 'go-virtuality',
+    name: 'Go Virtuality',
+    look: 'Bright and video-led',
+    text: 'Real estate photography, staging and 3D tours in Orange County.',
+    status: 'Launching soon',
+    desk: 'Go Virtuality homepage on a laptop: the heading Real Estate Media over a video of a bright dining room that opens onto a patio.',
+    phone: 'The same Go Virtuality homepage on a phone, with the Order Now and Schedule a Shoot buttons in view.',
+  },
+];
+
+// The row of builds. Each is a real screenshot in a browser window and a phone;
+// the frames are CSS. "column" is the row inside a text column, where a card is
+// narrower, so the browser asks for smaller images.
+function builds(route, variant) {
+  const column = variant === 'column';
+  const deskSizes = column ? '(max-width: 700px) 70vw, 520px' : '(max-width: 700px) 70vw, (max-width: 1260px) 50vw, 640px';
+  const phoneSizes = column ? '(max-width: 700px) 17vw, 125px' : '(max-width: 700px) 17vw, (max-width: 1260px) 12vw, 150px';
+  const items = BUILDS.map((site) => {
+    const a = `/assets/${site.slug}`;
+    const action = site.url
+      ? `<a class="stage-visit" href="${site.url}" target="_blank" rel="noopener" aria-label="Visit site: ${site.name} (opens in a new tab)"><span class="stage-visit-label">Visit site</span>${arrowOut}</a>`
+      : site.status ? `<span class="stage-status">${site.status}</span>` : '';
+    return `<li class="reel-item"><figure class="stage">
+        <div class="stage-devices">
+          <div class="browser"><div class="browser-bar" aria-hidden="true"><i></i><i></i><i></i><span>${site.name}</span></div><picture><source type="image/webp" srcset="${a}-home-960.webp 960w, ${a}-home-1600.webp 1600w" sizes="${deskSizes}"><img src="${a}-home-1280.jpg" width="1280" height="800" alt="${site.desk}" loading="lazy" decoding="async" draggable="false"></picture></div>
+          <div class="phone"><picture><source type="image/webp" srcset="${a}-phone-300.webp 300w, ${a}-phone-480.webp 480w" sizes="${phoneSizes}"><img src="${a}-phone-480.jpg" width="480" height="907" alt="${site.phone}" loading="lazy" decoding="async" draggable="false"></picture></div>
+        </div>
+        <figcaption><span class="stage-look">${site.look}</span><strong>${site.name}</strong><span class="stage-text">${site.text}</span>${action}</figcaption>
+      </figure></li>`;
+  }).join('\n      ');
+  return `<div class="reel${column ? ' reel-column' : ''}" data-reel>
+    <ul class="reel-track" id="builds-track" data-reel-track tabindex="0" aria-label="Websites we designed and built. ${BUILDS.length} sites; scroll sideways to see them all.">
+      ${items}
+    </ul>
+    <div class="reel-controls">
+      <p class="reel-count" aria-hidden="true"><span data-reel-now>1</span> / ${BUILDS.length}</p>
+      <div class="reel-bar" aria-hidden="true"><span data-reel-thumb></span></div>
+      <button class="reel-btn" type="button" data-reel-prev aria-controls="builds-track" disabled><span class="sr">Previous website</span><span class="icon-right" aria-hidden="true"></span></button>
+      <button class="reel-btn" type="button" data-reel-next aria-controls="builds-track"><span class="sr">Next website</span><span class="icon-right" aria-hidden="true"></span></button>
+    </div>
+  </div>`;
+}
+
 const render = {
   head,
   header,
   footer,
   scripts,
+  builds,
   flow: (route, variant) => flow.render({placement: variant || 'hero', page: route}),
 };
 
-const REGION = /<!-- (head|header|footer|scripts|flow)(?::([a-z]+))? -->[\s\S]*?<!-- \/\1 -->/g;
+const REGION = /<!-- (head|header|footer|scripts|flow|builds)(?::([a-z]+))? -->[\s\S]*?<!-- \/\1 -->/g;
 
 function pages(dir = PUBLIC) {
   return fs.readdirSync(dir, {withFileTypes: true}).flatMap((entry) => {

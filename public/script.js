@@ -1,8 +1,8 @@
 /*
   Page behaviour shared by every page: the header and phone menu, content that
   rises in as it scrolls into view, counting numbers, the contents rail on long
-  pages, the pointer light on dark tiles and the overview video. The question
-  flow is in flow.js.
+  pages, the row of sites we built, the pointer light on dark tiles and the
+  overview video. The question flow is in flow.js.
 
   Everything here is an enhancement. With this file missing, the pages read and
   work the same; they only lose the motion.
@@ -41,12 +41,13 @@
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && doc.classList.contains('menu-open')) { setOpen(false); toggle.focus(); }
     });
-    // Close on a link, on a tap outside the bar, and when the window grows past phone width.
+    // Close on a link, on a tap outside the bar, and when the window grows wide enough for the links.
     document.addEventListener('click', (event) => {
       if (!doc.classList.contains('menu-open')) return;
       if (event.target.closest('#site-nav a') || !event.target.closest('[data-header]')) setOpen(false);
     });
-    window.matchMedia('(min-width: 961px)').addEventListener('change', (event) => { if (event.matches) setOpen(false); });
+    // The width where the links move back into the bar; the same number is in styles.css.
+    window.matchMedia('(min-width: 1101px)').addEventListener('change', (event) => { if (event.matches) setOpen(false); });
   }
 
   // Rise in on scroll. The class that hides content is added here, so content
@@ -93,23 +94,115 @@
     counters.forEach((el) => counted.observe(el));
   }
 
-  // Long pages: mark the section being read in the contents rail.
+  // Long pages: mark the section being read in the contents rail. The section
+  // being read is the last one whose top has passed a line 30% down the window;
+  // above the first section nothing is marked.
   const rail = document.querySelector('.report-body .rail');
-  if (rail && 'IntersectionObserver' in window) {
-    const links = new Map();
+  if (rail) {
+    const pairs = [];
     rail.querySelectorAll('a[href^="#"]').forEach((link) => {
       const section = document.getElementById(link.getAttribute('href').slice(1));
-      if (section) links.set(section, link);
+      if (section) pairs.push([section, link]);
     });
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        links.forEach((link) => link.removeAttribute('aria-current'));
-        links.get(entry.target).setAttribute('aria-current', 'true');
-      });
-    }, { rootMargin: '-25% 0px -65% 0px' });
-    links.forEach((link, section) => spy.observe(section));
+    let waiting = false;
+    const mark = () => {
+      waiting = false;
+      const line = window.innerHeight * 0.3;
+      let current = null;
+      pairs.forEach(([section, link]) => { if (section.getBoundingClientRect().top <= line) current = link; });
+      pairs.forEach(([, link]) => { if (link === current) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current'); });
+    };
+    if (pairs.length) {
+      window.addEventListener('scroll', () => { if (!waiting) { waiting = true; requestAnimationFrame(mark); } }, { passive: true });
+      mark();
+    }
   }
+
+  // The row of sites we built. It scrolls sideways on its own (swipe, trackpad,
+  // arrow keys, the scrollbar when this script is missing). This adds the two
+  // arrow buttons, the progress bar, the "2 / 5" count and dragging with a mouse.
+  document.querySelectorAll('[data-reel]').forEach((reel) => {
+    const strip = reel.querySelector('[data-reel-track]');
+    const prev = reel.querySelector('[data-reel-prev]');
+    const next = reel.querySelector('[data-reel-next]');
+    const thumb = reel.querySelector('[data-reel-thumb]');
+    const now = reel.querySelector('[data-reel-now]');
+    if (!strip || !prev || !next) return;
+    const items = Array.from(strip.children);
+    // Distance from one card to the next.
+    const step = () => (items.length > 1 ? items[1].offsetLeft - items[0].offsetLeft : strip.clientWidth);
+    const farthest = () => strip.scrollWidth - strip.clientWidth;
+    let queued = false;
+    let reported = false;
+    const update = () => {
+      queued = false;
+      const max = farthest();
+      const x = Math.max(0, Math.min(max, strip.scrollLeft));
+      const atEnd = x >= max - 2;
+      reel.classList.toggle('is-static', max <= 2);
+      prev.disabled = x <= 2;
+      next.disabled = atEnd;
+      if (thumb) {
+        const share = strip.clientWidth / strip.scrollWidth;
+        thumb.style.width = `${share * 100}%`;
+        thumb.style.transform = `translateX(${max > 0 ? (x / max) * ((1 - share) / share) * 100 : 0}%)`;
+      }
+      if (now) now.textContent = String(atEnd ? items.length : Math.min(items.length, Math.round(x / step()) + 1));
+    };
+    const settle = (left) => strip.scrollTo({ left: Math.max(0, Math.min(farthest(), left)), behavior: reduce ? 'auto' : 'smooth' });
+    // The arrows go to the card before or after the one at the left edge. At the
+    // far end the row rests between two cards, hence the rounding up and down.
+    prev.addEventListener('click', () => settle((Math.ceil(strip.scrollLeft / step() - 0.05) - 1) * step()));
+    next.addEventListener('click', () => settle((Math.floor(strip.scrollLeft / step() + 0.05) + 1) * step()));
+    strip.addEventListener('scroll', () => {
+      if (!queued) { queued = true; requestAnimationFrame(update); }
+      if (!reported && strip.scrollLeft > 40) { reported = true; track('showcase_swipe'); }
+    }, { passive: true });
+    if ('ResizeObserver' in window) new ResizeObserver(update).observe(strip);
+    update();
+
+    // Drag with a mouse. Touch and pen already scroll the row natively.
+    let drag = null;
+    let dragged = false;
+    strip.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      drag = { x: event.clientX, left: strip.scrollLeft, last: event.clientX, dir: 0, moved: false };
+    });
+    window.addEventListener('pointermove', (event) => {
+      if (!drag) return;
+      const dx = event.clientX - drag.x;
+      if (!drag.moved) {
+        if (Math.abs(dx) < 6) return;
+        drag.moved = true;
+        strip.classList.add('is-dragging');
+      }
+      if (event.clientX !== drag.last) drag.dir = event.clientX < drag.last ? 1 : -1;
+      drag.last = event.clientX;
+      strip.scrollLeft = drag.left - dx;
+    });
+    const release = () => {
+      if (!drag) return;
+      const { moved, dir } = drag;
+      drag = null;
+      if (!moved) return;
+      dragged = true;
+      // Come to rest on a card: the next one in the direction of travel.
+      const at = strip.scrollLeft / step();
+      const target = (dir > 0 ? Math.ceil(at - 0.15) : Math.floor(at + 0.15)) * step();
+      settle(target);
+      // Snapping is off while dragging; turn it back on once the row has settled.
+      let done = false;
+      const finish = () => { if (done) return; done = true; strip.classList.remove('is-dragging'); strip.removeEventListener('scrollend', finish); };
+      strip.addEventListener('scrollend', finish);
+      setTimeout(finish, reduce ? 0 : 700);
+    };
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+    // A drag that ends over a link is not a click on it.
+    strip.addEventListener('click', (event) => { if (dragged) { dragged = false; event.preventDefault(); event.stopPropagation(); } }, true);
+    strip.addEventListener('pointerdown', () => { dragged = false; }, true);
+    strip.addEventListener('dragstart', (event) => event.preventDefault());
+  });
 
   // A soft light follows the pointer across dark tiles.
   if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
