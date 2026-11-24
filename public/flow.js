@@ -377,13 +377,16 @@
           form.setAttribute('data-started', '1');
           track('review_form_start', { form: 'options_flow', placement: placement });
         }
-        if (event.target && event.target.getAttribute('aria-invalid')) event.target.removeAttribute('aria-invalid');
+        if (event.target && event.target.getAttribute('aria-invalid')) { event.target.removeAttribute('aria-invalid'); event.target.removeAttribute('aria-describedby'); }
       });
 
+      // Errors are announced (the status line is a live region) and tied to the
+      // field they are about.
+      status.id = 'flow-status-' + placement;
       function fail(message, field) {
         status.classList.add('error');
         status.innerHTML = message;
-        if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
+        if (field) { field.setAttribute('aria-invalid', 'true'); field.setAttribute('aria-describedby', status.id); field.focus(); }
       }
 
       function done(name, quiet) {

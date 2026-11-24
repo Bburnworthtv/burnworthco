@@ -873,7 +873,7 @@ html:not(.js) .flow-step,.flow-plain .flow-step{margin-top:26px}
    is here for tools that work out stacking from CSS alone. */
 dialog{color:inherit;z-index:100}
 html:has(dialog[open]){overflow:hidden}
-.flow-dialog{width:min(600px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);padding:0;border:0;border-radius:var(--r-xl);box-shadow:var(--shadow-lg);overflow:auto;overscroll-behavior:contain}
+.flow-dialog{width:min(600px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);padding:0;border:1px solid rgba(255,255,255,.16);border-radius:var(--r-xl);box-shadow:0 40px 100px rgba(0,0,0,.55);overflow:auto;overscroll-behavior:contain}
 .flow-dialog::backdrop,.film-dialog::backdrop{background:rgba(17,16,15,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .flow-dialog .flow-card{border-radius:0;background:transparent;box-shadow:none}
 .flow-dialog .flow-card::before{display:none}
