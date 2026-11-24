@@ -75,9 +75,17 @@ Without both, nothing is sent and the forms work as before. Filing is best effor
 
 ## Website showcase and button interactions
 
-The web development page and the homepage "Website builds" band show real screenshots of two sites we built, Pacific Earthworks and Go Virtuality, each inside a browser window and a phone. The frames are CSS (`.browser`, `.phone`, `.stage` in `styles.css`); only the screenshots are images: `public/assets/pacific-earthworks-home-*`, `-services-*` and `-phone-*`, and `public/assets/go-virtuality-home-*` and `-phone-*`, each as WebP with a JPEG fallback. The screenshots were taken from pacific-earthworks.vercel.app and govirtuality-crm.vercel.app on November 24, 2026. Go Virtuality had not relaunched on its own domain then, so it is labelled "Launching soon"; change that label to "Recent build" once it is live. To show a different site, add its image set and a `.stage` figure with its own caption, and only show sites Burnworth Co. built.
+The web development page and the homepage "Website builds" band show real screenshots of two sites we built, Pacific Earthworks and Go Virtuality, each inside a browser window and a phone. The frames are CSS (`.browser`, `.phone`, `.stage` in `styles.css`); only the screenshots are images: `public/assets/pacific-earthworks-home-*`, `-services-*` and `-phone-*`, and `public/assets/go-virtuality-home-*` and `-phone-*`, each as WebP with a JPEG fallback. The screenshots were taken from pacific-earthworks.vercel.app and govirtuality-crm.vercel.app on November 23, 2026. Go Virtuality had not relaunched on its own domain then, so it is labelled "Launching soon"; change that label to "Recent build" once it is live. To show a different site, add its image set and a `.stage` figure with its own caption, and only show sites Burnworth Co. built.
 
 Buttons (`.button`, and the "Free audit" chip in the header) fill from the left on hover or keyboard focus, move their arrow and dip when pressed. The fill colour comes from `--sweep` and `--sweep-text`: ink on light sections, white on dark ones. Dark sections are listed in one rule under "Button and link interactions" in `styles.css`; add any new dark section there or its buttons will fill with ink on ink. Motion is switched off for visitors who ask for reduced motion.
+
+## Contractor SEO page: diagrams and charts
+
+`/contractor-seo` carries a workflow band, result tiles, two charts and three diagrams. All of it is HTML and CSS under "Contractor SEO page" in `styles.css`; there are no image files and no script.
+
+- The chart numbers are typed into `contractor-seo.html`. Each bar's length is its `--w` percentage and each column's height is its `--v` value, so change the number and the style value together.
+- Where every published figure comes from, with its property, dates and filters, is recorded in `docs/research/contractor-seo-evidence.md`. Update that file whenever a figure on the page changes.
+- In the charts, ChatGPT is always red and everything else grey. Every value is also printed as text, and the weekly chart shows all its values on keyboard focus.
 
 ## Analytics
 

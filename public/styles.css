@@ -555,7 +555,7 @@ html:has(.audit-pop[open]){overflow:hidden}
 /* "Contractors" is a longer menu label than "Method": tighten the menu on the narrowest phones. */
 @media(max-width:350px){.site-header nav a{padding:0 5px;font-size:11px}}
 
-/* ==== Button and link interactions (November 24, 2026) ====
+/* ==== Button and link interactions (November 23, 2026) ====
    A fill sweeps across each button from the left on hover or keyboard focus, the arrow moves, and the button dips
    when pressed. The sweep colour comes from two variables, so it always contrasts with the section behind it:
    ink on light sections, white on the dark ones listed below. A new dark section needs adding to that list. */
@@ -589,7 +589,7 @@ html:has(.audit-pop[open]){overflow:hidden}
   .button:active,.header-audit:active{transform:none}
 }
 
-/* ==== Website showcase (November 24, 2026) ====
+/* ==== Website showcase (November 23, 2026) ====
    Real screenshots of a site we built, drawn inside a browser window and a phone. The frames are CSS; only the
    screenshots are images. Each site has its own image set in /assets (pacific-earthworks-*, go-virtuality-*). */
 .browser{background:#1c1b19;border:1px solid rgba(255,255,255,.16);border-radius:10px;overflow:hidden;box-shadow:0 34px 80px rgba(0,0,0,.42);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
@@ -623,7 +623,7 @@ html:has(.audit-pop[open]){overflow:hidden}
 .build-band .stage-pair{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,4vw,64px);margin-top:clamp(8px,2vw,28px)}
 @media(max-width:800px){.build-band .stage-pair{grid-template-columns:1fr;gap:44px}}
 
-/* ==== Web development page: tiles, checklist, price and steps in place of plain lists (November 24, 2026) ==== */
+/* ==== Web development page: tiles, checklist, price and steps in place of plain lists (November 23, 2026) ==== */
 .prose .tiles,.prose .checks,.prose .process{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:14px}
 .prose .tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
 .prose .tiles li{grid-column:span 2}
@@ -660,3 +660,166 @@ html:has(.audit-pop[open]){overflow:hidden}
   .prose .process li:nth-child(odd){padding-left:0;border-left:0}
   .prose .process li:nth-child(n+3){border-top:1px solid var(--line)}
 }
+
+/* ==== Contractor SEO page: workflow, results, charts and diagrams (November 23, 2026) ====
+   Everything in this block is HTML and CSS. There are no image files. The charts follow one rule: the bar or
+   column that is the point (ChatGPT) is red, everything else is grey, and every value is also printed as text.
+   Chart numbers live in contractor-seo.html beside their source and dates. */
+
+/* Workflow band under the hero: six steps on one line, closed into a loop on wide screens. */
+.flow{padding:clamp(64px,7vw,104px) clamp(22px,10vw,160px) clamp(72px,8vw,116px);background:var(--ink);color:var(--white);border-top:1px solid rgba(255,255,255,.12)}
+.flow-head{max-width:760px;margin-bottom:clamp(40px,5vw,64px)}
+.flow .eyebrow{color:#ff6651;margin:0 0 22px}
+.flow h2{font-size:clamp(34px,4.2vw,60px);line-height:1;margin:0 0 20px}
+.flow-head>p:last-child{color:#c8c4bb;font-size:18px;line-height:1.55;margin:0;max-width:52ch}
+.flow-track{position:relative}
+.flow-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border-top:1px solid rgba(255,255,255,.3)}
+.flow-steps li{position:relative;display:flex;flex-direction:column;gap:8px;padding:30px 20px 0 0;font-size:14px;line-height:1.5;color:#c8c4bb}
+.flow-steps li::before{content:"";position:absolute;left:0;top:-5px;width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px var(--ink)}
+.flow-steps svg{width:30px;height:30px;margin-bottom:6px;color:var(--white);fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.flow-num{font-size:11px;font-weight:600;letter-spacing:.16em;color:#ff6651}
+.flow-steps strong{font-size:21px;font-weight:500;letter-spacing:-.03em;line-height:1.1;color:var(--white)}
+.flow-loop{margin:34px 0 0;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:#a8a49c}
+@media(min-width:1101px){
+  .flow-track{padding:0 22px 58px}
+  .flow-steps{margin:0 -22px;padding:0 22px}
+  .flow-track::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.3);border-top:0;border-radius:0 0 18px 18px;pointer-events:none}
+  .flow-loop{position:absolute;left:50%;bottom:0;z-index:1;transform:translate(-50%,50%);margin:0;padding:0 18px;background:var(--ink);white-space:nowrap}
+  .flow-loop::before{content:"";display:inline-block;width:8px;height:8px;margin-right:12px;border-left:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-1px)}
+}
+@media(max-width:1100px){.flow-steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:36px;border-top:0}.flow-steps li{border-top:1px solid rgba(255,255,255,.3)}}
+@media(max-width:640px){.flow-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.flow-steps li{padding-right:14px}}
+
+/* Three-across tiles (the base .tiles rule lays out five). */
+.prose .tiles.tiles-3 li,.prose .tiles.tiles-3 li:nth-child(n+4){grid-column:span 2}
+@media(max-width:800px){.prose .tiles.tiles-3 li,.prose .tiles.tiles-3 li:nth-child(n+4){grid-column:auto}}
+
+/* Result tiles: a figure, what it is, and where the number comes from. */
+.prose .wins{list-style:none;margin:30px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.prose .wins li{display:flex;flex-direction:column;gap:10px;padding:24px 24px 20px;background:var(--white);border:1px solid var(--line);border-top:3px solid var(--ink);font-size:15px;line-height:1.5}
+.prose .wins strong{font-size:clamp(40px,5vw,56px);font-weight:500;letter-spacing:-.045em;line-height:1;color:var(--ink)}
+.prose .wins em{margin-top:auto;padding-top:8px;font-style:normal;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.prose .wins em::before{content:"";display:inline-block;width:7px;height:7px;margin-right:9px;border-radius:50%;background:var(--red);vertical-align:1px}
+@media(max-width:600px){.prose .wins{grid-template-columns:1fr}}
+
+/* Chart card. */
+.viz,.lanes,.cro,.fanout,.locs{margin:34px 0 30px}
+.viz{padding:26px 26px 22px;background:var(--white);border:1px solid var(--line)}
+.viz-title{display:block;font-size:21px;font-weight:500;letter-spacing:-.025em;line-height:1.2;color:var(--ink)}
+.viz-sub{display:block;margin-top:6px;font-size:13px;line-height:1.45;color:var(--muted)}
+.prose .viz-note,.prose .fig-note{margin:18px 0 0;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.prose .viz-note{padding-top:14px;border-top:1px solid var(--line)}
+.viz-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 36px;margin-top:24px}
+.prose .viz-panel-title{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 10px;font-size:14px;font-weight:600;line-height:1.3;color:var(--ink)}
+.viz-panel-title span{font-size:12px;font-weight:400;color:var(--muted);white-space:nowrap}
+/* Ranked bars: 14px thick, rounded at the data end, square at the baseline. */
+.prose .bars{list-style:none;margin:0;padding:0}
+.prose .bars li{display:grid;grid-template-columns:minmax(0,7.6em) minmax(0,1fr) 2.2em 2.6em;align-items:center;gap:10px;padding:7px 4px;font-size:13px;line-height:1.3;color:#47443f}
+.bar-track{height:14px}
+.bar-track i{display:block;width:var(--w);min-width:2px;height:100%;border-radius:0 4px 4px 0;background:#a9a498;transition:filter .2s ease}
+.bars .is-key .bar-track i{background:var(--red)}
+.bars .is-key .bar-name{font-weight:600;color:var(--ink)}
+.bar-val{text-align:right;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.bar-share{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+@media(hover:hover){.prose .bars li:hover{background:rgba(17,16,15,.045)}.bars li:hover .bar-track i{filter:brightness(.88)}}
+/* Columns by week: 170px plot, gridlines at 0, 5 and 10. Values show on hover, or all at once on keyboard focus. */
+.cols-wrap{display:grid;grid-template-columns:1.5em minmax(0,1fr);gap:8px;margin-top:30px}
+.cols-y{position:relative;height:170px;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cols-y span{position:absolute;right:0;line-height:1;transform:translateY(-50%)}
+.prose .cols{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));background:linear-gradient(var(--line),var(--line)) 0 0/100% 1px no-repeat,linear-gradient(var(--line),var(--line)) 0 85px/100% 1px no-repeat,linear-gradient(#c3bfb4,#c3bfb4) 0 170px/100% 1px no-repeat}
+.prose .cols:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.prose .cols li{display:grid;grid-template-rows:170px auto;justify-items:center;font-size:11px;line-height:1.2;color:var(--muted)}
+.cols i{grid-area:1/1;align-self:end;width:min(24px,62%);height:calc(var(--v)*17px);border-radius:4px 4px 0 0;background:var(--red);transition:filter .2s ease}
+.col-v{grid-area:1/1;align-self:end;margin-bottom:calc(var(--v)*17px + 5px);font-size:12px;font-weight:600;color:var(--ink);opacity:0;transition:opacity .15s ease}
+.cols .show .col-v,.cols:focus-visible .col-v{opacity:1}
+.col-x{grid-row:2;margin-top:9px;white-space:nowrap}
+@media(hover:hover){.cols li:hover .col-v{opacity:1}.cols li:hover i{filter:brightness(.88)}}
+@media(max-width:700px){.viz{padding:20px 16px 18px}.viz-panels{grid-template-columns:1fr}.cols li:nth-child(even) .col-x{visibility:hidden}}
+
+/* One job, five places. */
+.fanout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:0 44px;align-items:center}
+.fan-src{padding:22px 20px;background:var(--ink);color:var(--white)}
+.fan-src strong{display:block;font-size:20px;font-weight:500;letter-spacing:-.025em;line-height:1.15}
+.fan-src span{display:block;margin-top:14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:#ff6651}
+.prose .fan-src ul{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.prose .fan-src li{padding:4px 10px;border:1px solid rgba(255,255,255,.3);font-size:12.5px;line-height:1.4;color:var(--white)}
+.prose .fan-out{position:relative;list-style:none;margin:0;padding:0}
+.prose .fan-out::before{content:"";position:absolute;right:100%;top:50%;width:44px;height:1px;background:var(--ink)}
+.prose .fan-out li{position:relative;padding:11px 0 11px 34px;font-size:15px;line-height:1.45;background:linear-gradient(var(--ink),var(--ink)) 0 0/1px 100% no-repeat}
+.prose .fan-out li:first-child{background-position:0 100%;background-size:1px 50%}
+.prose .fan-out li:last-child{background-size:1px 50%}
+.prose .fan-out li::before{content:"";position:absolute;left:0;top:50%;width:20px;height:1px;background:var(--ink)}
+.prose .fan-out li::after{content:"";position:absolute;left:18px;top:50%;width:7px;height:7px;margin-top:-3px;border-radius:50%;background:var(--red)}
+.fan-out strong{color:var(--ink);font-weight:600}
+.fanout .fig-note{grid-column:1/-1}
+@media(max-width:700px){.fanout{grid-template-columns:1fr}.prose .fan-out{margin-left:22px}.prose .fan-out::before{display:none}.prose .fan-out li:first-child{background-position:0 0;background-size:1px 100%}.prose .fan-out li{padding-top:14px}}
+
+/* Two routes from the same content: Google, and Bing into ChatGPT. */
+.lanes-node{padding:18px 22px;background:var(--ink);color:var(--white);text-align:center}
+.lanes-node strong{display:block;font-size:19px;font-weight:500;letter-spacing:-.02em;line-height:1.2}
+.lanes-node span{display:block;margin-top:5px;font-size:13.5px;line-height:1.45;color:#c8c4bb}
+.lanes-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.lane{position:relative;padding:26px 0}
+.lane::before,.lane::after,.prose .lane li+li::before{content:"";position:absolute;left:50%;width:12px;height:26px;margin-left:-6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 26' fill='none' stroke='%2311100f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 0v24M1.5 19.5 6 24l4.5-4.5'/%3E%3C/svg%3E") center/12px 26px no-repeat}
+.lane::before{top:0}
+.lane::after{bottom:0}
+.lane-card{height:100%;padding:16px 14px 16px;background:var(--white);border:1px solid var(--line);border-top:3px solid var(--ink)}
+.lane-bing .lane-card{border-top-color:var(--red)}
+.prose .lane-name{margin:0 0 12px;font-size:11px;font-weight:600;line-height:1.3;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);text-align:center}
+.prose .lane ol{list-style:none;margin:0;padding:0}
+.prose .lane li{position:relative;padding:12px 10px;background:var(--paper);text-align:center;font-size:13px;line-height:1.4}
+.prose .lane li+li{margin-top:26px}
+.prose .lane li+li::before{top:-26px}
+.lane li strong{display:block;margin-bottom:2px;font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.prose .lane li.lane-out{background:var(--ink);color:#c8c4bb}
+.lane li.lane-out strong{color:var(--white)}
+.lane-bing li.lane-out{box-shadow:inset 0 3px 0 var(--red)}
+
+/* Annotated service page: a phone drawn in CSS with numbered pins, and the list they point to. */
+.cro{display:grid;grid-template-columns:250px minmax(0,1fr);gap:22px 44px;align-items:center}
+.wire{position:relative;width:250px;justify-self:center;border:8px solid #1c1b19;border-radius:32px;background:var(--white);overflow:hidden;box-shadow:0 26px 60px rgba(17,16,15,.2)}
+.wire-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;background:#1c1b19}
+.wire-logo{width:66px;height:10px;border-radius:2px;background:#6b6861}
+.wire-body{display:flex;flex-direction:column;gap:11px;padding:18px 14px 20px}
+.wire-h{position:relative;padding-right:26px;font-size:18px;font-weight:600;line-height:1.12;letter-spacing:-.03em;color:var(--ink)}
+.wire-line{height:6px;border-radius:3px;background:#dcd8cd}
+.wire-line.short{width:62%}
+.wire-btn{position:relative;display:flex;align-items:center;justify-content:center;height:34px;background:var(--red);color:#fff;font-size:12px;font-weight:600;line-height:1}
+.wire-btn-sm{height:24px;padding:0 13px;font-size:11px}
+.wire-photos{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.wire-photos span{aspect-ratio:4/3;background:linear-gradient(158deg,#d9d5c9 56%,#b8b3a6 56%)}
+.wire-proof{position:relative;padding-right:30px;font-size:11px;line-height:1.3;color:#47443f}
+.wire-proof b{margin-right:6px;font-weight:400;letter-spacing:.08em;color:var(--ink)}
+.wire-form{position:relative;display:flex;flex-direction:column;gap:6px;padding:10px;background:var(--paper)}
+.wire-form>span:not(.wire-btn){height:20px;border:1px solid #c3bfb4;background:var(--white)}
+.wire-form .wire-btn{height:28px;background:var(--ink)}
+.pin,.prose .cro-list li::before{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#c93622;color:#fff;font-size:12px;font-weight:700;font-style:normal;line-height:1}
+.pin{position:absolute;right:8px;top:-9px;z-index:1;box-shadow:0 0 0 2px var(--white)}
+.wire-h .pin{right:0;top:-3px}
+.wire-btn-sm .pin{right:-9px;top:-10px;box-shadow:0 0 0 2px #1c1b19}
+.wire-proof .pin{top:-5px}
+.wire-form .pin{top:9px;right:14px}
+.prose .cro-list{list-style:none;margin:0;padding:0;counter-reset:pin}
+.prose .cro-list li{position:relative;counter-increment:pin;padding:9px 0 9px 36px;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.5}
+.prose .cro-list li:first-child{border-top:1px solid var(--line)}
+.prose .cro-list li::before{content:counter(pin);position:absolute;left:0;top:9px}
+.cro-list strong{color:var(--ink);font-weight:600}
+.cro .fig-note{grid-column:1/-1;margin-top:4px}
+@media(max-width:760px){.cro{grid-template-columns:1fr}}
+
+/* One website, a set of profiles for each staffed location. */
+.locs-top{position:relative;width:fit-content;max-width:100%;margin:0 auto;padding:16px 26px;background:var(--ink);color:var(--white);text-align:center}
+.locs-top strong{display:block;font-size:19px;font-weight:500;letter-spacing:-.02em;line-height:1.2}
+.locs-top span{display:block;margin-top:4px;font-size:13px;line-height:1.4;color:#c8c4bb}
+.locs-top::after,.prose .locs-cols li::before{content:"";position:absolute;left:50%;width:1px;height:15px;background:var(--ink)}
+.locs-top::after{top:100%}
+.prose .locs-cols{position:relative;list-style:none;margin:0;padding:30px 0 0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.prose .locs-cols::before{content:"";position:absolute;top:15px;left:calc((100% - 28px)/6);right:calc((100% - 28px)/6);height:1px;background:var(--ink)}
+.prose .locs-cols li{position:relative;display:flex;flex-direction:column;gap:6px;padding:14px 12px 12px;background:var(--white);border:1px solid var(--line);border-top:3px solid var(--ink);font-size:13px;line-height:1.35}
+.prose .locs-cols li::before{top:-18px}
+.locs-cols em{margin-bottom:4px;font-style:normal;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.locs-cols span{padding:9px 10px;background:var(--paper);color:var(--ink);font-weight:500}
+.locs-cols span::before{content:"";display:inline-block;width:6px;height:6px;margin-right:8px;border-radius:50%;background:var(--red);vertical-align:2px}
+@media(max-width:560px){.prose .locs-cols{gap:8px}.prose .locs-cols::before{left:calc((100% - 16px)/6);right:calc((100% - 16px)/6)}.prose .locs-cols li{padding:12px 8px 8px;font-size:12px}.locs-cols span{padding:8px 7px}.locs-cols span::before{display:none}}
+@media(prefers-reduced-motion:reduce){.bar-track i,.cols i,.col-v{transition:none}}
+.prose .tiles+p{margin-top:26px}
