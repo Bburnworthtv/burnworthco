@@ -73,6 +73,12 @@ Both forms also file each valid request as a lead in Burnworth OS, the agency's 
 
 Without both, nothing is sent and the forms work as before. Filing is best effort: it waits at most four seconds, and a CRM failure never changes what the visitor sees or stops the email. Spam caught by the hidden field or the time check is not filed.
 
+## Website showcase and button interactions
+
+The web development page and the homepage "Website builds" band show real screenshots of two sites we built, Pacific Earthworks and Go Virtuality, each inside a browser window and a phone. The frames are CSS (`.browser`, `.phone`, `.stage` in `styles.css`); only the screenshots are images: `public/assets/pacific-earthworks-home-*`, `-services-*` and `-phone-*`, and `public/assets/go-virtuality-home-*` and `-phone-*`, each as WebP with a JPEG fallback. The screenshots were taken from pacific-earthworks.vercel.app and govirtuality-crm.vercel.app on November 24, 2026. Go Virtuality had not relaunched on its own domain then, so it is labelled "Launching soon"; change that label to "Recent build" once it is live. To show a different site, add its image set and a `.stage` figure with its own caption, and only show sites Burnworth Co. built.
+
+Buttons (`.button`, and the "Free audit" chip in the header) fill from the left on hover or keyboard focus, move their arrow and dip when pressed. The fill colour comes from `--sweep` and `--sweep-text`: ink on light sections, white on dark ones. Dark sections are listed in one rule under "Button and link interactions" in `styles.css`; add any new dark section there or its buttons will fill with ink on ink. Motion is switched off for visitors who ask for reduced motion.
+
 ## Analytics
 
 `public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`), loads Tag Manager through `GTM_ID` (`GTM-M6S6RWJP`) and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.

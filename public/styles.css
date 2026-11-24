@@ -554,3 +554,109 @@ html:has(.audit-pop[open]){overflow:hidden}
 .estimate-form:has(select[name="budget"] option[value="Other"]:checked) .budget-other{display:block}
 /* "Contractors" is a longer menu label than "Method": tighten the menu on the narrowest phones. */
 @media(max-width:350px){.site-header nav a{padding:0 5px;font-size:11px}}
+
+/* ==== Button and link interactions (November 24, 2026) ====
+   A fill sweeps across each button from the left on hover or keyboard focus, the arrow moves, and the button dips
+   when pressed. The sweep colour comes from two variables, so it always contrasts with the section behind it:
+   ink on light sections, white on the dark ones listed below. A new dark section needs adding to that list. */
+.button,.header-audit{--sweep:var(--ink);--sweep-text:var(--white);position:relative;isolation:isolate;overflow:hidden;transition:color .25s ease,border-color .25s ease,transform .12s ease}
+.button.dark{--sweep:#c93622}
+.site-header .header-audit,.hero .button,.report-hero .button,.build-band .button,.closing .button,.founder-hero .button,.showcase .button{--sweep:var(--white);--sweep-text:var(--ink)}
+.button::before,.header-audit::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--sweep);transform:scaleX(0);transform-origin:left center;transition:transform .38s cubic-bezier(.2,.7,.2,1)}
+.button .icon-right,.button .icon-ne,.text-link .icon-right,.text-link .icon-ne,.text-link .icon-down,.header-cta .icon-ne{transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+.button:focus-visible::before,.header-audit:focus-visible::before{transform:scaleX(1)}
+/* Doubled class: section rules such as ".report-hero .button.ghost" set a colour and must not win on hover. */
+.button.button:focus-visible,.header-audit:focus-visible{color:var(--sweep-text);border-color:var(--sweep)}
+.button:active,.header-audit:active{transform:translateY(1px) scale(.985)}
+.button[disabled]::before{display:none}
+.text-link,.header-cta{transition:color .2s ease,border-color .2s ease}
+@media(hover:hover){
+  .button:hover::before,.header-audit:hover::before{transform:scaleX(1)}
+  .button.button:hover,.header-audit:hover{color:var(--sweep-text);border-color:var(--sweep)}
+  .button.primary:hover,.header-audit:hover{background:var(--red)}
+  .button.ghost:hover{background:transparent}
+  .button:hover .icon-right,.text-link:hover .icon-right{transform:translateX(5px)}
+  .button:hover .icon-ne,.text-link:hover .icon-ne,.header-cta:hover .icon-ne{transform:translate(3px,-3px)}
+  .text-link:hover .icon-down{transform:translateY(3px)}
+  .text-link:hover,.header-cta:hover{color:var(--red);border-color:var(--red)}
+  .site-header .header-cta:hover,.hero .text-link:hover,.report-hero .text-link:hover,.founder-hero .text-link:hover,.dark-band .text-link:hover,.review .text-link:hover,.proof-strip .text-link:hover,.build-band .text-link:hover,.showcase .text-link:hover,.service-list .text-link:hover{color:#ff6651;border-color:#ff6651}
+  /* Menu links: an underline that draws in from the left. */
+  .site-header nav a{background:linear-gradient(currentColor,currentColor) no-repeat 50% calc(50% + 13px)/0 1px;transition:background-size .28s cubic-bezier(.2,.7,.2,1)}
+  .site-header nav a:hover,.site-header nav a[aria-current=page]{background-size:calc(100% - 20px) 1px}
+}
+@media(prefers-reduced-motion:reduce){
+  .button,.header-audit,.button::before,.header-audit::before,.button [class^=icon-],.text-link [class^=icon-],.header-cta .icon-ne,.site-header nav a,.tiles li,.browser,.phone{transition:none}
+  .button:active,.header-audit:active{transform:none}
+}
+
+/* ==== Website showcase (November 24, 2026) ====
+   Real screenshots of a site we built, drawn inside a browser window and a phone. The frames are CSS; only the
+   screenshots are images. Each site has its own image set in /assets (pacific-earthworks-*, go-virtuality-*). */
+.browser{background:#1c1b19;border:1px solid rgba(255,255,255,.16);border-radius:10px;overflow:hidden;box-shadow:0 34px 80px rgba(0,0,0,.42);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.browser-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:#262522}
+.browser-bar i{width:9px;height:9px;border-radius:50%;background:#55524c}
+.browser-bar span{margin-left:12px;padding:4px 14px;border-radius:99px;background:#161513;color:#a39f95;font-size:11px;letter-spacing:.02em;white-space:nowrap}
+.browser img,.phone img{width:100%;height:auto}
+.phone{background:#000;border:7px solid #1c1b19;border-radius:26px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 26px 60px rgba(0,0,0,.55);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.stage{position:relative;margin:0;padding:0 0 7% 0}
+.stage .browser{width:88%}
+.stage .phone{position:absolute;right:0;bottom:0;width:21%}
+.stage figcaption,.shot figcaption{margin-top:18px;font-size:13px;line-height:1.5;color:#a8a49c}
+.stage figcaption{padding-right:26%}
+@media(hover:hover){.stage:hover .browser{transform:translateY(-6px)}.stage:hover .phone{transform:translateY(-12px)}}
+@media(max-width:600px){.phone{border-width:4px;border-radius:14px}.browser{border-radius:7px}.browser-bar{padding:7px 9px;gap:5px}.browser-bar i{width:6px;height:6px}.browser-bar span{font-size:9px;padding:2px 9px;margin-left:6px}.stage .phone{width:24%}.stage figcaption{padding-right:28%;margin-top:14px}}
+
+/* Dark band under the hero of the web development page. */
+.showcase{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr);gap:clamp(32px,6vw,96px);align-items:center;padding:20px clamp(22px,10vw,160px) clamp(70px,8vw,120px);background:var(--ink);color:var(--white)}
+.showcase .eyebrow{color:#ff6651;margin:0 0 22px}
+.showcase h2{font-size:clamp(34px,3.6vw,54px);line-height:1;margin:0 0 22px}
+.showcase-copy>p:not(.eyebrow){color:#c8c4bb;font-size:17px;line-height:1.65;margin:0 0 24px;max-width:46ch}
+.showcase-facts{list-style:none;margin:0;padding:0;border-top:1px solid rgba(255,255,255,.18)}
+.showcase-facts li{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.18);font-size:15px;font-weight:500}
+.showcase-facts li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:12px;vertical-align:2px}
+@media(max-width:900px){.showcase{grid-template-columns:1fr;padding-left:20px;padding-right:20px}}
+
+.showcase+.showcase{padding-top:clamp(56px,7vw,100px);border-top:1px solid rgba(255,255,255,.12)}
+@media(min-width:901px){.showcase-flip{grid-template-columns:minmax(0,1.5fr) minmax(0,.8fr)}.showcase-flip .stage{order:-1}}
+
+/* Homepage: two builds side by side under the "Website builds" band. */
+.build-band .stage-pair{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,4vw,64px);margin-top:clamp(8px,2vw,28px)}
+@media(max-width:800px){.build-band .stage-pair{grid-template-columns:1fr;gap:44px}}
+
+/* ==== Web development page: tiles, checklist, price and steps in place of plain lists (November 24, 2026) ==== */
+.prose .tiles,.prose .checks,.prose .process{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:14px}
+.prose .tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
+.prose .tiles li{grid-column:span 2}
+.prose .tiles li:nth-child(n+4){grid-column:span 3}
+.prose .tiles li{display:flex;flex-direction:column;gap:8px;padding:22px 22px 24px;background:var(--white);border:1px solid var(--line);border-top:3px solid var(--ink);font-size:15px;line-height:1.55;transition:transform .25s cubic-bezier(.2,.7,.2,1),border-color .25s ease,box-shadow .25s ease}
+.prose .tiles strong{font-size:19px;font-weight:500;letter-spacing:-.02em;line-height:1.2;color:var(--ink)}
+@media(hover:hover){.prose .tiles li:hover{transform:translateY(-4px);border-top-color:var(--red);box-shadow:0 14px 30px rgba(17,16,15,.09)}}
+.prose .checks{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px;border-top:1px solid var(--line)}
+.prose .checks li{position:relative;padding:14px 0 14px 32px;border-bottom:1px solid var(--line);font-size:16px;font-weight:500;color:var(--ink);line-height:1.4}
+.prose .checks li::before{content:"";position:absolute;left:2px;top:17px;width:15px;height:8px;border-left:2px solid var(--red);border-bottom:2px solid var(--red);transform:rotate(-45deg)}
+.shot{margin:34px 0 8px}
+.shot .browser{box-shadow:0 26px 60px rgba(17,16,15,.22)}
+.shot figcaption{color:var(--muted)}
+@media(hover:hover){.shot:hover .browser{transform:translateY(-5px)}}
+.price-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 32px;align-items:center;margin:38px 0 34px;padding:30px 32px;background:var(--ink);color:var(--white)}
+.price-card p{margin:0;color:#c8c4bb;font-size:15px;line-height:1.55}
+.price-card .price-label{grid-column:1/-1;text-transform:uppercase;font-size:11px;font-weight:600;letter-spacing:.18em;color:#ff6651}
+.price-card .price-figure{font-size:clamp(34px,4.4vw,52px);font-weight:500;letter-spacing:-.035em;line-height:1;color:var(--white);font-variant-numeric:tabular-nums}
+.price-card .price-note{grid-column:1}
+.price-card .button{--sweep:var(--white);--sweep-text:var(--ink);grid-column:2;grid-row:2/4;align-self:center}
+.prose .process{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;counter-reset:step;margin:34px 0 38px;border-top:1px solid var(--ink)}
+.prose .process li{counter-increment:step;padding:20px 20px 4px 0;font-size:15px;line-height:1.55}
+.prose .process li+li{padding-left:20px;border-left:1px solid var(--line)}
+.prose .process li::before{content:counter(step,decimal-leading-zero);display:block;margin-bottom:26px;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--red)}
+.prose .process strong{display:block;margin-bottom:8px;font-size:22px;font-weight:500;letter-spacing:-.03em;color:var(--ink)}
+@media(max-width:800px){
+  .prose .tiles{grid-template-columns:1fr}
+  .prose .tiles li,.prose .tiles li:nth-child(n+4){grid-column:auto}
+  .prose .checks{grid-template-columns:1fr}
+  .price-card{grid-template-columns:1fr;padding:26px 22px}
+  .price-card .button{grid-column:1;grid-row:auto;margin-top:12px}
+  .prose .process{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .prose .process li{padding:18px 16px 18px 0}
+  .prose .process li:nth-child(odd){padding-left:0;border-left:0}
+  .prose .process li:nth-child(n+3){border-top:1px solid var(--line)}
+}
