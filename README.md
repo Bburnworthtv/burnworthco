@@ -79,6 +79,14 @@ The web development page and the homepage "Website builds" band show real screen
 
 Buttons (`.button`, and the "Free audit" chip in the header) fill from the left on hover or keyboard focus, move their arrow and dip when pressed. The fill colour comes from `--sweep` and `--sweep-text`: ink on light sections, white on dark ones. Dark sections are listed in one rule under "Button and link interactions" in `styles.css`; add any new dark section there or its buttons will fill with ink on ink. Motion is switched off for visitors who ask for reduced motion.
 
+## Contractor SEO page: diagrams and charts
+
+`/contractor-seo` carries a workflow band, result tiles, two charts and three diagrams. All of it is HTML and CSS under "Contractor SEO page" in `styles.css`; there are no image files and no script.
+
+- The chart numbers are typed into `contractor-seo.html`. Each bar's length is its `--w` percentage and each column's height is its `--v` value, so change the number and the style value together.
+- Where every published figure comes from, with its property, dates and filters, is recorded in `docs/research/contractor-seo-evidence.md`. Update that file whenever a figure on the page changes.
+- In the charts, ChatGPT is always red and everything else grey. Every value is also printed as text, and the weekly chart shows all its values on keyboard focus.
+
 ## Analytics
 
 `public/analytics.js` loads on every page. It sends to GA4 directly through `GA4_ID` (`G-WJL1CE5Z1Z`), loads Tag Manager through `GTM_ID` (`GTM-M6S6RWJP`) and pushes every event to the `dataLayer` as `{event: name, ...params}` for GTM Custom Event triggers. With both set, do not add a GA4 Google tag for the same ID inside GTM, or page views double count.
