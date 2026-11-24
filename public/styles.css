@@ -555,7 +555,7 @@ html:has(.audit-pop[open]){overflow:hidden}
 /* "Contractors" is a longer menu label than "Method": tighten the menu on the narrowest phones. */
 @media(max-width:350px){.site-header nav a{padding:0 5px;font-size:11px}}
 
-/* ==== Button and link interactions (November 24, 2026) ====
+/* ==== Button and link interactions (November 23, 2026) ====
    A fill sweeps across each button from the left on hover or keyboard focus, the arrow moves, and the button dips
    when pressed. The sweep colour comes from two variables, so it always contrasts with the section behind it:
    ink on light sections, white on the dark ones listed below. A new dark section needs adding to that list. */
@@ -589,7 +589,7 @@ html:has(.audit-pop[open]){overflow:hidden}
   .button:active,.header-audit:active{transform:none}
 }
 
-/* ==== Website showcase (November 24, 2026) ====
+/* ==== Website showcase (November 23, 2026) ====
    Real screenshots of a site we built, drawn inside a browser window and a phone. The frames are CSS; only the
    screenshots are images. Each site has its own image set in /assets (pacific-earthworks-*, go-virtuality-*). */
 .browser{background:#1c1b19;border:1px solid rgba(255,255,255,.16);border-radius:10px;overflow:hidden;box-shadow:0 34px 80px rgba(0,0,0,.42);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
@@ -623,7 +623,7 @@ html:has(.audit-pop[open]){overflow:hidden}
 .build-band .stage-pair{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,4vw,64px);margin-top:clamp(8px,2vw,28px)}
 @media(max-width:800px){.build-band .stage-pair{grid-template-columns:1fr;gap:44px}}
 
-/* ==== Web development page: tiles, checklist, price and steps in place of plain lists (November 24, 2026) ==== */
+/* ==== Web development page: tiles, checklist, price and steps in place of plain lists (November 23, 2026) ==== */
 .prose .tiles,.prose .checks,.prose .process{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:14px}
 .prose .tiles{grid-template-columns:repeat(6,minmax(0,1fr))}
 .prose .tiles li{grid-column:span 2}
@@ -661,7 +661,7 @@ html:has(.audit-pop[open]){overflow:hidden}
   .prose .process li:nth-child(n+3){border-top:1px solid var(--line)}
 }
 
-/* ==== Contractor SEO page: workflow, results, charts and diagrams (November 24, 2026) ====
+/* ==== Contractor SEO page: workflow, results, charts and diagrams (November 23, 2026) ====
    Everything in this block is HTML and CSS. There are no image files. The charts follow one rule: the bar or
    column that is the point (ChatGPT) is red, everything else is grey, and every value is also printed as text.
    Chart numbers live in contractor-seo.html beside their source and dates. */

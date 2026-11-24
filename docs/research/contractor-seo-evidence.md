@@ -2,7 +2,7 @@
 
 Figures published on `/contractor-seo`, following the source register in `README.md` in this directory. Raw exports are not kept in this repository.
 
-Read from Google Analytics on November 24, 2026. "Visits" on the page means GA4 sessions. No filters were applied other than the date range and the dimension shown.
+Read from Google Analytics on November 23, 2026. "Visits" on the page means GA4 sessions. No filters were applied other than the date range and the dimension shown.
 
 | Claim on the page | Evidence class | Source / property | Measurement dates | Calculation | Client permission |
 |---|---|---|---|---|---|
@@ -15,6 +15,6 @@ Read from Google Analytics on November 24, 2026. "Visits" on the page means GA4 
 | Top Tier: 6 to 10 jobs a month, from a website that had never produced a job | Client reported | Stone Peters, owner | As of November 2026 | Already published on `/work-top-tier-custom-floors` | As for that page |
 | Six first-place Google rankings for camera equipment rental searches | Reported result | Already published on `/work-los-angeles-production-company` | Not dated on that page | None | As for that page |
 | ChatGPT named Top Tier first for flooring contractors near Valley Center, CA | Test observed | One ChatGPT run with web search on | November 23, 2026 | Single run; answers vary between runs | Not client data |
-| ChatGPT search sends queries to outside search providers; OpenAI names Bing | Published source | OpenAI Help Center, "ChatGPT search for Enterprise and Edu" and "Searching the web with ChatGPT" | Read November 24, 2026 | None | Not client data |
+| ChatGPT search sends queries to outside search providers; OpenAI names Bing | Published source | OpenAI Help Center, "ChatGPT search for Enterprise and Edu" and "Searching the web with ChatGPT" | Read November 23, 2026 | None | Not client data |
 
 Not used: key events. Top Tier's only key event in the period is an imported Google Ads conversion, and it has not been checked against real form submissions, so no conversion rate is published.
