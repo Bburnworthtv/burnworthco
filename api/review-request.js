@@ -7,7 +7,7 @@
 
   Each valid request goes to two places:
     1. An email through Resend (https://resend.com).
-    2. A lead in Burnworth OS, the agency's CRM; see api/_os-intake.js.
+    2. A lead in Burnworth OS, the studio's CRM; see api/_os-intake.js.
   The visitor sees "received" when either one succeeds, so a problem with one
   channel never tells a real lead their request failed. Only when both fail does
   the form show the email and phone fallback.

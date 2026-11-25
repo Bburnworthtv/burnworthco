@@ -97,7 +97,7 @@ Website builds are offered across the site: "Websites" in the main menu, a "Webs
 
 ## Leads in Burnworth OS
 
-Both forms also file each valid request as a lead in Burnworth OS, the agency's CRM, through `api/_os-intake.js` (not a route; Vercel ignores `api` files that start with an underscore). Set these in Vercel → Project → Settings → Environment Variables (Production), then redeploy:
+Both forms also file each valid request as a lead in Burnworth OS, the studio's CRM, through `api/_os-intake.js` (not a route; Vercel ignores `api` files that start with an underscore). Set these in Vercel → Project → Settings → Environment Variables (Production), then redeploy:
 
 - `OS_INTAKE_URL`: `https://burnworth-co-os.vercel.app/api/leads/intake`.
 - `OS_INTAKE_SECRET`: the same value as `LEAD_INTAKE_SECRET` in the Burnworth OS project.
@@ -187,3 +187,5 @@ Server code, account settings, DNS, secrets, Cloudflare rules, analytics configu
 ## Editing
 
 Update the relevant static HTML document, then update the sitemap date only for changed pages. Keep visible business information and JSON-LD aligned. Do not claim an office location, ranking, review count, award or client outcome without evidence. Keep the original source images intact.
+
+How we describe the business: Burnworth Co. is a small studio focused on consistent client results. Use "studio", not "agency". "Agency" appears only where it is the visitor's word (the question "Are you a GEO, AEO or AI SEO agency?" is there because people search for it) or a comparison ("the work an agency sells"). "Consistent client results" is what we focus on, not a promise: keep each result labelled as one client's, reported by them.

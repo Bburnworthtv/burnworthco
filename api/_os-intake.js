@@ -1,5 +1,5 @@
 /*
-  Files a form enquiry as a lead in Burnworth OS, the agency's CRM, alongside
+  Files a form enquiry as a lead in Burnworth OS, the studio's CRM, alongside
   the email. Not a route: Vercel ignores api files that start with an underscore.
 
   Vercel environment variables (both optional; without them nothing is sent):
