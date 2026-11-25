@@ -6,6 +6,8 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  Content-Security-Policy: frame-ancestors 'self'
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
 
 # Fonts. The filename identifies one build of one typeface, so it can never
 # change under the same name. Safe to cache for a year and skip revalidation.
@@ -45,7 +47,7 @@
   Cache-Control: public, max-age=0, must-revalidate
 /analytics.js
   Cache-Control: public, max-age=0, must-revalidate
-/audit-popup.js
+/flow.js
   Cache-Control: public, max-age=0, must-revalidate
 /estimate.js
   Cache-Control: public, max-age=0, must-revalidate
@@ -95,6 +97,12 @@
   Cache-Control: public, max-age=0, must-revalidate
 /terms
   Cache-Control: public, max-age=0, must-revalidate
+/accessibility
+  Cache-Control: public, max-age=0, must-revalidate
+/start
+  Cache-Control: public, max-age=0, must-revalidate
+/thanks
+  Cache-Control: public, max-age=0, must-revalidate
 /services
   Cache-Control: public, max-age=0, must-revalidate
 /web-development
@@ -106,6 +114,8 @@
 /search-visibility-audit
   Cache-Control: public, max-age=0, must-revalidate
 /generative-engine-optimization
+  Cache-Control: public, max-age=0, must-revalidate
+/ai-search-optimization
   Cache-Control: public, max-age=0, must-revalidate
 /research
   Cache-Control: public, max-age=0, must-revalidate

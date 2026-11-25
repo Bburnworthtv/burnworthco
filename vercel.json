@@ -21,6 +21,14 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self'"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
         }
       ]
     },
@@ -67,7 +75,7 @@
       ]
     },
     {
-      "source": "/(styles.css|script.js|analytics.js|audit-popup.js|estimate.js)",
+      "source": "/(styles.css|script.js|analytics.js|flow.js|estimate.js)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -103,7 +111,7 @@
       ]
     },
     {
-      "source": "/(about|privacy|terms|services|web-development|contractor-seo|seo-for-flooring-companies|search-visibility-audit|generative-engine-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
+      "source": "/(about|privacy|terms|accessibility|start|thanks|services|web-development|contractor-seo|seo-for-flooring-companies|search-visibility-audit|generative-engine-optimization|ai-search-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
       "headers": [
         {
           "key": "Cache-Control",

@@ -2,18 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://burnworthco.com/work</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
+    <image:image><image:loc>https://burnworthco.com/assets/top-tier-custom-floors-home-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/pacific-earthworks-home-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/model-home-home-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/fluid-pictures-home-1280.jpg</image:loc></image:image>
+    <image:image><image:loc>https://burnworthco.com/assets/go-virtuality-home-1280.jpg</image:loc></image:image>
   </url>
   <url>
     <loc>https://burnworthco.com/work-top-tier-custom-floors</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://burnworthco.com/work-los-angeles-production-company</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://burnworthco.com/ai-visibility-business-results</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
 </urlset>
