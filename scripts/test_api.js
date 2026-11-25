@@ -9,6 +9,7 @@
   delivery channels working or failing, and what is sent on to each channel.
 */
 const assert = require('assert');
+const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -175,6 +176,19 @@ test('a request from a service page says which page and returns there', async ()
   // without JavaScript, an invalid post goes back to the same page
   const back = await post(handler, {name: '', email: 'x', page: '/ai-search-optimization'}, {json: false, form: true});
   assert.strictEqual(back.headers.location, '/ai-search-optimization?review=error#send-error');
+});
+
+test('a plain post from each page that carries the flow returns to that page', async () => {
+  const handler = load('review-request.js', BOTH);
+  // every page with <!-- flow:... --> in it must be on the server's list
+  const dir = path.join(__dirname, '..', 'public');
+  const pages = fs.readdirSync(dir).filter((file) => file.endsWith('.html') && /<!-- flow:(hero|landing|service) -->/.test(fs.readFileSync(path.join(dir, file), 'utf8')));
+  assert.ok(pages.includes('san-diego-seo.html') && pages.includes('contractor-seo-san-diego.html'), 'the San Diego pages carry the flow');
+  for (const file of pages) {
+    const route = file === 'index.html' ? '/' : '/' + file.replace(/\.html$/, '');
+    const back = await post(handler, {name: '', email: 'x', page: route}, {json: false, form: true});
+    assert.strictEqual(back.headers.location, `${route}?review=error#send-error`, `${route} is missing from RETURN_TO in api/review-request.js`);
+  }
 });
 
 test('only POST is accepted', async () => {

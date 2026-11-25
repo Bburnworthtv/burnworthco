@@ -111,7 +111,7 @@
       ]
     },
     {
-      "source": "/(about|privacy|terms|accessibility|start|thanks|services|web-development|contractor-seo|seo-for-flooring-companies|search-visibility-audit|generative-engine-optimization|ai-search-optimization|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
+      "source": "/(about|privacy|terms|accessibility|start|thanks|services|web-development|contractor-seo|seo-for-flooring-companies|search-visibility-audit|generative-engine-optimization|ai-search-optimization|san-diego-seo|contractor-seo-san-diego|research|work|work-top-tier-custom-floors|work-los-angeles-production-company|ai-visibility-business-results|404)",
       "headers": [
         {
           "key": "Cache-Control",

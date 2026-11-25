@@ -56,7 +56,7 @@ const ANSWERS = {
 };
 const PLACEMENTS = {hero: 'homepage', landing: 'landing page', service: 'service page', modal: 'pop-up'};
 // Pages the plain (no JavaScript) form may send a visitor back to.
-const RETURN_TO = ['/', '/start', '/ai-search-optimization'];
+const RETURN_TO = ['/', '/start', '/ai-search-optimization', '/san-diego-seo', '/contractor-seo-san-diego'];
 
 async function sendEmail({subject, text, replyTo}) {
   if (!process.env.RESEND_API_KEY) {
