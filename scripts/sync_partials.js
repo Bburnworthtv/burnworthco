@@ -18,6 +18,8 @@
     <!-- footer:minimal -->  ... <!-- /footer -->
     <!-- flow:hero -->       ... <!-- /flow -->       the question flow, from public/flow.js
     <!-- flow:landing -->    ... <!-- /flow -->
+    <!-- flow:service -->    ... <!-- /flow -->       the flow on a service page, opening on
+                                                      the second question (first answer: SEO)
     <!-- builds -->          ... <!-- /builds -->     the row of sites we built, to swipe through
     <!-- builds:column -->   ... <!-- /builds -->     the same row inside a narrow text column
     <!-- terms -->           ... <!-- /terms -->      what SEO, AEO and GEO mean, and that all three
@@ -50,7 +52,7 @@ const wordmark = (label) => `<a class="wordmark" href="/"${label ? ' aria-label=
 const NAV = [
   {href: '/web-development', label: 'Websites', section: []},
   {href: '/contractor-seo', label: 'Contractors', section: ['/seo-for-flooring-companies']},
-  {href: '/services', label: 'Services', section: ['/search-visibility-audit', '/generative-engine-optimization']},
+  {href: '/services', label: 'Services', section: ['/ai-search-optimization', '/search-visibility-audit', '/generative-engine-optimization']},
   {href: '/work', label: 'Work', section: ['/work-top-tier-custom-floors', '/work-los-angeles-production-company']},
   {href: '/research', label: 'Research', section: ['/research/state-of-search-2026', '/research/methodology', '/ai-visibility-business-results']},
   {href: '/about', label: 'About', section: []},
@@ -105,7 +107,7 @@ function footer(route, variant) {
       </div>
       <nav class="footer-col" aria-label="Services">
         <p class="footer-title">Services</p>
-        <a href="/web-development">Websites</a><a href="/contractor-seo">Contractor SEO</a><a href="/seo-for-flooring-companies">Flooring SEO</a><a href="/search-visibility-audit">Search and AI audit</a><a href="/services">All services</a>
+        <a href="/web-development">Websites</a><a href="/contractor-seo">Contractor SEO</a><a href="/seo-for-flooring-companies">Flooring SEO</a><a href="/ai-search-optimization">AI search (GEO and AEO)</a><a href="/search-visibility-audit">Search and AI audit</a><a href="/services">All services</a>
       </nav>
       <nav class="footer-col" aria-label="Company">
         <p class="footer-title">Company</p>
@@ -135,6 +137,7 @@ const scripts = () => `<script src="/script.js" defer></script>
 // The block ends with the line that GEO and AEO are part of every SEO package:
 // that is a promise about what we sell, so change it here and nowhere else.
 const GUIDE = '/generative-engine-optimization';
+const AI_SEARCH = '/ai-search-optimization';
 const TERMS = [
   {
     abbr: 'SEO',
@@ -147,7 +150,7 @@ const TERMS = [
     abbr: 'AEO',
     name: 'Answer engine optimization',
     text: 'Being the answer when someone asks a full question instead of typing keywords.',
-    where: ['Answer boxes on Google', 'People also ask', 'Voice assistants'],
+    where: ['Answer boxes on Google', 'People also ask', 'Voice and AI assistants'],
     icon: '<path d="M5 5.5h14A1.5 1.5 0 0 1 20.5 7v8a1.5 1.5 0 0 1-1.5 1.5h-6.2L8.5 20v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5Z"/><path d="m9 11 2.2 2.2L15.2 9"/>',
   },
   {
@@ -165,7 +168,7 @@ function terms(route) {
         <dd><span class="term-text">${term.text}</span><ul class="term-where" aria-label="Where ${term.abbr} shows up">${term.where.map((place) => `<li>${place}</li>`).join('')}</ul></dd>
       </div>`).join('\n      ');
   const more = route === GUIDE
-    ? `<a class="text-link" href="/contractor-seo#pricing">SEO price and terms${arrow}</a>`
+    ? `<a class="text-link" href="${AI_SEARCH}">GEO and AEO services${arrow}</a>`
     : `<a class="text-link" href="${GUIDE}">How GEO and AEO work${arrow}</a>`;
   return `<div class="terms">
     <dl class="terms-list">
@@ -269,7 +272,12 @@ const render = {
   scripts,
   builds,
   terms,
-  flow: (route, variant) => flow.render({placement: variant || 'hero', page: route}),
+  // On a service page the first question is already answered: the page is about
+  // search. There, and on the ad landing page (where the link can answer it with
+  // ?v=), a few inline lines from flow.js open the form on the second question
+  // before the page is painted, so nothing moves when flow.js loads.
+  flow: (route, variant) => flow.render({placement: variant || 'hero', page: route, interest: variant === 'service' ? 'seo' : ''})
+    + (variant === 'service' || variant === 'landing' ? `\n<script>(${flow.early.toString().replace(/\n\s*/g, ' ')})(document.currentScript.previousElementSibling)</script>` : ''),
 };
 
 const REGION = /<!-- (head|header|footer|scripts|flow|builds|terms)(?::([a-z]+))? -->[\s\S]*?<!-- \/\1 -->/g;

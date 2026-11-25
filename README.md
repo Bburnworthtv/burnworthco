@@ -55,7 +55,7 @@ The free audit is requested through three tap questions instead of a form: what 
 
 Where it appears:
 
-- **Homepage** (`/#review-form`) and **`/start`**: the flow is in the page, in the first screen on a phone.
+- **Homepage** (`/#review-form`), **`/start`** and **`/ai-search-optimization`**: the flow is in the page, in the first screen on a phone. On the AI search page the first question is already answered (SEO), so it opens on the second; the region there is `<!-- flow:service -->`. On that page and on `/start`, a few lines from `early()` in `flow.js` are written into the page after the form and open it on the second question before the page is painted, so nothing jumps when `flow.js` loads.
 - **Every other page**: any link with `data-flow-open` opens the same flow in a pop-up. The links point at `/start`, so they still work if the script does not run. Add `data-flow-interest="website"`, `"seo"`, `"ads"` or `"unsure"` to answer the first question for the visitor, as the service cards on the homepage do.
 - **Phones**: an "Explore my options" bar with a call button is fixed to the bottom of the screen once the visitor scrolls.
 - **Desktop**: the pop-up is offered once when the pointer leaves through the top of the window, not within 14 days of being closed, and never after a request is sent. There is no timed pop-up.
@@ -80,7 +80,7 @@ A request counts as received when **either** the email or the CRM filing succeed
 
 `/start` is the page to send paid traffic to (Instagram, Facebook, Google). It has no menu, one headline, the question flow and three proof tiles. It is `noindex` and is not in the sitemaps; `/thanks` is its plain confirmation page.
 
-- Match the headline to the ad with `?v=`: `/start?v=website`, `/start?v=seo` or `/start?v=ads`. Each shows its own headline (edit them in the `landing-variants` block in `public/start.html`) and answers the first question, so the visitor starts on the second.
+- Match the headline to the ad with `?v=`: `/start?v=website`, `/start?v=seo`, `/start?v=ads` or `/start?v=ai` (for ads about AI search; it counts as SEO in the flow). Each shows its own headline (edit them in the `landing-variants` block in `public/start.html`) and answers the first question, so the visitor starts on the second.
 - Tag the link so each lead shows its ad: `https://burnworthco.com/start?v=seo&utm_source=instagram&utm_medium=paid_social&utm_campaign=<campaign>&utm_content=<ad name>`.
 
 ## Website build estimate form
@@ -132,10 +132,24 @@ The homepage, the work page and the web development page show the sites we desig
 
 The site explains three names in the same words everywhere: SEO (search engine optimization), AEO (answer engine optimization) and GEO (generative engine optimization). **GEO and AEO are included in every SEO package and are never sold as an add-on.** That is a statement about what we sell, so keep every copy of it in step.
 
-- The three definitions and the "included" line are `TERMS` and `terms()` in `scripts/sync_partials.js`. They are written into a page between `<!-- terms -->` and `<!-- /terms -->`: on the homepage (under "How search changed"), `/contractor-seo`, `/services` and the guide. Edit them there and run `node scripts/sync_partials.js`. The block lays itself out by its own width (`.terms` in `styles.css`), so it can go in a full-width section or a column of text.
-- `/generative-engine-optimization` is the guide: what each name means, how AEO and GEO work, how they fit with SEO, and what is included in every package. Its title and description name both GEO and AEO.
-- The same promise is also written by hand in these places. If the offer changes, change all of them: the "GEO and AEO" row in the price tables on `/contractor-seo` and `/seo-for-flooring-companies`; the last item of each "what the work includes" list on those two pages; one question in the FAQ on the homepage, `/contractor-seo` and `/seo-for-flooring-companies` (the visible answer and the `FAQPage` JSON-LD must match word for word); the two SEO cards on the homepage; the Grow, Prove and Measure sections of `/services` and its description; one sentence on `/search-visibility-audit`; and "Price and terms" in `public/llms.txt`.
-- Keep it honest. The pages say what the names mean and what the work is. They never promise a place in an AI answer; "No one can promise a place in an AI answer, and we do not" stays.
+- The three definitions and the "included" line are `TERMS` and `terms()` in `scripts/sync_partials.js`. They are written into a page between `<!-- terms -->` and `<!-- /terms -->`: on the homepage (under "How search changed"), `/ai-search-optimization`, `/contractor-seo`, `/services` and the guide. Edit them there and run `node scripts/sync_partials.js`. The block lays itself out by its own width (`.terms` in `styles.css`), so it can go in a full-width section or a column of text.
+- `/ai-search-optimization` is the service page, and the page to link to when someone wants to buy this: the question flow in the first screen, what the work includes, proof, price and questions. `/generative-engine-optimization` is the guide: what each name means, a comparison table, the other names, how to show up in ChatGPT and Google's AI answers, and questions.
+- The same promise is also written by hand in these places. If the offer changes, change all of them: the price table and the questions on `/ai-search-optimization`; the "GEO and AEO" row in the price tables on `/contractor-seo` and `/seo-for-flooring-companies`; the last item of each "what the work includes" list on those two pages; one question in the FAQ on the homepage, `/contractor-seo`, `/seo-for-flooring-companies` and the guide; the two SEO cards on the homepage; the Grow, Prove and Measure sections of `/services` and its description; one sentence on `/search-visibility-audit`; and "Price and terms" in `public/llms.txt`.
+- Wherever a page has questions, the visible answer and the `FAQPage` JSON-LD must match word for word.
+- Keep it honest. The pages say what the names mean and what the work is. They never promise a place in an AI answer; "No one can promise that, and we do not" stays.
+
+### Which page answers which search
+
+People search for this work under many names. Each family of phrases has one page, so two pages never compete for the same search. Keep the phrase in that page's title or headings, and link to that page when the phrase comes up elsewhere.
+
+| Searches like | Page | Where the phrase sits |
+| --- | --- | --- |
+| "AI search optimization services", "AI SEO services", "AI SEO agency", "GEO services", "AEO services", "GEO agency", "LLM SEO services", "ChatGPT SEO services" | `/ai-search-optimization` | Title, first heading, the "Also called" strip, "What our GEO and AEO services include", the questions |
+| "generative engine optimization", "answer engine optimization", "what is GEO", "what is AEO", "GEO vs SEO", "AEO vs SEO", "AEO vs GEO", "AI SEO", "LLM SEO", "LLMO", "GAIO", "how to rank in ChatGPT", "how to get cited by ChatGPT" | `/generative-engine-optimization` | Title, the "What is ...?" headings, the comparison table, "Other names", "How to show up in ChatGPT", the questions |
+| "AI visibility audit", "GEO audit", "AI SEO audit" | `/search-visibility-audit` | Title, "How AI visibility is tested" |
+| "GEO for contractors", "AI SEO for contractors" | `/contractor-seo` | "GEO and AEO for contractors" |
+
+The list came from Google Ads keyword estimates and Google's United States results on November 25, 2026. At that time "AI SEO agency", "AI search optimization services" and "what is AEO" were growing fastest, and the service searches returned a mix of agency pages and "best agencies" lists, with an AI answer that named what the service includes. "GEO" and "AEO" alone are too broad to aim at: most people typing them mean something else. In local SEO, "geo" also means geo-targeting, and the guide says so.
 
 ## Artwork and charts
 
@@ -152,7 +166,7 @@ The site explains three names in the same words everywhere: SEO (search engine o
 Events:
 
 - Clicks: `click_to_call`, `email_click`, `book_call_click`, `free_audit_click` (any link that opens the question flow) and `cta_click`, each with `link_url`, `cta_text` and `cta_location`.
-- Question flow: `flow_view`, `flow_start`, `flow_step` (with `step`, `question` and `answer`), `flow_contact_view`, `review_form_start`, `generate_lead` (with `form: options_flow`, `placement`, `interest`, `lead_source` and `site`), `flow_dismiss` and `flow_error`. In GA4, a funnel of `flow_view` → `flow_start` → `flow_contact_view` → `generate_lead` shows where visitors stop.
+- Question flow: `flow_view`, `flow_start`, `flow_step` (with `step`, `question` and `answer`), `flow_contact_view`, `review_form_start`, `generate_lead` (with `form: options_flow`, `placement` (`hero`, `landing`, `service` or `modal`), `interest`, `lead_source` and `site`), `flow_dismiss` and `flow_error`. In GA4, a funnel of `flow_view` → `flow_start` → `flow_contact_view` → `generate_lead` shows where visitors stop.
 - Other: `overview_video_start`, `overview_video_complete`, `showcase_swipe` (the first time a visitor moves the row of sites), `estimate_form_start`, `generate_lead` with `form: website_estimate`, and `page_not_found` (with the missing address and where the link came from).
 
 Mark `generate_lead`, `click_to_call`, `email_click`, `book_call_click` and `free_audit_click` as key events in GA4.

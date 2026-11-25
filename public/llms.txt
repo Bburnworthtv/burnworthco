@@ -10,9 +10,10 @@
 - [Web Development Services](https://burnworthco.com/web-development): Custom web development for service businesses. Get a fast, mobile-ready website with clear content, technical SEO, analytics, and launch support. Burnworth Co. designs and builds new websites, full redesigns, landing and sales pages, and speed and mobile fixes; request a website build estimate at https://burnworthco.com/web-development#estimate.
 - [SEO for Contractors](https://burnworthco.com/contractor-seo): Contractor SEO from a two-person studio in Oceanside, CA. Service pages, Google Business Profile, project proof and lead tracking, from $1,000 a month.
 - [SEO for Flooring Companies](https://burnworthco.com/seo-for-flooring-companies): SEO for flooring contractors, installers and showrooms. Separate pages for refinishing and installation, service areas backed by real jobs, and tracked calls.
+- [AI Search Optimization: GEO, AEO and AI SEO Services](https://burnworthco.com/ai-search-optimization): Generative engine optimization (GEO) and answer engine optimization (AEO) for contractors and local service businesses: getting a business named, cited and described correctly in ChatGPT and Google’s AI answers. Included in every SEO package. Also called AI SEO, AI search optimization or LLM SEO.
 - [SEO & AI Visibility Audit](https://burnworthco.com/search-visibility-audit): Find crawl problems, missing service content and gaps in Google and AI visibility. Get a prioritized action plan tied to qualified inquiries.
 - Paid ad campaigns: planned, built and managed alongside the SEO work, so paid and organic search point at the same service pages. See https://burnworthco.com/services#more.
-- [GEO and AEO: Generative and Answer Engine Optimization](https://burnworthco.com/generative-engine-optimization): Generative engine optimization (GEO) and answer engine optimization (AEO) in plain English: what they are, how they fit with SEO, and what the work involves.
+- [GEO and AEO: Generative and Answer Engine Optimization](https://burnworthco.com/generative-engine-optimization): Generative engine optimization (GEO) and answer engine optimization (AEO) in plain English: what they mean, GEO vs. SEO vs. AEO, the other names (AI SEO, LLM SEO), and how to show up in ChatGPT and Google’s AI answers.
 
 ## Price and terms
 

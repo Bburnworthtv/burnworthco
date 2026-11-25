@@ -48,7 +48,8 @@
         {
           "website": {"title": "A website that <em>brings in work.</em>", "lead": "Answer two quick questions. A founder looks at your business and emails a free audit<span class=\"wide-only\">: the pages you need, what your customers search for and what a build would cost</span>."},
           "seo": {"title": "Get found on <em>Google and Maps.</em>", "lead": "Answer two quick questions. A founder looks at your business and emails a free audit<span class=\"wide-only\">: where you show up today, which searches competitors win and what to fix first</span>."},
-          "ads": {"title": "Make your ad spend <em>pay off.</em>", "lead": "Answer two quick questions. A founder looks at your business and emails a free audit<span class=\"wide-only\">: where your ad clicks land, what is tracked and what to fix first</span>."}
+          "ads": {"title": "Make your ad spend <em>pay off.</em>", "lead": "Answer two quick questions. A founder looks at your business and emails a free audit<span class=\"wide-only\">: where your ad clicks land, what is tracked and what to fix first</span>."},
+          "ai": {"title": "Get found in <em>AI answers.</em>", "lead": "Answer two quick questions. A founder looks at your business and emails a free audit<span class=\"wide-only\">: what ChatGPT and Google’s AI answers say about you today, and what to fix first</span>."}
         }
         </script>
         <script>
@@ -137,6 +138,7 @@
 </fieldset>
 </div>
 </form>
+<script>(function early(form) { try { var asked = new URLSearchParams(location.search).get('v'); if (asked === 'ai') asked = 'seo'; var pick = function (value) { return /^[a-z_]+$/.test(value || '') ? form.querySelector('input[name="interest"][value="' + value + '"]') : null; }; var input = pick(asked) || pick(form.getAttribute('data-interest')); var saved = {}; try { saved = JSON.parse(sessionStorage.getItem('bw_flow') || '{}') || {}; } catch (e) {} var steps = form.querySelectorAll('[data-step]'); if (!input || steps.length < 3 || saved.sent || (saved.a && saved.a.interest)) return; input.checked = true; steps[0].classList.remove('is-active'); steps[1].classList.add('is-active'); form.querySelector('[data-flow-back]').hidden = false; form.querySelector('[data-flow-count]').textContent = 'Question 2 of ' + (steps.length - 1); form.querySelector('[data-flow-bar]').style.transform = 'scaleX(' + 2 / steps.length + ')'; var card = form.closest('.flow-card'); if (card) card.classList.add('is-under-way'); } catch (e) {} })(document.currentScript.previousElementSibling)</script>
   <!-- /flow -->
       </div>
     </section>

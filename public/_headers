@@ -115,6 +115,8 @@
   Cache-Control: public, max-age=0, must-revalidate
 /generative-engine-optimization
   Cache-Control: public, max-age=0, must-revalidate
+/ai-search-optimization
+  Cache-Control: public, max-age=0, must-revalidate
 /research
   Cache-Control: public, max-age=0, must-revalidate
 /research/methodology

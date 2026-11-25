@@ -6,10 +6,12 @@
   email. It posts to /api/review-request.
 
   Where it appears
-    Inline   on the homepage (#review-form) and on /start. The form is real HTML in
-             those pages, written by scripts/sync_partials.js from render() below,
-             so it paints with the page and still works as a plain form if this
-             script never loads.
+    Inline   on the homepage (#review-form), on /start and on the AI search
+             service page. The form is real HTML in those pages, written by
+             scripts/sync_partials.js from render() below, so it paints with the
+             page and still works as a plain form if this script never loads. A
+             page can answer the first question for the visitor (render's
+             "interest"), as the AI search page does.
     Modal    on every page. Any link with data-flow-open (they point at /start, so
              they work without JavaScript) opens the same flow in place. Add
              data-flow-interest="website|seo|ads|unsure" to skip the first question.
@@ -143,14 +145,16 @@
     return { id: plan.id, title: plan.title, points: plan.points, context: CONTEXT[a.lead_source] || '' };
   }
 
-  // The form. opts: placement (hero | landing | modal), page (path the plain form
-  // returns to without JavaScript), interest (preselected first answer).
+  // The form. opts: placement (hero | landing | service | modal), page (path the
+  // plain form returns to without JavaScript), interest (first answer chosen for
+  // the visitor: the flow then opens on the second question).
   function render(opts) {
     opts = opts || {};
     var placement = opts.placement || 'hero';
     var total = FLOW.steps.length;
+    var chosen = FLOW.steps[0].options.some(function (option) { return option.v === opts.interest; }) ? opts.interest : '';
     var out = [];
-    out.push('<form class="flow" action="/api/review-request" method="post" data-flow data-placement="' + esc(placement) + '">');
+    out.push('<form class="flow" action="/api/review-request" method="post" data-flow data-placement="' + esc(placement) + '"' + (chosen ? ' data-interest="' + esc(chosen) + '"' : '') + '>');
     if (placement !== 'modal') out.push('<p class="flow-plain-error" id="send-error">Your request could not be sent. Please email <a href="mailto:' + EMAIL + '">' + EMAIL + '</a> or call <a href="' + PHONE_HREF + '">' + PHONE_TEXT + '</a>.</p>');
     out.push('<div class="flow-top">');
     out.push('<button class="flow-back" type="button" data-flow-back hidden><span class="icon-right" aria-hidden="true"></span><span class="sr">Back to the previous question</span></button>');
@@ -163,7 +167,7 @@
       out.push('<legend class="flow-q" tabindex="-1">' + esc(step.title) + '</legend>');
       out.push('<div class="flow-options flow-options-' + step.options.length + '">');
       step.options.forEach(function (option) {
-        out.push('<label class="flow-option"><input type="radio" name="' + step.key + '" value="' + option.v + '">' +
+        out.push('<label class="flow-option"><input type="radio" name="' + step.key + '" value="' + option.v + '"' + (index === 0 && option.v === chosen ? ' checked' : '') + '>' +
           '<span class="flow-ico">' + icon(option.icon) + '</span><span class="flow-label">' + esc(option.label) + '</span><span class="flow-tick" aria-hidden="true"></span></label>');
       });
       out.push('</div>');
@@ -189,6 +193,33 @@
     out.push('</div>');
     out.push('</form>');
     return out.join('\n');
+  }
+
+  // Copied into the page as text by scripts/sync_partials.js and run straight
+  // after an inline form, before the page is first painted. When the first answer
+  // is already known (the page chose it, or an ad's link did with ?v=), the form
+  // opens on the second question instead of jumping to it once this file has
+  // loaded. boot() then finds the form where it would have put it. It must stay
+  // self-contained, with no line comments inside: it is written out on one line.
+  function early(form) {
+    try {
+      var asked = new URLSearchParams(location.search).get('v');
+      if (asked === 'ai') asked = 'seo';
+      var pick = function (value) { return /^[a-z_]+$/.test(value || '') ? form.querySelector('input[name="interest"][value="' + value + '"]') : null; };
+      var input = pick(asked) || pick(form.getAttribute('data-interest'));
+      var saved = {};
+      try { saved = JSON.parse(sessionStorage.getItem('bw_flow') || '{}') || {}; } catch (e) {}
+      var steps = form.querySelectorAll('[data-step]');
+      if (!input || steps.length < 3 || saved.sent || (saved.a && saved.a.interest)) return;
+      input.checked = true;
+      steps[0].classList.remove('is-active');
+      steps[1].classList.add('is-active');
+      form.querySelector('[data-flow-back]').hidden = false;
+      form.querySelector('[data-flow-count]').textContent = 'Question 2 of ' + (steps.length - 1);
+      form.querySelector('[data-flow-bar]').style.transform = 'scaleX(' + 2 / steps.length + ')';
+      var card = form.closest('.flow-card');
+      if (card) card.classList.add('is-under-way');
+    } catch (e) {}
   }
 
   function boot(window) {
@@ -501,18 +532,24 @@
       return instance;
     }
 
-    // An ad can answer the first question in its link: /start?v=website, ?v=seo
-    // or ?v=ads. The landing page shows a matching headline for the same word.
+    // An ad can answer the first question in its link: /start?v=website, ?v=seo,
+    // ?v=ads or ?v=ai (AI search is part of the SEO work, so it counts as "seo").
+    // The landing page shows a matching headline for the same word.
     var preset = '';
+    var isAnswer = function (value) { return FLOW.steps[0].options.some(function (option) { return option.v === value; }); };
     try {
       var asked = new URLSearchParams(window.location.search).get('v');
-      if (FLOW.steps[0].options.some(function (option) { return option.v === asked; })) preset = asked;
+      if (asked === 'ai') asked = 'seo';
+      if (isAnswer(asked)) preset = asked;
     } catch (e) {}
 
-    // Inline flows already in the page.
+    // Inline flows already in the page. A page can also choose the first answer
+    // itself (data-interest on the form); a link's ?v= wins over it, and an answer
+    // the visitor already gave wins over both.
     var inline = Array.prototype.slice.call(document.querySelectorAll('form[data-flow]')).map(function (form) {
       var instance = mount(form);
-      instance.restore(preset && !state.a.interest ? { interest: preset } : {});
+      var first = preset || form.getAttribute('data-interest') || '';
+      instance.restore(isAnswer(first) && !state.a.interest ? { interest: first } : {});
       return instance;
     });
     var inlineVisible = false;
@@ -638,5 +675,5 @@
     }
   }
 
-  return { FLOW: FLOW, render: render, recommend: recommend, boot: boot };
+  return { FLOW: FLOW, render: render, recommend: recommend, early: early, boot: boot };
 });

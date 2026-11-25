@@ -2,7 +2,7 @@
   POST /api/review-request - free audit requests.
 
   Sent by the "Explore my options" question flow (public/flow.js) on the homepage,
-  on /start and in the modal on every page. Older forms that post only name, email,
+  on /start, on the AI search service page and in the modal on every page. Older forms that post only name, email,
   website and a message are still accepted.
 
   Each valid request goes to two places:
@@ -54,9 +54,9 @@ const ANSWERS = {
     values: {working: 'Has one that brings in work', weak: 'Has one that does not bring in much', none: 'No website yet'},
   },
 };
-const PLACEMENTS = {hero: 'homepage', landing: 'landing page', modal: 'pop-up'};
+const PLACEMENTS = {hero: 'homepage', landing: 'landing page', service: 'service page', modal: 'pop-up'};
 // Pages the plain (no JavaScript) form may send a visitor back to.
-const RETURN_TO = ['/', '/start'];
+const RETURN_TO = ['/', '/start', '/ai-search-optimization'];
 
 async function sendEmail({subject, text, replyTo}) {
   if (!process.env.RESEND_API_KEY) {

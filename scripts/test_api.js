@@ -164,6 +164,19 @@ test('a plain form post is redirected, and only to this site', async () => {
   assert.strictEqual(r.headers.location, '/?review=error#send-error');
 });
 
+test('a request from a service page says which page and returns there', async () => {
+  const handler = load('review-request.js', BOTH);
+  fail = {resend: false, intake: false};
+  const r = await post(handler, lead({placement: 'service', page: '/ai-search-optimization', interest: 'seo', lead_source: 'google', site: 'working'}));
+  assert.deepStrictEqual(r.body, {ok: true});
+  const email = calls.find((c) => c.target === 'resend').body;
+  assert.ok(email.text.includes('Question flow (service page) on /ai-search-optimization'), 'the email names the placement and the page');
+  assert.strictEqual(calls.find((c) => c.target === 'intake').body.page, '/ai-search-optimization');
+  // without JavaScript, an invalid post goes back to the same page
+  const back = await post(handler, {name: '', email: 'x', page: '/ai-search-optimization'}, {json: false, form: true});
+  assert.strictEqual(back.headers.location, '/ai-search-optimization?review=error#send-error');
+});
+
 test('only POST is accepted', async () => {
   const handler = load('review-request.js', BOTH);
   const r = await post(handler, {}, {method: 'GET'});
