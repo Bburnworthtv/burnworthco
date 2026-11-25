@@ -63,6 +63,7 @@ Where it appears:
 How it behaves:
 
 - A tap moves to the next question by itself. With a keyboard, arrow keys choose and a Continue button moves on. Answers are kept while the tab is open, so the flow resumes on another page.
+- A page can hold two copies of the flow: the one in the page and the pop-up. They share one set of answers. An answer changed in one shows in the other straight away, and a request is always read from the form that sent it, so the email and Burnworth OS get what the visitor saw.
 - Without JavaScript, or if `flow.js` fails to load, the same markup is an ordinary form with every question showing. It posts normally and the server redirects to `/thanks`.
 - Each request carries where the visit came from: campaign tags (`utm_source` and so on), whether it was a Meta or Google ad click, the referring site and the first page seen. They appear in the email and in Burnworth OS.
 - Spam protection is a hidden field plus a minimum time on the page.

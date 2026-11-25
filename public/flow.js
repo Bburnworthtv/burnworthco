@@ -270,6 +270,10 @@
     state.a = state.a || {};
     var remember = function () { session.set(STORE, state); };
     var instances = [];
+    // A page can hold two copies of the flow (the one in the page and the pop-up)
+    // and they share one set of answers. When one copy changes an answer, the
+    // others show it too.
+    var share = function (from) { instances.forEach(function (instance) { if (instance !== from) instance.sync(); }); };
 
     function Flow(form) {
       var self = this;
@@ -312,6 +316,28 @@
         window.setTimeout(clear, 600);
       }
 
+      // Show the shared answers in this form. Returns the first question still open.
+      function fill() {
+        var firstOpen = 0;
+        FLOW.steps.forEach(function (step, i) {
+          var value = state.a[step.key];
+          var input = value && form.querySelector('input[name="' + step.key + '"][value="' + value + '"]');
+          if (input) { input.checked = true; if (firstOpen === i) firstOpen = i + 1; }
+        });
+        return firstOpen;
+      }
+      // The other way round: the answers this form shows become the shared ones.
+      // Run before the answers are used, so a request always carries what the form
+      // it was sent from shows.
+      function read() {
+        var changed = false;
+        FLOW.steps.forEach(function (step) {
+          var input = form.querySelector('input[name="' + step.key + '"]:checked');
+          if (input && state.a[step.key] !== input.value) { state.a[step.key] = input.value; changed = true; }
+        });
+        if (changed) { remember(); share(self); }
+      }
+
       // The last step opens with where we would start, built from the answers.
       function showResult() {
         var plan = recommend(state.a);
@@ -342,6 +368,7 @@
         var from = stage ? stage.offsetHeight : null;
         var contact = index === total;
         if (contact) {
+          read();
           var plan = showResult();
           if (!options.quiet) track('flow_contact_view', { placement: placement, recommendation: plan.id });
         }
@@ -375,6 +402,7 @@
         if (index < 0) return;
         state.a[key] = input.value;
         remember();
+        share(self);
         if (!started) { started = true; track('flow_start', { placement: placement }); }
         track('flow_step', { placement: placement, step: index + 1, question: key, answer: input.value });
         var next = steps[index].querySelector('[data-flow-next]');
@@ -460,6 +488,7 @@
         if (!name.value.trim()) return fail('Please add your name.', name);
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) return fail('Please check your email address.', email);
 
+        read();
         var body = {};
         Array.prototype.forEach.call(form.elements, function (field) {
           if (!field.name || field.type === 'radio') return;
@@ -509,15 +538,20 @@
         if (form.classList.contains('is-done')) return;
         if (state.sent) return done(state.name, true);
         options = options || {};
-        if (options.interest) { state.a.interest = options.interest; remember(); }
-        var firstOpen = 0;
-        FLOW.steps.forEach(function (step, i) {
-          var value = state.a[step.key];
-          var input = value && form.querySelector('input[name="' + step.key + '"][value="' + value + '"]');
-          if (input) { input.checked = true; if (firstOpen === i) firstOpen = i + 1; }
-        });
+        if (options.interest && state.a.interest !== options.interest) { state.a.interest = options.interest; remember(); share(self); }
+        var firstOpen = fill();
         var target = options.interest ? Math.max(1, firstOpen) : (options.resume ? firstOpen : Math.min(firstOpen, state.step || 0));
         go(target, 'forward', { instant: true, focus: false, quiet: true });
+      };
+      // Another copy of the flow changed an answer: show it here as well.
+      this.sync = function () {
+        if (form.classList.contains('is-done')) return;
+        fill();
+        if (current === total) showResult();
+        else {
+          var next = steps[current].querySelector('[data-flow-next]');
+          if (next) next.hidden = !steps[current].querySelector('input:checked');
+        }
       };
       this.focus = function () {
         var target = form.querySelector('.flow-done') || (steps[current] && steps[current].querySelector('.flow-q'));
