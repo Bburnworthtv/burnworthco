@@ -68,7 +68,7 @@
   interpolate-size:allow-keywords;
 }
 /* Dark surfaces. */
-.dark-panel,.dark-band,.flow-card,.flow-dialog,.tile.dark,.report-hero,.founder-hero,.closing,.site-footer,.price-card,.sticky-cta,.film-dialog,.notfound{
+.dark-panel,.dark-band,.flow-card,.flow-dialog,.tile.dark,.report-hero,.founder-hero,.closing,.site-footer,.price-card,.sticky-cta,.film-dialog,.notfound,.terms-included{
   --c-1:var(--on-dark); --c-2:var(--on-dark-2); --c-3:var(--on-dark-3); --c-line:rgba(255,255,255,.16);
   --c-eyebrow:var(--red-soft); --c-surface:var(--ink-2); --c-chip:rgba(255,255,255,.09);
   --btn-sweep:var(--white); --btn-sweep-text:var(--ink); --btn-glow:none; --frame-line:rgba(255,255,255,.16);
@@ -631,6 +631,44 @@ html:not(.js) .reel-track{scrollbar-width:thin}
 .dots::after{content:"";position:absolute;left:calc(6 * (var(--d) + var(--g)));top:calc(3 * (var(--d) + var(--g)));width:var(--d);height:var(--d);border-radius:50%;background:var(--red);box-shadow:0 0 0 4px rgba(226,70,47,.22)}
 @media(min-width:861px){.stat-top{min-height:118px}}
 @media(max-width:860px){.stat-grid{grid-template-columns:1fr}}
+/* SEO, AEO and GEO: what each name means and where it shows up, then the line
+   that all three are in every package. The layout follows the width of the
+   block itself, not the window, so it works in a full-width section and in a
+   column of text: three cards side by side when there is room (880px), a card
+   per row with the name beside its meaning (560px), stacked on a phone. */
+.terms{container-type:inline-size;display:grid;gap:clamp(10px,1.4vw,20px)}
+.terms-list{display:grid;gap:clamp(10px,1.4vw,20px);margin:0}
+.term{display:grid;align-content:start;gap:14px;min-width:0;padding:clamp(18px,2.2vw,28px);border:1px solid var(--line-2);border-radius:var(--r-lg);background:var(--card);box-shadow:var(--shadow-sm)}
+.term dt{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:4px 14px}
+.term-ico{grid-row:1/3;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--paper);color:var(--ink)}
+.term-ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.term-abbr{align-self:end;font-size:clamp(28px,2.6vw,34px);font-weight:500;letter-spacing:-.04em;line-height:.95;color:var(--ink)}
+.term-name{align-self:start;font-size:11px;font-weight:600;letter-spacing:.12em;line-height:1.3;text-transform:uppercase;color:var(--red-ink)}
+.term dd{display:grid;align-content:start;gap:12px;margin:0}
+.term-text{font-size:16px;line-height:1.5;color:var(--text-2)}
+.terms .term-where{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none;border:0}
+.terms .term-where li{padding:5px 11px;border:0;border-radius:var(--pill);background:var(--c-chip);font-size:13px;font-weight:500;line-height:1.3;color:var(--text-2)}
+.terms .term-where li::before{content:none}
+.terms .terms-included{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px 14px;margin:0;padding:16px clamp(16px,2.2vw,26px);border-radius:var(--r);font-size:15px;line-height:1.45;color:var(--on-dark-2)}
+.terms .terms-included strong{font-weight:600;color:var(--on-dark)}
+.terms-tick{flex:none;position:relative;width:28px;height:28px;border-radius:50%;background:var(--red-deep)}
+.terms-tick::after{content:"";position:absolute;left:8px;top:9px;width:11px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg)}
+.terms-included .text-link{grid-column:2;justify-self:start;font-size:14px;white-space:nowrap}
+@container (min-width:560px){
+  .term{grid-template-columns:minmax(0,236px) minmax(0,1fr);align-items:start;gap:8px 28px}
+  .terms .terms-included{grid-template-columns:auto minmax(0,1fr) auto;gap:10px 16px}
+  .terms-included .text-link{grid-column:3}
+}
+@container (min-width:880px){
+  .terms-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .term{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;align-items:stretch;gap:16px}
+  .term dd{grid-template-rows:auto 1fr}
+  .term-where{align-self:end}
+}
+/* The heading over the block on the homepage. */
+.terms-title{margin:clamp(40px,5vw,72px) 0 clamp(16px,2vw,26px);font-size:clamp(24px,2.7vw,38px);line-height:1.05}
+.prose .terms{margin:26px 0 30px}
+
 /* Steps in a row. */
 .steps-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;padding:0;list-style:none;counter-reset:step;border-top:1px solid var(--ink)}
 .steps-row li{position:relative;padding:26px 26px 6px 0}

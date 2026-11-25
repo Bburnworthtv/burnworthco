@@ -37,7 +37,7 @@ This is plain HTML, CSS and JavaScript. There is no dependency installation and 
 
 ## Shared parts of every page
 
-The header, footer, shared `<head>` lines, shared scripts, the question flow and the row of sites we built are the same wherever they appear. They are written into the pages by `scripts/sync_partials.js`, between pairs of comments such as `<!-- header -->` and `<!-- /header -->`.
+The header, footer, shared `<head>` lines, shared scripts, the question flow, the row of sites we built and the SEO, AEO and GEO explainer are the same wherever they appear. They are written into the pages by `scripts/sync_partials.js`, between pairs of comments such as `<!-- header -->` and `<!-- /header -->`.
 
 - To change the menu, the footer links, the phone number or the booking link: edit the templates at the top of `scripts/sync_partials.js`, then run `node scripts/sync_partials.js`. Do not edit the text between the comments; the next run replaces it.
 - A new page needs the four regions `head`, `header`, `footer` and `scripts`. Copy them from an existing page (empty is fine) and run the script. Use `<!-- header:minimal -->` and `<!-- footer:minimal -->` for a landing page with no menu.
@@ -127,6 +127,15 @@ The homepage, the work page and the web development page show the sites we desig
 - The row scrolls by itself: swipe on a phone, trackpad or arrow keys on a computer, and a visible scrollbar if the script does not load. `script.js` adds the arrow buttons, the progress bar, the "2 / 5" count and dragging with a mouse (`.reel` in `styles.css`).
 - Fluid Pictures is named here as a website build. The ranking case study at `/work-los-angeles-production-company` still describes its client only as a Los Angeles production company; change the two together if that should change.
 - `public/assets/pacific-earthworks-services-*` is the services-page screenshot used further down the web development page.
+
+## GEO and AEO
+
+The site explains three names in the same words everywhere: SEO (search engine optimization), AEO (answer engine optimization) and GEO (generative engine optimization). **GEO and AEO are included in every SEO package and are never sold as an add-on.** That is a statement about what we sell, so keep every copy of it in step.
+
+- The three definitions and the "included" line are `TERMS` and `terms()` in `scripts/sync_partials.js`. They are written into a page between `<!-- terms -->` and `<!-- /terms -->`: on the homepage (under "How search changed"), `/contractor-seo`, `/services` and the guide. Edit them there and run `node scripts/sync_partials.js`. The block lays itself out by its own width (`.terms` in `styles.css`), so it can go in a full-width section or a column of text.
+- `/generative-engine-optimization` is the guide: what each name means, how AEO and GEO work, how they fit with SEO, and what is included in every package. Its title and description name both GEO and AEO.
+- The same promise is also written by hand in these places. If the offer changes, change all of them: the "GEO and AEO" row in the price tables on `/contractor-seo` and `/seo-for-flooring-companies`; the last item of each "what the work includes" list on those two pages; one question in the FAQ on the homepage, `/contractor-seo` and `/seo-for-flooring-companies` (the visible answer and the `FAQPage` JSON-LD must match word for word); the two SEO cards on the homepage; the Grow, Prove and Measure sections of `/services` and its description; one sentence on `/search-visibility-audit`; and "Price and terms" in `public/llms.txt`.
+- Keep it honest. The pages say what the names mean and what the work is. They never promise a place in an AI answer; "No one can promise a place in an AI answer, and we do not" stays.
 
 ## Artwork and charts
 

@@ -20,6 +20,8 @@
     <!-- flow:landing -->    ... <!-- /flow -->
     <!-- builds -->          ... <!-- /builds -->     the row of sites we built, to swipe through
     <!-- builds:column -->   ... <!-- /builds -->     the same row inside a narrow text column
+    <!-- terms -->           ... <!-- /terms -->      what SEO, AEO and GEO mean, and that all three
+                                                      are in every SEO package
     <!-- scripts -->         ... <!-- /scripts -->
 
   --check also confirms the answers accepted by api/review-request.js match the
@@ -129,6 +131,50 @@ const head = () => `<script>document.documentElement.classList.add('js')</script
 const scripts = () => `<script src="/script.js" defer></script>
   <script src="/flow.js" defer onerror="document.documentElement.classList.add('flow-plain')"></script>`;
 
+// What SEO, AEO and GEO mean, in one sentence each, and where each shows up.
+// The block ends with the line that GEO and AEO are part of every SEO package:
+// that is a promise about what we sell, so change it here and nowhere else.
+const GUIDE = '/generative-engine-optimization';
+const TERMS = [
+  {
+    abbr: 'SEO',
+    name: 'Search engine optimization',
+    text: 'Showing up when someone searches Google or Maps for the work you do.',
+    where: ['Google', 'Google Maps', 'Bing'],
+    icon: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+  },
+  {
+    abbr: 'AEO',
+    name: 'Answer engine optimization',
+    text: 'Being the answer when someone asks a full question instead of typing keywords.',
+    where: ['Answer boxes on Google', 'People also ask', 'Voice assistants'],
+    icon: '<path d="M5 5.5h14A1.5 1.5 0 0 1 20.5 7v8a1.5 1.5 0 0 1-1.5 1.5h-6.2L8.5 20v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5Z"/><path d="m9 11 2.2 2.2L15.2 9"/>',
+  },
+  {
+    abbr: 'GEO',
+    name: 'Generative engine optimization',
+    text: 'Being named, and described correctly, when an AI tool writes the answer.',
+    where: ['ChatGPT', 'Gemini', 'Perplexity', 'Google’s AI Overviews'],
+    icon: '<path d="M11 4.5 12.7 9l4.5 1.7-4.5 1.7L11 17l-1.7-4.6-4.5-1.7L9.3 9Z"/><path d="m18.2 14.6.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8Z"/>',
+  },
+];
+
+function terms(route) {
+  const items = TERMS.map((term) => `<div class="term">
+        <dt><span class="term-ico" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">${term.icon}</svg></span><span class="term-abbr">${term.abbr}</span><span class="term-name">${term.name}</span></dt>
+        <dd><span class="term-text">${term.text}</span><ul class="term-where" aria-label="Where ${term.abbr} shows up">${term.where.map((place) => `<li>${place}</li>`).join('')}</ul></dd>
+      </div>`).join('\n      ');
+  const more = route === GUIDE
+    ? `<a class="text-link" href="/contractor-seo#pricing">SEO price and terms${arrow}</a>`
+    : `<a class="text-link" href="${GUIDE}">How GEO and AEO work${arrow}</a>`;
+  return `<div class="terms">
+    <dl class="terms-list">
+      ${items}
+    </dl>
+    <p class="terms-included"><span class="terms-tick" aria-hidden="true"></span><span><strong>GEO and AEO are included in every SEO package.</strong> One program covers all three. Neither is sold as an add-on.</span>${more}</p>
+  </div>`;
+}
+
 // Sites we designed and built, in the order they are shown. To add one, save its
 // screenshots as public/assets/<slug>-home-1600.webp, -home-960.webp, -home-1280.jpg
 // (a 1280 x 800 window) and <slug>-phone-480.webp, -phone-300.webp, -phone-480.jpg
@@ -222,10 +268,11 @@ const render = {
   footer,
   scripts,
   builds,
+  terms,
   flow: (route, variant) => flow.render({placement: variant || 'hero', page: route}),
 };
 
-const REGION = /<!-- (head|header|footer|scripts|flow|builds)(?::([a-z]+))? -->[\s\S]*?<!-- \/\1 -->/g;
+const REGION = /<!-- (head|header|footer|scripts|flow|builds|terms)(?::([a-z]+))? -->[\s\S]*?<!-- \/\1 -->/g;
 
 function pages(dir = PUBLIC) {
   return fs.readdirSync(dir, {withFileTypes: true}).flatMap((entry) => {
