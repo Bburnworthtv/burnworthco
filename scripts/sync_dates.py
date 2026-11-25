@@ -3,9 +3,18 @@
 A sitemap where every URL shares one date tells a crawler nothing, and once the
 dates are demonstrably wrong the field gets ignored for the whole domain. Run
 this after committing content changes; it is dependency-free and idempotent.
+
+Dates are the business's dates: Pacific time, wherever this runs. A machine on
+UTC would otherwise write tomorrow's date every evening, and a date that is
+still in the future gets a page flagged in Search Console ("Invalid datetime
+value"). Use the same clock for dateModified in a page's structured data.
 """
-import subprocess, datetime, re
+import os, subprocess, datetime, re
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+ZONE = 'America/Los_Angeles'
+today = lambda: datetime.datetime.now(ZoneInfo(ZONE)).date().isoformat()
 
 root = Path(__file__).resolve().parents[1]
 pub = root / 'public'
@@ -16,10 +25,10 @@ def last_change(path: Path) -> str:
     dirty = subprocess.run(['git', 'status', '--porcelain', '--', rel],
                            cwd=root, capture_output=True, text=True).stdout.strip()
     if dirty:
-        return datetime.date.today().isoformat()
-    out = subprocess.run(['git', 'log', '-1', '--format=%cs', '--', rel],
-                         cwd=root, capture_output=True, text=True).stdout.strip()
-    return out or datetime.date.today().isoformat()
+        return today()
+    out = subprocess.run(['git', 'log', '-1', '--format=%cd', '--date=format-local:%Y-%m-%d', '--', rel],
+                         cwd=root, capture_output=True, text=True, env={**os.environ, 'TZ': ZONE}).stdout.strip()
+    return out or today()
 
 PAIR = re.compile(r'<loc>([^<]+)</loc>(\s*)<lastmod>([^<]+)</lastmod>')
 changed = []

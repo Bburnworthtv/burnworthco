@@ -22,6 +22,9 @@
                                                       the second question (first answer: SEO)
     <!-- builds -->          ... <!-- /builds -->     the row of sites we built, to swipe through
     <!-- builds:column -->   ... <!-- /builds -->     the same row inside a narrow text column
+    <!-- builds:local -->    ... <!-- /builds -->     only the sites built for San Diego County clients
+    <!-- area -->            ... <!-- /area -->       a map of San Diego County and the places in it,
+                                                      on the two San Diego pages
     <!-- terms -->           ... <!-- /terms -->      what SEO, AEO and GEO mean, and that all three
                                                       are in every SEO package
     <!-- scripts -->         ... <!-- /scripts -->
@@ -42,6 +45,9 @@ const PHONE_HREF = 'tel:+12088812382';
 const PHONE_TEXT = '(208) 881-2382';
 const BOOKING = 'https://calendly.com/bburnworthtv/30min';
 const INSTAGRAM = 'https://www.instagram.com/burnworthco/';
+// The two pages about working in San Diego County.
+const SAN_DIEGO = '/san-diego-seo';
+const SAN_DIEGO_CONTRACTORS = '/contractor-seo-san-diego';
 const YEAR = 2026;
 
 // "Burnworth Co." outlined from Lora 600; see docs/brand-mark.md.
@@ -51,8 +57,8 @@ const wordmark = (label) => `<a class="wordmark" href="/"${label ? ' aria-label=
 // Menu links, and the pages that sit under each one.
 const NAV = [
   {href: '/web-development', label: 'Websites', section: []},
-  {href: '/contractor-seo', label: 'Contractors', section: ['/seo-for-flooring-companies']},
-  {href: '/services', label: 'Services', section: ['/ai-search-optimization', '/search-visibility-audit', '/generative-engine-optimization']},
+  {href: '/contractor-seo', label: 'Contractors', section: ['/seo-for-flooring-companies', '/contractor-seo-san-diego']},
+  {href: '/services', label: 'Services', section: ['/san-diego-seo', '/ai-search-optimization', '/search-visibility-audit', '/generative-engine-optimization']},
   {href: '/work', label: 'Work', section: ['/work-top-tier-custom-floors', '/work-los-angeles-production-company']},
   {href: '/research', label: 'Research', section: ['/research/state-of-search-2026', '/research/methodology', '/ai-visibility-business-results']},
   {href: '/about', label: 'About', section: []},
@@ -103,16 +109,22 @@ function footer(route, variant) {
       <div class="footer-brand">
         ${wordmark(false)}
         <p>Founder-led websites, SEO and AI visibility for contractors and service businesses.</p>
-        <p class="footer-place">Oceanside, California. Working with clients across the United States.</p>
+        <p class="footer-place">Oceanside, California. Working with clients across San Diego County and the United States.</p>
       </div>
       <nav class="footer-col" aria-label="Services">
         <p class="footer-title">Services</p>
         <a href="/web-development">Websites</a><a href="/contractor-seo">Contractor SEO</a><a href="/seo-for-flooring-companies">Flooring SEO</a><a href="/ai-search-optimization">AI search (GEO and AEO)</a><a href="/search-visibility-audit">Search and AI audit</a><a href="/services">All services</a>
       </nav>
-      <nav class="footer-col" aria-label="Company">
-        <p class="footer-title">Company</p>
-        <a href="/work">Work</a><a href="/about">About</a><a href="/research">Research</a><a href="/start" data-flow-open>Free audit</a>
-      </nav>
+      <div class="footer-stack">
+        <nav class="footer-col" aria-label="Company">
+          <p class="footer-title">Company</p>
+          <a href="/work">Work</a><a href="/about">About</a><a href="/research">Research</a><a href="/start" data-flow-open>Free audit</a>
+        </nav>
+        <nav class="footer-col" aria-label="San Diego County">
+          <p class="footer-title">San Diego County</p>
+          <a href="${SAN_DIEGO}">San Diego SEO</a><a href="${SAN_DIEGO_CONTRACTORS}">Contractor SEO in San Diego</a>
+        </nav>
+      </div>
       <div class="footer-col">
         <p class="footer-title">Contact</p>
         <a href="mailto:${EMAIL}">${EMAIL}</a><a href="${PHONE_HREF}">${PHONE_TEXT}</a><a href="${BOOKING}">Book a call</a><a href="${INSTAGRAM}" rel="me noopener">Instagram</a>
@@ -185,12 +197,14 @@ function terms(route) {
 //   look  two or three words for the visual style, shown above the name
 //   text  who the client is, in their own words where possible
 //   url   the live site; leave out until the site is on its own domain
+//   county  true for a client in San Diego County; those are the row on the two San Diego pages
 const BUILDS = [
   {
     slug: 'top-tier-custom-floors',
     name: 'Top Tier Custom Floors',
     look: 'Black and gold',
     text: 'Owner-operated flooring contractor in San Diego County.',
+    county: true,
     url: 'https://www.toptierfloors.com/',
     desk: 'Top Tier Custom Floors homepage on a laptop: the heading Custom Flooring Installation in San Diego County in white and gold on black, beside two photos of a wood staircase.',
     phone: 'The same Top Tier Custom Floors homepage on a phone, with the call button in view.',
@@ -200,6 +214,7 @@ const BUILDS = [
     name: 'Pacific Earthworks',
     look: 'Bold and industrial',
     text: 'Grading and excavation contractor in San Diego County.',
+    county: true,
     desk: 'Pacific Earthworks homepage on a laptop: a wheel loader on a graded site under the heading Grading and Excavation, San Diego County.',
     phone: 'The same Pacific Earthworks homepage on a phone, with the estimate button in view.',
   },
@@ -208,6 +223,7 @@ const BUILDS = [
     name: 'Model Home, Inc.',
     look: 'Warm showroom',
     text: 'Flooring contractor and cabinet showroom in San Marcos.',
+    county: true,
     url: 'https://www.modelhomeinc.com/',
     desk: 'Model Home homepage on a laptop: the heading Flooring Contractor and Cabinet Showroom in San Marcos, CA over a photo of a wood floor being laid.',
     phone: 'The same Model Home homepage on a phone, with the Get a Free Estimate button in view.',
@@ -234,12 +250,16 @@ const BUILDS = [
 
 // The row of builds. Each is a real screenshot in a browser window and a phone;
 // the frames are CSS. "column" is the row inside a text column, where a card is
-// narrower, so the browser asks for smaller images.
+// narrower, so the browser asks for smaller images. "local" is only the San Diego
+// County clients, three across on a wide screen.
 function builds(route, variant) {
   const column = variant === 'column';
-  const deskSizes = column ? '(max-width: 700px) 70vw, 520px' : '(max-width: 700px) 70vw, (max-width: 1260px) 50vw, 640px';
-  const phoneSizes = column ? '(max-width: 700px) 17vw, 125px' : '(max-width: 700px) 17vw, (max-width: 1260px) 12vw, 150px';
-  const items = BUILDS.map((site) => {
+  const local = variant === 'local';
+  const sites = local ? BUILDS.filter((site) => site.county) : BUILDS;
+  const deskSizes = column ? '(max-width: 700px) 70vw, 520px' : local ? '(max-width: 700px) 70vw, (max-width: 1099px) 50vw, 330px' : '(max-width: 700px) 70vw, (max-width: 1260px) 50vw, 640px';
+  const phoneSizes = column ? '(max-width: 700px) 17vw, 125px' : local ? '(max-width: 700px) 17vw, (max-width: 1099px) 12vw, 80px' : '(max-width: 700px) 17vw, (max-width: 1260px) 12vw, 150px';
+  const what = local ? 'Websites we designed and built for clients in San Diego County.' : 'Websites we designed and built.';
+  const items = sites.map((site) => {
     const a = `/assets/${site.slug}`;
     const action = site.url
       ? `<a class="stage-visit" href="${site.url}" target="_blank" rel="noopener" aria-label="Visit site: ${site.name} (opens in a new tab)"><span class="stage-visit-label">Visit site</span>${arrowOut}</a>`
@@ -252,15 +272,125 @@ function builds(route, variant) {
         <figcaption><span class="stage-look">${site.look}</span><strong>${site.name}</strong><span class="stage-text">${site.text}</span>${action}</figcaption>
       </figure></li>`;
   }).join('\n      ');
-  return `<div class="reel${column ? ' reel-column' : ''}" data-reel>
-    <ul class="reel-track" id="builds-track" data-reel-track tabindex="0" aria-label="Websites we designed and built. ${BUILDS.length} sites; scroll sideways to see them all.">
+  return `<div class="reel${column ? ' reel-column' : ''}${local ? ' reel-local' : ''}" data-reel>
+    <ul class="reel-track" id="builds-track" data-reel-track tabindex="0" aria-label="${what} ${sites.length} sites; scroll sideways to see them all.">
       ${items}
     </ul>
     <div class="reel-controls">
-      <p class="reel-count" aria-hidden="true"><span data-reel-now>1</span> / ${BUILDS.length}</p>
+      <p class="reel-count" aria-hidden="true"><span data-reel-now>1</span> / ${sites.length}</p>
       <div class="reel-bar" aria-hidden="true"><span data-reel-thumb></span></div>
       <button class="reel-btn" type="button" data-reel-prev aria-controls="builds-track" disabled><span class="sr">Previous website</span><span class="icon-right" aria-hidden="true"></span></button>
       <button class="reel-btn" type="button" data-reel-next aria-controls="builds-track"><span class="sr">Next website</span><span class="icon-right" aria-hidden="true"></span></button>
+    </div>
+  </div>`;
+}
+
+// San Diego County, drawn from real coordinates: the coast, where we are, where
+// our clients are and the cities around them. Positions come from latitude and
+// longitude, so a place added here lands in the right spot.
+//   kind  home (us), client, city (labelled) or dot (unlabelled)
+//   side  which side of the dot the label sits on: l is out over the ocean
+//   dy    nudges a label up or down where two would touch
+const MAP = {w: 460, h: 500, west: -117.62, north: 33.45, scale: 537.6};
+const point = ([lat, lon]) => [
+  Math.round((lon - MAP.west) * Math.cos(33 * Math.PI / 180) * MAP.scale * 10) / 10,
+  Math.round((MAP.north - lat) * MAP.scale * 10) / 10,
+];
+// North to south, from the Orange County line to the border.
+const COAST = [
+  [33.45, -117.645], [33.386, -117.578], [33.31, -117.49], [33.25, -117.435], [33.196, -117.388],
+  [33.158, -117.357], [33.115, -117.33], [33.075, -117.312], [33.037, -117.298], [32.99, -117.279],
+  [32.959, -117.271], [32.92, -117.262], [32.889, -117.256], [32.866, -117.258], [32.851, -117.276],
+  [32.838, -117.284], [32.815, -117.276], [32.797, -117.26], [32.772, -117.255], [32.752, -117.257],
+  [32.72, -117.26], [32.69, -117.252], [32.666, -117.244], [32.672, -117.226], [32.692, -117.203],
+  [32.683, -117.19], [32.65, -117.155], [32.6, -117.135], [32.578, -117.134], [32.534, -117.124],
+];
+const PLACES = [
+  {name: 'Oceanside', at: [33.1959, -117.3795], kind: 'home', side: 'l', sub: 'Burnworth Co.'},
+  {name: 'Valley Center', at: [33.2184, -117.0342], kind: 'client', side: 'r'},
+  {name: 'San Marcos', at: [33.1434, -117.1661], kind: 'client', side: 'r', dy: -6},
+  {name: 'Fallbrook', at: [33.3764, -117.2511], kind: 'city', side: 'r'},
+  {name: 'Vista', at: [33.2, -117.2425], kind: 'city', side: 'r'},
+  {name: 'Carlsbad', at: [33.1581, -117.3506], kind: 'city', side: 'r', dy: 9},
+  {name: 'Escondido', at: [33.1192, -117.0864], kind: 'city', side: 'r', dy: 7},
+  {name: 'Encinitas', at: [33.037, -117.292], kind: 'city', side: 'l'},
+  {name: 'Poway', at: [32.9628, -117.0359], kind: 'city', side: 'r'},
+  {name: 'La Jolla', at: [32.8328, -117.2713], kind: 'city', side: 'l'},
+  {name: 'El Cajon', at: [32.7948, -116.9625], kind: 'city', side: 'r'},
+  {name: 'San Diego', at: [32.7157, -117.1611], kind: 'city', side: 'r', strong: true},
+  {name: 'Chula Vista', at: [32.6401, -117.0842], kind: 'city', side: 'r'},
+  {name: 'Solana Beach', at: [32.9912, -117.2711], kind: 'dot'},
+  {name: 'Del Mar', at: [32.9595, -117.2653], kind: 'dot'},
+  {name: 'Rancho Bernardo', at: [33.0186, -117.061], kind: 'dot'},
+  {name: 'Carmel Valley', at: [32.937, -117.213], kind: 'dot'},
+  {name: 'Ramona', at: [33.0417, -116.8681], kind: 'dot'},
+  {name: 'Pacific Beach', at: [32.7978, -117.24], kind: 'dot'},
+  {name: 'Santee', at: [32.8384, -116.9739], kind: 'dot'},
+  {name: 'Lakeside', at: [32.8573, -116.9222], kind: 'dot'},
+  {name: 'La Mesa', at: [32.7678, -117.0231], kind: 'dot'},
+  {name: 'Coronado', at: [32.6859, -117.1831], kind: 'dot'},
+  {name: 'National City', at: [32.6781, -117.0992], kind: 'dot'},
+  {name: 'Imperial Beach', at: [32.5839, -117.1131], kind: 'dot'},
+];
+// The same places as a list, by the names people use for each part of the county.
+const REGIONS = [
+  ['North County coast', ['Oceanside', 'Carlsbad', 'Encinitas', 'Solana Beach', 'Del Mar']],
+  ['North County inland', ['Vista', 'San Marcos', 'Escondido', 'Poway', 'Valley Center', 'Fallbrook']],
+  ['City of San Diego', ['Downtown', 'La Jolla', 'Pacific Beach', 'North Park', 'Kearny Mesa', 'Carmel Valley', 'Rancho Bernardo']],
+  ['East County', ['El Cajon', 'La Mesa', 'Santee', 'Lakeside']],
+  ['South Bay', ['Chula Vista', 'National City', 'Imperial Beach', 'Coronado']],
+];
+
+// A smooth line through the points (Catmull-Rom, written as cubic curves).
+function smooth(points) {
+  const at = (i) => points[Math.max(0, Math.min(points.length - 1, i))];
+  const n = (value) => Math.round(value * 10) / 10;
+  let d = `M${points[0][0]} ${points[0][1]}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const [p0, p1, p2, p3] = [at(i - 1), at(i), at(i + 1), at(i + 2)];
+    d += `C${n(p1[0] + (p2[0] - p0[0]) / 6)} ${n(p1[1] + (p2[1] - p0[1]) / 6)} ${n(p2[0] - (p3[0] - p1[0]) / 6)} ${n(p2[1] - (p3[1] - p1[1]) / 6)} ${p2[0]} ${p2[1]}`;
+  }
+  return d;
+}
+
+function area(route) {
+  const who = route === SAN_DIEGO_CONTRACTORS ? 'contractors' : 'service businesses';
+  const coast = smooth(COAST.map(point));
+  // The drawing's background is the land; the ocean is a shape that runs on past
+  // the left edge. A map shown wider than it is tall then has land to the east and
+  // ocean to the west, and nothing reaches past the right edge of the page.
+  const start = point(COAST[0]);
+  const end = point(COAST[COAST.length - 1]);
+  const marks = PLACES.map((place) => {
+    const [x, y] = point(place.at);
+    if (place.kind === 'dot') return `<circle class="map-dot" cx="${x}" cy="${y}" r="2.2"/>`;
+    const left = place.side === 'l';
+    const tx = left ? x - 11 : x + 11;
+    const anchor = left ? ' text-anchor="end"' : '';
+    const label = `<text class="map-label${place.kind === 'city' && !place.strong ? '' : ' is-strong'}" x="${tx}" y="${Math.round((y + 4.5 + (place.dy || 0)) * 10) / 10}"${anchor}>${place.name}</text>`;
+    if (place.kind === 'home') {
+      return `<circle class="map-ring" cx="${x}" cy="${y}" r="7"/><circle class="map-home" cx="${x}" cy="${y}" r="6"/>${label}<text class="map-sub" x="${tx}" y="${y + 20.5}"${anchor}>${place.sub}</text>`;
+    }
+    if (place.kind === 'client') return `<circle class="map-halo" cx="${x}" cy="${y}" r="10"/><circle class="map-client" cx="${x}" cy="${y}" r="5"/>${label}`;
+    return `<circle class="map-city" cx="${x}" cy="${y}" r="3.2"/>${label}`;
+  }).join('');
+  const regions = REGIONS.map(([name, places]) => `<div><dt>${name}</dt><dd><ul>${places.map((place) => `<li>${place}</li>`).join('')}</ul></dd></div>`).join('\n        ');
+  return `<div class="area" data-reveal>
+    <figure class="area-map">
+      <svg viewBox="0 0 ${MAP.w} ${MAP.h}" role="img" aria-label="Map of San Diego County. Burnworth Co. is marked in Oceanside, on the north coast. Clients are marked in Valley Center and San Marcos. Other places shown include Carlsbad, Escondido, La Jolla, San Diego, El Cajon and Chula Vista." focusable="false">
+        <path class="map-water" d="${coast}V${MAP.h + 1000}H-3000V-1000H${start[0]}Z"/>
+        <path class="map-coast" d="${coast}"/>
+        <text class="map-sea" x="22" y="${end[1] - 46}">Pacific Ocean</text>
+        ${marks}
+      </svg>
+      <figcaption class="area-key"><span class="key-home">Burnworth Co., Oceanside</span><span class="key-client">Clients in Valley Center and San Marcos</span></figcaption>
+    </figure>
+    <div class="area-places">
+      <h3>Anywhere in <em>San Diego County.</em></h3>
+      <p>Our desk is in Oceanside. Our clients include Top Tier Custom Floors in Valley Center and Model Home, Inc. in San Marcos. We take on ${who} in any of these places, and in the rest of the county.</p>
+      <dl class="area-list">
+        ${regions}
+      </dl>
     </div>
   </div>`;
 }
@@ -272,6 +402,7 @@ const render = {
   scripts,
   builds,
   terms,
+  area,
   // On a service page the first question is already answered: the page is about
   // search. There, and on the ad landing page (where the link can answer it with
   // ?v=), a few inline lines from flow.js open the form on the second question
@@ -280,7 +411,7 @@ const render = {
     + (variant === 'service' || variant === 'landing' ? `\n<script>(${flow.early.toString().replace(/\n\s*/g, ' ')})(document.currentScript.previousElementSibling)</script>` : ''),
 };
 
-const REGION = /<!-- (head|header|footer|scripts|flow|builds|terms)(?::([a-z]+))? -->[\s\S]*?<!-- \/\1 -->/g;
+const REGION = /<!-- (head|header|footer|scripts|flow|builds|terms|area)(?::([a-z]+))? -->[\s\S]*?<!-- \/\1 -->/g;
 
 function pages(dir = PUBLIC) {
   return fs.readdirSync(dir, {withFileTypes: true}).flatMap((entry) => {

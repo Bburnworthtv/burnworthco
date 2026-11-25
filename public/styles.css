@@ -610,6 +610,8 @@ html:not(.js) .reel-track{scrollbar-width:thin}
 /* Inside a column of text the row stays within the column. */
 .reel-column{--reel-inset:0px;margin:30px 0 34px}
 .reel-column .reel-item{flex-basis:min(600px,86%)}
+/* The San Diego County row has three sites: all three show on a wide screen. */
+@media(min-width:1100px){.reel-local .reel-item{flex-basis:calc((100% - 2 * clamp(12px,1.6vw,22px)) / 3)}}
 .prose .reel-track{margin:0;padding-left:0;border:0}
 .prose .reel-track li{padding:0;border:0;font-size:inherit;line-height:inherit;color:inherit}
 .prose .reel-track li::before{content:none}
@@ -667,6 +669,45 @@ html:not(.js) .reel-track{scrollbar-width:thin}
 }
 /* The heading over the block on the homepage. */
 .terms-title{margin:clamp(40px,5vw,72px) 0 clamp(16px,2vw,26px);font-size:clamp(24px,2.7vw,38px);line-height:1.05}
+/* San Diego County: a map drawn from real coordinates, beside the places in it
+   grouped by region. scripts/sync_partials.js builds it for the two San Diego
+   pages. The red ring pings a few times when the map scrolls into view. */
+.area{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:center;gap:clamp(22px,4.4vw,72px);padding:clamp(12px,1.6vw,22px);padding-right:clamp(18px,3.4vw,48px);border:1px solid var(--line-2);border-radius:var(--r-xl);background:var(--card);box-shadow:var(--shadow-sm)}
+.area-map{display:grid;gap:14px;margin:0}
+.area-map svg{display:block;width:100%;height:auto;border-radius:var(--r-lg);background:var(--ink-3)}
+.map-water{fill:var(--ink)}
+.map-coast{fill:none;stroke:rgba(255,255,255,.32);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.map-sea{font:600 10px var(--sans);letter-spacing:.22em;text-transform:uppercase;fill:rgba(255,255,255,.36)}
+.map-dot{fill:rgba(255,255,255,.3)}
+.map-city{fill:var(--on-dark-3)}
+.map-label{font:500 14px var(--sans);letter-spacing:-.01em;fill:var(--on-dark-2)}
+.map-label.is-strong{font-weight:600;fill:var(--on-dark)}
+.map-sub{font:600 11px var(--sans);letter-spacing:.03em;fill:var(--red-soft)}
+.map-client{fill:var(--on-dark)}
+.map-halo{fill:none;stroke:rgba(255,255,255,.36);stroke-width:1.2}
+.map-home{fill:var(--red)}
+.map-ring{fill:none;stroke:var(--red);stroke-width:2;transform-box:fill-box;transform-origin:center;opacity:.55}
+.is-in .map-ring{animation:ring 2.2s var(--ease-out) .5s 3}
+.area-key{display:flex;flex-wrap:wrap;gap:6px 20px;padding-inline:4px;font-size:13px;line-height:1.4;color:var(--muted)}
+.area-key span{display:inline-flex;align-items:center;gap:8px}
+.area-key span::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;background:var(--red)}
+.area-key .key-client::before{background:radial-gradient(circle,#fff 0 34%,var(--ink) 40%)}
+.area-places{display:grid;gap:16px;min-width:0}
+.area-places h3{margin:0;font-size:clamp(26px,2.9vw,40px);line-height:1.02}
+.area-places>p{max-width:54ch;margin:0;font-size:16px;line-height:1.55;color:var(--text-2)}
+.area-list{display:grid;margin:6px 0 0;border-top:1px solid var(--line)}
+.area-list>div{display:grid;grid-template-columns:minmax(0,172px) minmax(0,1fr);gap:8px 20px;padding:12px 0;border-bottom:1px solid var(--line)}
+.area-list>div:last-child{border-bottom:0;padding-bottom:0}
+.area-list dt{padding-top:6px;font-size:11px;font-weight:600;letter-spacing:.12em;line-height:1.4;text-transform:uppercase;color:var(--red-ink)}
+.area-list dd{margin:0}
+.area-list ul{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.area-list li{padding:5px 11px;border-radius:var(--pill);background:var(--c-chip);font-size:13px;font-weight:500;line-height:1.3;color:var(--text-2)}
+@media(max-width:940px){
+  .area{grid-template-columns:1fr;padding-right:clamp(12px,1.6vw,22px)}
+  .area-map svg{max-height:min(118vw,560px)}
+  .area-places{padding:0 clamp(4px,1.4vw,14px) 10px}
+}
+@media(max-width:520px){.area-list>div{grid-template-columns:1fr;gap:8px}.area-list dt{padding-top:0}}
 .prose .terms{margin:26px 0 30px}
 
 /* Steps in a row. */
@@ -873,13 +914,25 @@ html:not(.js) .reel-track{scrollbar-width:thin}
 .compare td{color:var(--text-2)}
 @media(max-width:700px){
   .compare,.compare tbody,.compare tr,.compare tbody th,.compare tbody td{display:block}
-  .compare thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  /* Kept for screen readers, hidden from view. The cells are hidden one by one
+     too: a row of long column names would otherwise reach past a narrow screen. */
+  .compare thead,.compare thead th,.compare thead td{position:absolute;width:1px;height:1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   .compare tr{padding:14px 16px 12px;border-bottom:1px solid var(--line)}
   .compare tr:last-child{border-bottom:0}
   .compare tbody th,.compare tbody td{width:auto;padding:0;border:0}
   .compare tbody th{margin-bottom:8px}
   .compare tbody td{position:relative;padding:4px 0 4px 3.4em}
   .compare tbody td::before{content:attr(data-label);position:absolute;left:0;top:4px;font-weight:600;color:var(--ink)}
+}
+/* Two variants. "labelled": the column names are longer than an abbreviation, so
+   on a phone each cell carries its column name above it instead of beside it.
+   "asks": each row is a question, set as a line of text, not a small label. */
+.compare.asks tbody th{width:27%;padding-top:15px;font-size:16px;font-weight:600;letter-spacing:-.015em;line-height:1.3;text-transform:none;color:var(--ink)}
+.compare.asks thead td{width:27%}
+@media(max-width:700px){
+  .compare.labelled tbody td{padding:7px 0 3px}
+  .compare.labelled tbody td::before{position:static;display:block;margin-bottom:3px;font-size:11px;font-weight:600;letter-spacing:.1em;line-height:1.4;text-transform:uppercase;color:var(--muted)}
+  .compare.asks tbody th{width:auto;padding-top:0;margin-bottom:4px;font-size:17px}
 }
 /* Ratios: one number over another, as a fraction. */
 .prose .ratios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0 26px;padding:0;list-style:none}
@@ -1000,6 +1053,7 @@ html:not(.js) .reel-track{scrollbar-width:thin}
 .footer-brand p{max-width:34ch;margin:18px 0 0;font-size:15px;line-height:1.55;color:var(--on-dark-2)}
 .footer-brand .footer-place{margin-top:10px;font-size:13px;color:var(--on-dark-3)}
 .footer-col{display:grid;align-content:start;justify-items:start;gap:2px}
+.footer-stack{display:grid;align-content:start;gap:clamp(22px,2.4vw,30px);min-width:0}
 .footer-title{margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--on-dark-3)}
 .footer-col a,.footer-legal a,.footer-line a{padding:6px 0;font-size:15px;text-decoration:none;color:var(--on-dark);transition:color .2s}
 .footer-legal{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 24px;margin-top:clamp(34px,4.4vw,60px);padding-top:20px;border-top:1px solid var(--c-line);font-size:13px}
@@ -1117,6 +1171,15 @@ html:has(dialog[open]){overflow:hidden}
 .tile-outcome .figure-num{font-size:clamp(56px,6vw,92px)}
 .tile-outcome .figure-unit{padding-bottom:3px}
 .tile-outcome .tile-note{margin-top:auto}
+/* A plain section on a service page: the section before it leaves the space
+   above, so it only adds space below. */
+.band{padding:0 var(--pad) var(--section)}
+.band .compare{margin:0}
+.band .method-note a[href^="http"]{white-space:nowrap}
+/* The dark row of builds sits between two light sections there. */
+.service-page .builds.dark-panel{margin-bottom:var(--section)}
+/* A result with no number: the client's words as the headline of the tile. */
+.tile-outcome h3{font-size:clamp(26px,2.9vw,40px);line-height:1.02}
 /* A heading on the left and a table on the right: the questions layout, reused. */
 .duo .facts{margin:0}
 .duo .faq-intro .cta-pair{margin-top:6px}
