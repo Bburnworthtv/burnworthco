@@ -2,30 +2,19 @@
   POST /api/review-request - free audit requests.
 
   Sent by the "Explore my options" question flow (public/flow.js) on the homepage,
-  on /start, on the AI search service page and in the modal on every page. Older forms that post only name, email,
-  website and a message are still accepted.
+  on /start, on the service pages that carry it and in the pop-up on every page.
+  Older forms that post only name, email, website and a message are still accepted.
 
-  Each valid request goes to two places:
-    1. An email through Resend (https://resend.com).
-    2. A lead in Burnworth OS, the studio's CRM; see api/_os-intake.js.
-  The visitor sees "received" when either one succeeds, so a problem with one
-  channel never tells a real lead their request failed. Only when both fail does
-  the form show the email and phone fallback.
-
-  Vercel environment variables:
-    RESEND_API_KEY    without it no email is sent (the lead is still filed in Burnworth OS).
-    REVIEW_TO         optional, defaults to Brandon@burnworthco.com.
-    REVIEW_FROM       optional. Until burnworthco.com is verified in Resend, the default
-                      onboarding@resend.dev sender only delivers to the Resend account's own email.
-    OS_INTAKE_URL, OS_INTAKE_SECRET   see api/_os-intake.js.
+  Each valid request is emailed through Resend and filed as a lead in Burnworth
+  OS, the studio's CRM. The visitor sees "received" only when the email was
+  accepted; if it was not, the form shows the email and phone fallback. A request
+  that trips the spam check is still emailed, marked "Possible spam". The rules,
+  and the environment variables, are in api/_deliver.js and api/_os-intake.js.
 
   Answers JSON when the request asks for it (the page's script does). A plain form
   post, with JavaScript off, is redirected to /thanks, or back to the form on an error.
 */
-const fileInOs = require('./_os-intake.js');
-
-const TO = process.env.REVIEW_TO || 'Brandon@burnworthco.com';
-const FROM = process.env.REVIEW_FROM || 'Burnworth Co <onboarding@resend.dev>';
+const {deliver, spamSigns} = require('./_deliver.js');
 
 const line = (value, max) => String(value ?? '').replace(/[\r\n\t]+/g, ' ').trim().slice(0, max);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -58,28 +47,6 @@ const PLACEMENTS = {hero: 'homepage', landing: 'landing page', service: 'service
 // Pages the plain (no JavaScript) form may send a visitor back to.
 const RETURN_TO = ['/', '/start', '/ai-search-optimization', '/san-diego-seo', '/contractor-seo-san-diego'];
 
-async function sendEmail({subject, text, replyTo}) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY is not set: no email sent for this request');
-    return false;
-  }
-  try {
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json'},
-      body: JSON.stringify({from: FROM, to: [TO], reply_to: replyTo, subject, text}),
-    });
-    if (!r.ok) {
-      console.error('Resend rejected the email', r.status, await r.text());
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.error('Resend request failed', err);
-    return false;
-  }
-}
-
 const handler = async (req, res) => {
   const wantsJson = String(req.headers.accept || '').includes('application/json');
   let returnTo = '/';
@@ -100,11 +67,9 @@ const handler = async (req, res) => {
   const page = /^\/[\w\-./]*$/.test(line(body.page, 200)) ? line(body.page, 200) : '';
   if (RETURN_TO.includes(page)) returnTo = page;
 
-  // Spam: a hidden field people never fill, and a minimum time on the page.
-  // Both answer "ok" so bots learn nothing.
-  if (line(body.company, 200)) return reply(200, {ok: true});
-  const started = Number(body.started);
-  if (started && Date.now() - started < 2500) return reply(200, {ok: true});
+  // Signs of a bot: the hidden field filled in, or sent within 2.5 seconds.
+  // They mark the email; they never stop it. See api/_deliver.js.
+  const signs = spamSigns(body, 2500);
 
   const name = line(body.name, 100);
   const email = line(body.email, 200);
@@ -135,9 +100,8 @@ const handler = async (req, res) => {
     ['Landed on', /^\/[\w\-./]*$/.test(line(body.landing, 200)) ? line(body.landing, 200) : ''],
   ].filter(([, text]) => text);
 
-  // File the lead in the CRM while the email is sent; the reply waits for both.
   const summary = answers.map(([label, text]) => `${label}: ${text}.`).join(' ');
-  const filing = fileInOs({
+  const lead = {
     form: 'audit',
     name,
     email,
@@ -146,7 +110,7 @@ const handler = async (req, res) => {
     message: [summary, message].filter(Boolean).join('\n\n').slice(0, 2000),
     page: page || '/',
     details: Object.fromEntries([['Form', form], ...answers, ...visit].map(([label, text]) => [label, text.slice(0, 300)])),
-  });
+  };
 
   const pad = (label) => `${label}:`.padEnd(18);
   const text = [
@@ -163,13 +127,16 @@ const handler = async (req, res) => {
     ...(message ? ['', 'Message:', message] : []),
   ].join('\n');
 
-  const [emailed, filed] = await Promise.all([
-    sendEmail({subject: `Free audit request: ${name}${website ? ` (${website})` : ''}`, text, replyTo: email}),
-    filing,
-  ]);
-  if (emailed || filed) return reply(200, {ok: true});
-  const configured = process.env.RESEND_API_KEY || (process.env.OS_INTAKE_URL && process.env.OS_INTAKE_SECRET);
-  return configured ? reply(502, {ok: false, error: 'send_failed'}) : reply(503, {ok: false, error: 'not_configured'});
+  // The email and the lead go out together; the reply waits for both.
+  const [status, answer] = await deliver({
+    kind: 'free audit request',
+    subject: `Free audit request: ${name}${website ? ` (${website})` : ''}`,
+    text,
+    replyTo: email,
+    signs,
+    lead,
+  });
+  return reply(status, answer);
 };
 
 module.exports = handler;
