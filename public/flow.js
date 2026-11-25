@@ -184,7 +184,10 @@
     out.push('<label class="flow-field" data-flow-website>Website <span>(if you have one)</span><input name="website" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" placeholder="yourbusiness.com" maxlength="300"></label>');
     out.push('<label class="flow-field">Phone <span>(optional)</span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="40"></label>');
     out.push('</div>');
-    out.push('<label class="hp" aria-hidden="true">Leave this empty<input name="company" tabindex="-1" autocomplete="off"></label>');
+    // The field visitors cannot see (spam check). Its name has to mean nothing to a
+    // browser's autofill or a password manager, or they fill it in for real
+    // people: keep it the same as HIDDEN_FIELD in api/_deliver.js.
+    out.push('<label class="hp" aria-hidden="true">Leave this empty<input name="bw_check" tabindex="-1" autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other"></label>');
     out.push('<input type="hidden" name="started" value=""><input type="hidden" name="source" value="flow"><input type="hidden" name="placement" value="' + esc(placement) + '"><input type="hidden" name="page" value="' + esc(opts.page || '') + '">');
     out.push('<button class="button primary flow-submit" type="submit">Get my free audit<span class="icon-right" aria-hidden="true"></span></button>');
     out.push('<p class="form-status" role="status" aria-live="polite"></p>');
@@ -270,6 +273,10 @@
     state.a = state.a || {};
     var remember = function () { session.set(STORE, state); };
     var instances = [];
+    // When this page loaded. Every copy of the form is stamped with it: the server
+    // marks a request sent within seconds of the page loading as possible spam,
+    // and the pop-up, which is built when it is first opened, must not look new.
+    var pageLoadedAt = String(Date.now());
     // A page can hold two copies of the flow (the one in the page and the pop-up)
     // and they share one set of answers. When one copy changes an answer, the
     // others show it too.
@@ -296,7 +303,7 @@
       var sending = false;
 
       form.noValidate = true;
-      form.elements.started.value = String(Date.now());
+      form.elements.started.value = pageLoadedAt;
       form.elements.page.value = window.location.pathname;
       this.form = form;
       this.placement = placement;

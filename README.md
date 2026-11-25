@@ -13,7 +13,7 @@ The site is static HTML in `public/`. A Vercel project named `burnworthco` is co
 - `public/flow.js`: the "Explore my options" question flow, the main way a visitor asks for a free audit. See "Free audit: the question flow".
 - `public/script.js`: page behaviour (menu, scroll-in motion, counting numbers, contents rail, video).
 - `public/analytics.js`: GA4, Google Tag Manager and an optional Meta Pixel, plus click tracking, on every page.
-- `api/review-request.js`, `api/estimate-request.js`: the two form endpoints (Vercel functions). `api/_os-intake.js` files each request in Burnworth OS.
+- `api/review-request.js`, `api/estimate-request.js`: the two form endpoints (Vercel functions). `api/_deliver.js` holds what they share: the email, the spam check and the rule for what the visitor is told. `api/_os-intake.js` files each request in Burnworth OS.
 - `scripts/sync_partials.js`: writes the shared header, footer, `<head>` lines, scripts and the question flow into every page. See "Shared parts of every page".
 - `scripts/validate.py`: dependency-free static release checks. `scripts/test_api.js`: tests for the form endpoints.
 - `scripts/sync_dates.py`: sets each sitemap `lastmod` from git history and rolls the newest date up into the sitemap index.
@@ -68,16 +68,25 @@ How it behaves:
 - A page can hold two copies of the flow: the one in the page and the pop-up. They share one set of answers. An answer changed in one shows in the other straight away, and a request is always read from the form that sent it, so the email and Burnworth OS get what the visitor saw.
 - Without JavaScript, or if `flow.js` fails to load, the same markup is an ordinary form with every question showing. It posts normally and the server redirects to `/thanks`.
 - Each request carries where the visit came from: campaign tags (`utm_source` and so on), whether it was a Meta or Google ad click, the referring site and the first page seen. They appear in the email and in Burnworth OS.
-- Spam protection is a hidden field plus a minimum time on the page.
+- The spam check is a field visitors cannot see plus the time since the page loaded. It marks an email as possible spam; it never stops one (see "What the visitor is told, and the spam check" below).
 
 To change a question or an answer: edit `FLOW` in `public/flow.js`, add the same value to `ANSWERS` in `api/review-request.js`, then run `node scripts/sync_partials.js` (it rewrites the markup in the two pages and checks the two lists match). The text shown on the last step comes from `PLANS` and `CONTEXT` in `flow.js`; keep it to what the audit covers and never promise a result.
 
 Environment variables (Vercel → Project → Settings → Environment Variables, Production), then redeploy:
 
-- `RESEND_API_KEY`: sends each request as an email through [Resend](https://resend.com). `REVIEW_TO` (optional, defaults to `Brandon@burnworthco.com`) and `REVIEW_FROM` (optional). Until `burnworthco.com` is verified in Resend, the default `onboarding@resend.dev` sender only delivers to the Resend account's own email.
+- `RESEND_API_KEY`: sends each request as an email through [Resend](https://resend.com). `REVIEW_TO` (optional, defaults to `Brandon@burnworthco.com`; several addresses can be listed, separated by commas) and `REVIEW_FROM` (optional). Until `burnworthco.com` is verified in Resend, the default `onboarding@resend.dev` sender only delivers to the Resend account's own email.
 - `OS_INTAKE_URL` and `OS_INTAKE_SECRET`: file each request as a lead in Burnworth OS (see "Leads in Burnworth OS").
 
-A request counts as received when **either** the email or the CRM filing succeeds, so a problem with one never shows a real lead an error. Only when both fail does the visitor see the email and phone fallback. Set both so there is always a second copy.
+### What the visitor is told, and the spam check
+
+Both forms follow two rules, in `api/_deliver.js`. They exist so that a real request is never lost without anyone knowing.
+
+1. **"Sent" means the email went out.** The visitor sees the confirmation only when Resend accepted the email. If it did not, the form shows the email and phone fallback, even when Burnworth OS has the lead, because the email is how the studio hears about a request. Set the Burnworth OS variables as well so there is a second copy.
+2. **The spam check never stops a request.** A request that trips it (the hidden field is filled in, or it arrives within a few seconds of the page loading) is emailed like any other with "Possible spam:" at the front of the subject and the reason at the top. It is not filed in Burnworth OS. To keep these out of the inbox, filter on that subject; do not go back to dropping them.
+
+Why: until November 25, 2026 a tripped check answered "ok" and sent nothing. The hidden field was named `company`, and Chrome's autofill filled it with the visitor's company name (Chrome ignores `autocomplete="off"` for this), so a visitor who used autofill saw "Got it" and the request went nowhere. The field is now named `bw_check`; the name is in `HIDDEN_FIELD` in `api/_deliver.js`, in `public/flow.js` and in the estimate form in `public/web-development.html`. Never give it a name a browser fills in (anything with "company", "name", "email", "phone", "address" or "url" in it); `scripts/test_api.js` fails if the three places differ or the name looks like one of those.
+
+To check that requests arrive: send one through the form on the live site and look for the email. Each request also writes one line to the function's log in Vercel (for example `free audit request: email sent, Burnworth OS filed`), with nothing personal in it. In GA4 the `generate_lead` event counts the confirmations visitors saw; read it for the host name `burnworthco.com` only, because preview addresses report to the same property.
 
 ## Ad landing page
 
@@ -93,7 +102,7 @@ The web development page has a website build estimate form at `/web-development#
 - Required: name, email and project type. Optional: phone, business, current website, page count, timeline, features, budget and details. The choice fields only accept the listed answers.
 - The budget ranges are in two places: the `<select name="budget">` in `web-development.html` and `BUDGETS` in `api/estimate-request.js`. Change both together.
 - Events: `estimate_form_start` and `generate_lead` with `form: website_estimate`. Mark `generate_lead` as a key event in GA4 if it isn't already.
-- Like the audit endpoint, it succeeds when either the email or the Burnworth OS filing succeeds.
+- It follows the same two rules as the audit endpoint: "sent" means the email went out, and the spam check marks an email but never stops one.
 - The question flow's desktop pop-up does not offer itself on this page.
 
 Website builds are offered across the site: "Websites" in the main menu, a "Website builds" section and Web Development listed first on the homepage, and "Get a website estimate" buttons on the homepage, services page and web development page.
@@ -105,7 +114,7 @@ Both forms also file each valid request as a lead in Burnworth OS, the studio's 
 - `OS_INTAKE_URL`: `https://burnworth-co-os.vercel.app/api/leads/intake`.
 - `OS_INTAKE_SECRET`: the same value as `LEAD_INTAKE_SECRET` in the Burnworth OS project.
 
-Without both, nothing is filed. Filing waits at most four seconds and never stops the email. Each lead carries the visitor's answers and where the visit came from in `details`, and a one-line summary in `message`. Spam caught by the hidden field or the time check is not filed.
+Without both, nothing is filed. Filing waits at most four seconds and never stops the email. Each lead carries the visitor's answers and where the visit came from in `details`, and a one-line summary in `message`. A request the spam check marked is emailed but not filed.
 
 ## Design system
 

@@ -5,8 +5,12 @@
 
     node scripts/test_api.js
 
-  Covers what a visitor sees for good and bad input, spam, each mix of the two
-  delivery channels working or failing, and what is sent on to each channel.
+  Covers what a visitor sees for good and bad input, what the spam check does
+  (it marks an email, it never stops one), each mix of the email and Burnworth
+  OS working or failing, and what is sent on to each.
+
+  The rule these tests hold the endpoints to: a visitor is told "sent" only
+  when the email went out. See api/_deliver.js.
 */
 const assert = require('assert');
 const fs = require('fs');
@@ -26,6 +30,8 @@ global.fetch = async (url, options) => {
 const quiet = () => {};
 console.error = quiet;
 console.warn = quiet;
+console.info = quiet;
+const {HIDDEN_FIELD} = require(path.join(ROOT, 'api', '_deliver.js'));
 
 function load(file, env) {
   for (const key of ['RESEND_API_KEY', 'OS_INTAKE_URL', 'OS_INTAKE_SECRET', 'REVIEW_TO', 'REVIEW_FROM']) delete process.env[key];
@@ -106,35 +112,88 @@ test('answers the server does not know are dropped', async () => {
   assert.ok(!JSON.stringify(calls).includes('script'), 'no markup reaches the email or the CRM');
 });
 
-test('spam is answered "ok" and goes nowhere', async () => {
+// ---- the spam check marks an email; it never stops one --------------------------
+test('a filled hidden field never drops the request: it is emailed, marked, and kept out of the CRM', async () => {
   const handler = load('review-request.js', BOTH);
-  let r = await post(handler, lead({company: 'Acme SEO'}));
-  assert.deepStrictEqual(r.body, {ok: true});
-  assert.strictEqual(calls.length, 0);
-  r = await post(handler, lead({started: String(Date.now())}));
-  assert.deepStrictEqual(r.body, {ok: true});
-  assert.strictEqual(calls.length, 0, 'a form sent within 2.5 seconds is a bot');
+  fail = {resend: false, intake: false};
+  // "company" is the name the field had before; a page left open in a tab still sends it.
+  for (const field of [HIDDEN_FIELD, 'company']) {
+    const r = await post(handler, lead({[field]: 'Rivera Roofing LLC'}));
+    assert.deepStrictEqual(r.body, {ok: true});
+    assert.deepStrictEqual(calls.map((c) => c.target), ['resend'], `${field}: emailed, and not filed`);
+    const email = calls[0].body;
+    assert.match(email.subject, /^Possible spam: Free audit request: Sam Rivera/);
+    assert.ok(email.text.startsWith('POSSIBLE SPAM: a field that visitors cannot see was filled in ("Rivera Roofing LLC").'), 'the email says why it was marked');
+    assert.ok(email.text.includes('sam@example.com') && email.reply_to === 'sam@example.com', 'the request itself is all there');
+  }
 });
 
-test('the email failing does not fail a lead the CRM has', async () => {
+test('a request sent very fast is emailed and marked too', async () => {
+  const handler = load('review-request.js', BOTH);
+  const r = await post(handler, lead({started: String(Date.now() - 400)}));
+  assert.deepStrictEqual(r.body, {ok: true});
+  assert.deepStrictEqual(calls.map((c) => c.target), ['resend']);
+  assert.match(calls[0].body.subject, /^Possible spam: /);
+  assert.match(calls[0].body.text, /it was sent 0\.\d seconds after the page loaded/);
+});
+
+test('an ordinary request is not marked: slow enough, a clock that runs ahead, or no start time', async () => {
+  const handler = load('review-request.js', BOTH);
+  for (const started of [String(Date.now() - 60000), String(Date.now() + 90000), '', undefined, 'abc']) {
+    const r = await post(handler, lead({started}));
+    assert.deepStrictEqual(r.body, {ok: true});
+    assert.deepStrictEqual(calls.map((c) => c.target).sort(), ['intake', 'resend'], `started=${started}: emailed and filed`);
+    assert.ok(!calls.find((c) => c.target === 'resend').body.subject.startsWith('Possible spam'), `started=${started}: not marked`);
+  }
+});
+
+test('"sent" is only ever answered when the email went out', async () => {
+  const handler = load('review-request.js', BOTH);
+  // Every way a request can arrive, with the email working and then failing.
+  const now = Date.now();
+  const arrivals = [{}, {[HIDDEN_FIELD]: 'x'}, {company: 'x'}, {started: String(now)}, {started: String(now + 5000)},
+    {company: 'x', started: String(now)}, {source: 'popup', message: 'hello'}, {placement: 'modal', interest: 'ads'}];
+  for (const extra of arrivals) {
+    const what = JSON.stringify(extra);
+    fail = {resend: false, intake: false};
+    let r = await post(handler, lead(extra));
+    assert.deepStrictEqual(r.body, {ok: true}, `${what} is answered "sent"`);
+    assert.strictEqual(calls.filter((c) => c.target === 'resend').length, 1, `${what} sends one email`);
+    for (const broken of [true, 'throw']) {
+      fail = {resend: broken, intake: false};
+      r = await post(handler, lead(extra));
+      assert.strictEqual(r.status, 502, `${what} must not be answered "sent" when the email failed`);
+      assert.deepStrictEqual(r.body, {ok: false, error: 'send_failed'});
+    }
+  }
+  fail = {resend: false, intake: false};
+});
+
+// ---- the email and Burnworth OS, working or failing ------------------------------
+test('the email failing shows the fallback, even though the CRM has the lead', async () => {
   const handler = load('review-request.js', BOTH);
   fail = {resend: true, intake: false};
-  assert.deepStrictEqual((await post(handler, lead())).body, {ok: true});
-  fail = {resend: 'throw', intake: false};
-  assert.deepStrictEqual((await post(handler, lead())).body, {ok: true});
+  const r = await post(handler, lead());
+  assert.strictEqual(r.status, 502);
+  assert.ok(calls.some((c) => c.target === 'intake'), 'the lead is still filed');
+  fail = {resend: false, intake: false};
 });
 
 test('the CRM failing does not fail a lead that was emailed', async () => {
   const handler = load('review-request.js', BOTH);
   fail = {resend: false, intake: true};
   assert.deepStrictEqual((await post(handler, lead())).body, {ok: true});
+  fail = {resend: false, intake: 'throw'};
+  assert.deepStrictEqual((await post(handler, lead())).body, {ok: true});
+  fail = {resend: false, intake: false};
 });
 
-test('no email key: the lead is still filed and the visitor sees success', async () => {
+test('no email key: the visitor gets the fallback, and the lead is still filed', async () => {
   const handler = load('review-request.js', {OS_INTAKE_URL: INTAKE, OS_INTAKE_SECRET: 'secret'});
   fail = {resend: false, intake: false};
   const r = await post(handler, lead());
-  assert.deepStrictEqual(r.body, {ok: true});
+  assert.strictEqual(r.status, 503);
+  assert.deepStrictEqual(r.body, {ok: false, error: 'not_configured'});
   assert.deepStrictEqual(calls.map((c) => c.target), ['intake']);
 });
 
@@ -154,6 +213,31 @@ test('nothing configured answers 503', async () => {
   assert.strictEqual(r.body.error, 'not_configured');
 });
 
+test('REVIEW_TO can list several addresses', async () => {
+  fail = {resend: false, intake: false};
+  let handler = load('review-request.js', BOTH);
+  await post(handler, lead());
+  assert.deepStrictEqual(calls.find((c) => c.target === 'resend').body.to, ['Brandon@burnworthco.com']);
+  handler = load('review-request.js', {...BOTH, REVIEW_TO: 'one@example.com, two@example.com'});
+  await post(handler, lead());
+  assert.deepStrictEqual(calls.find((c) => c.target === 'resend').body.to, ['one@example.com', 'two@example.com']);
+});
+
+test('the hidden field has one name everywhere, and not one a browser would fill in', async () => {
+  const dir = path.join(ROOT, 'public');
+  const sources = fs.readdirSync(dir).filter((file) => /\.(html|js)$/.test(file)).map((file) => [file, fs.readFileSync(path.join(dir, file), 'utf8')]);
+  const carrying = sources.filter(([, text]) => text.includes('class="hp"'));
+  assert.ok(carrying.some(([file]) => file === 'flow.js') && carrying.some(([file]) => file === 'web-development.html'), 'both forms have the hidden field');
+  for (const [file, text] of carrying) {
+    const names = [...text.matchAll(/<label class="hp"[^>]*>[^<]*<input name="([^"]+)"/g)].map((match) => match[1]);
+    assert.ok(names.length, `${file}: the hidden field was not found where expected`);
+    for (const name of names) assert.strictEqual(name, HIDDEN_FIELD, `${file}: must match HIDDEN_FIELD in api/_deliver.js`);
+  }
+  // Autofill decides what a field is from words like these in its name.
+  assert.ok(!/compan|business|organi[sz]|firm|name|mail|phone|tel|mobile|addr|street|city|state|zip|postal|country|url|web|site/i.test(HIDDEN_FIELD), `autofill would fill a field named "${HIDDEN_FIELD}"`);
+  for (const [file, text] of sources) assert.ok(!text.includes('name="company"'), `${file} still has the old hidden field, which autofill fills in`);
+});
+
 test('a plain form post is redirected, and only to this site', async () => {
   const handler = load('review-request.js', BOTH);
   let r = await post(handler, lead({page: '/start'}), {json: false, form: true});
@@ -163,6 +247,11 @@ test('a plain form post is redirected, and only to this site', async () => {
   assert.strictEqual(r.headers.location, '/start?review=error#send-error');
   r = await post(handler, {name: '', email: 'x', page: 'https://evil.example'}, {json: false, form: true});
   assert.strictEqual(r.headers.location, '/?review=error#send-error');
+  // a request that could not be emailed goes back to the form too, never to /thanks
+  fail = {resend: true, intake: false};
+  r = await post(handler, lead({page: '/start'}), {json: false, form: true});
+  assert.strictEqual(r.headers.location, '/start?review=error#send-error');
+  fail = {resend: false, intake: false};
 });
 
 test('a request from a service page says which page and returns there', async () => {
@@ -224,10 +313,33 @@ test('an estimate needs a project type', async () => {
   assert.deepStrictEqual(r.body.fields, ['project']);
 });
 
-test('an estimate with no email key is still filed and succeeds', async () => {
+test('an estimate with the hidden field filled, or sent within 4 seconds, is emailed and marked', async () => {
+  const handler = load('estimate-request.js', BOTH);
+  fail = {resend: false, intake: false};
+  for (const extra of [{[HIDDEN_FIELD]: 'Lee Builders'}, {company: 'Lee Builders'}, {started: String(Date.now() - 1500)}]) {
+    const r = await post(handler, estimate(extra));
+    assert.deepStrictEqual(r.body, {ok: true});
+    assert.deepStrictEqual(calls.map((c) => c.target), ['resend'], `${JSON.stringify(extra)}: emailed, and not filed`);
+    assert.match(calls[0].body.subject, /^Possible spam: Website estimate request: Dana Lee \(New website\)/);
+    assert.ok(calls[0].body.text.startsWith('POSSIBLE SPAM: '));
+  }
+});
+
+test('an estimate is only answered "sent" when the email went out', async () => {
+  const handler = load('estimate-request.js', BOTH);
+  for (const extra of [{}, {[HIDDEN_FIELD]: 'x'}, {company: 'x'}, {started: String(Date.now())}]) {
+    fail = {resend: true, intake: false};
+    const r = await post(handler, estimate(extra));
+    assert.strictEqual(r.status, 502, `${JSON.stringify(extra)} must not be answered "sent" when the email failed`);
+  }
+  fail = {resend: false, intake: false};
+});
+
+test('an estimate with no email key gets the fallback, and is still filed', async () => {
   const handler = load('estimate-request.js', {OS_INTAKE_URL: INTAKE, OS_INTAKE_SECRET: 'secret'});
   const r = await post(handler, estimate());
-  assert.deepStrictEqual(r.body, {ok: true});
+  assert.strictEqual(r.status, 503);
+  assert.deepStrictEqual(calls.map((c) => c.target), ['intake']);
 });
 
 test('an estimate with both channels failing shows the fallback', async () => {

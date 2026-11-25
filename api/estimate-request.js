@@ -1,23 +1,16 @@
 /*
   POST /api/estimate-request - website build estimate requests from /web-development#estimate.
 
-  Each valid request goes to two places, like api/review-request.js:
-    1. An email through Resend, using the same Vercel environment variables:
-         RESEND_API_KEY  without it no email is sent (the lead is still filed in Burnworth OS).
-         REVIEW_TO       optional, defaults to Brandon@burnworthco.com.
-         REVIEW_FROM     optional verified sender.
-    2. A lead in Burnworth OS when OS_INTAKE_URL and OS_INTAKE_SECRET are set;
-       see api/_os-intake.js.
-  The visitor sees "received" when either one succeeds. Only when both fail does
-  the form show the email and phone fallback.
+  Each valid request is emailed through Resend and filed as a lead in Burnworth
+  OS, like api/review-request.js. The visitor sees "received" only when the email
+  was accepted; if it was not, the form shows the email and phone fallback. A
+  request that trips the spam check is still emailed, marked "Possible spam". The
+  rules, and the environment variables, are in api/_deliver.js and api/_os-intake.js.
 
   Answers JSON when the request asks for it (the page's script does); otherwise it
   redirects back to the form, so it still works without JavaScript.
 */
-const fileInOs = require('./_os-intake.js');
-
-const TO = process.env.REVIEW_TO || 'Brandon@burnworthco.com';
-const FROM = process.env.REVIEW_FROM || 'Burnworth Co <onboarding@resend.dev>';
+const {deliver, spamSigns} = require('./_deliver.js');
 
 const line = (value, max) => String(value ?? '').replace(/[\r\n\t]+/g, ' ').trim().slice(0, max);
 const list = (value) => (Array.isArray(value) ? value : String(value ?? '').split(','))
@@ -57,10 +50,9 @@ module.exports = async (req, res) => {
 
   const body = parse(req);
 
-  // Spam: a hidden field people never fill, and a minimum time on the page.
-  if (line(body.company, 200)) return reply(200, {ok: true});
-  const started = Number(body.started);
-  if (started && Date.now() - started < 4000) return reply(200, {ok: true});
+  // Signs of a bot: the hidden field filled in, or sent within 4 seconds.
+  // They mark the email; they never stop it. See api/_deliver.js.
+  const signs = spamSigns(body, 4000);
 
   const name = line(body.name, 100);
   const email = line(body.email, 200);
@@ -83,8 +75,7 @@ module.exports = async (req, res) => {
   const missing = [!name && 'name', !EMAIL.test(email) && 'email', !project && 'project'].filter(Boolean);
   if (missing.length) return reply(400, {ok: false, error: 'invalid', fields: missing});
 
-  // File the lead in the CRM while the email is sent; the reply waits for both.
-  const filing = fileInOs({
+  const lead = {
     form: 'estimate',
     name,
     email,
@@ -100,7 +91,7 @@ module.exports = async (req, res) => {
       Budget: budget,
       Features: features.join(', ').slice(0, 500),
     },
-  });
+  };
   const text = [
     'New website build estimate request from burnworthco.com',
     '',
@@ -120,36 +111,14 @@ module.exports = async (req, res) => {
     details || '-',
   ].join('\n');
 
-  const sendEmail = async () => {
-    if (!process.env.RESEND_API_KEY) {
-      console.warn('RESEND_API_KEY is not set: no email sent for this request');
-      return false;
-    }
-    try {
-      const r = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          from: FROM,
-          to: [TO],
-          reply_to: email,
-          subject: `Website estimate request: ${business || name} (${project})`,
-          text,
-        }),
-      });
-      if (!r.ok) {
-        console.error('Resend rejected the email', r.status, await r.text());
-        return false;
-      }
-      return true;
-    } catch (err) {
-      console.error('Resend request failed', err);
-      return false;
-    }
-  };
-
-  const [emailed, filed] = await Promise.all([sendEmail(), filing]);
-  if (emailed || filed) return reply(200, {ok: true});
-  const configured = process.env.RESEND_API_KEY || (process.env.OS_INTAKE_URL && process.env.OS_INTAKE_SECRET);
-  return configured ? reply(502, {ok: false, error: 'send_failed'}) : reply(503, {ok: false, error: 'not_configured'});
+  // The email and the lead go out together; the reply waits for both.
+  const [status, answer] = await deliver({
+    kind: 'website estimate request',
+    subject: `Website estimate request: ${business || name} (${project})`,
+    text,
+    replyTo: email,
+    signs,
+    lead,
+  });
+  return reply(status, answer);
 };
