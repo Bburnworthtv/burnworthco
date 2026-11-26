@@ -112,7 +112,7 @@ Website builds are offered across the site: "Websites" in the main menu, a "Webs
 Both forms also file each valid request as a lead in Burnworth OS, the studio's CRM, through `api/_os-intake.js` (not a route; Vercel ignores `api` files that start with an underscore). Set these in Vercel → Project → Settings → Environment Variables (Production), then redeploy:
 
 - `OS_INTAKE_URL`: `https://burnworth-co-os.vercel.app/api/leads/intake`.
-- `OS_INTAKE_SECRET`: the same value as `LEAD_INTAKE_SECRET` in the Burnworth OS project.
+- `OS_INTAKE_SECRET`: the same value as `LEAD_INTAKE_SECRET` in the Burnworth OS project. The live project has it under the name `OS_INSTAKE_SECRET`; the site reads either name.
 
 Without both, nothing is filed. Filing waits at most four seconds and never stops the email. Each lead carries the visitor's answers and where the visit came from in `details`, and a one-line summary in `message`. A request the spam check marked is emailed but not filed.
 

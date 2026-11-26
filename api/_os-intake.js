@@ -5,6 +5,8 @@
   Vercel environment variables (both optional; without them nothing is sent):
     OS_INTAKE_URL     https://burnworth-co-os.vercel.app/api/leads/intake
     OS_INTAKE_SECRET  the same value as LEAD_INTAKE_SECRET in the Burnworth OS project.
+                      Also read as OS_INSTAKE_SECRET, the spelling the live project
+                      was given in November 2026; either name works.
 
   Best effort: it never throws and never holds the visitor up for more than a
   few seconds, so a CRM problem can't break the form or the email.
@@ -13,8 +15,12 @@ const TIMEOUT_MS = 4000;
 
 module.exports = async function fileInOs(enquiry) {
   const url = (process.env.OS_INTAKE_URL || '').trim();
-  const secret = (process.env.OS_INTAKE_SECRET || '').trim();
-  if (!url || !secret) return false;
+  const secret = (process.env.OS_INTAKE_SECRET || process.env.OS_INSTAKE_SECRET || '').trim();
+  if (!url || !secret) {
+    // Say so, so a missing or misspelt setting shows in the log instead of failing silently.
+    console.warn(`Burnworth OS not configured: ${[!url && 'OS_INTAKE_URL', !secret && 'OS_INTAKE_SECRET'].filter(Boolean).join(' and ')} not set`);
+    return false;
+  }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);

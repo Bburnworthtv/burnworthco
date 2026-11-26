@@ -34,7 +34,7 @@ console.info = quiet;
 const {HIDDEN_FIELD} = require(path.join(ROOT, 'api', '_deliver.js'));
 
 function load(file, env) {
-  for (const key of ['RESEND_API_KEY', 'OS_INTAKE_URL', 'OS_INTAKE_SECRET', 'REVIEW_TO', 'REVIEW_FROM']) delete process.env[key];
+  for (const key of ['RESEND_API_KEY', 'OS_INTAKE_URL', 'OS_INTAKE_SECRET', 'OS_INSTAKE_SECRET', 'REVIEW_TO', 'REVIEW_FROM']) delete process.env[key];
   Object.assign(process.env, env);
   for (const key of Object.keys(require.cache)) if (key.startsWith(path.join(ROOT, 'api'))) delete require.cache[key];
   return require(path.join(ROOT, 'api', file));
@@ -211,6 +211,16 @@ test('nothing configured answers 503', async () => {
   const r = await post(handler, lead());
   assert.strictEqual(r.status, 503);
   assert.strictEqual(r.body.error, 'not_configured');
+});
+
+test('the key is also read under the name OS_INSTAKE_SECRET', async () => {
+  const handler = load('review-request.js', {RESEND_API_KEY: 'key', OS_INTAKE_URL: INTAKE, OS_INSTAKE_SECRET: 'typo-secret'});
+  fail = {resend: false, intake: false};
+  const r = await post(handler, lead());
+  assert.deepStrictEqual(r.body, {ok: true});
+  const filed = calls.find((c) => c.target === 'intake');
+  assert.ok(filed, 'the lead is filed');
+  assert.strictEqual(filed.headers.Authorization, 'Bearer typo-secret');
 });
 
 test('REVIEW_TO can list several addresses', async () => {
